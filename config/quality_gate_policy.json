@@ -1,0 +1,35 @@
+{
+  "project": "INSEGUS DevSecOps Pipeline - Security Team 3",
+  "version": "1.0.0",
+  "gates": {
+    "gate_a_build_analysis": {
+      "name": "Quality Gate A - Modo Aviso (Build & Static Analysis)",
+      "stage": "build_and_static_analysis",
+      "mode": "advisory",
+      "blocking": false,
+      "continue_on_error": true,
+      "description": "Evalúa hallazgos estáticos (SAST, SCA, IaC). Emite advertencias en el Pull Request pero no detiene el pipeline para permitir el despliegue dinámico en staging.",
+      "thresholds": {
+        "CRITICAL": null,
+        "HIGH": null,
+        "MEDIUM": null,
+        "LOW": null
+      }
+    },
+    "gate_b_pre_production": {
+      "name": "Quality Gate B - Modo Bloqueante (Pre-Producción & Release Gate)",
+      "stage": "pre_production_verification",
+      "mode": "blocking",
+      "blocking": true,
+      "continue_on_error": false,
+      "description": "Evalúa la postura consolidada tras pruebas estáticas y DAST. Detiene el pipeline e impide el paso a producción si existen vulnerabilidades críticas o altas.",
+      "thresholds": {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 10,
+        "LOW": 50
+      },
+      "action_on_failure": "pipeline_abort_exit_code_1"
+    }
+  }
+}

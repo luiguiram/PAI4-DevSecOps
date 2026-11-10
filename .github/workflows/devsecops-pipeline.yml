@@ -1,0 +1,259 @@
+name: DevSecOps CI/CD Pipeline - INSEGUS Enterprise
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  NODE_VERSION: "18.x"
+  DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+  DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
+  PRODUCT_NAME: "INSEGUS Web Application"
+  ENGAGEMENT_NAME: "DevSecOps CI/CD Pipeline"
+
+jobs:
+  # ============================================================================
+  # ETAPA 1: COMPILACIÓN Y PRUEBAS UNITARIAS
+  # ============================================================================
+  build-and-test:
+    name: "1. Build & Unit Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Entorno Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: app/package.json
+
+      - name: Instalar Dependencias de Aplicación
+        run: |
+          cd app
+          npm install --legacy-peer-deps
+
+      - name: Ejecutar Pruebas Unitarias
+        run: |
+          cd app
+          npm test
+
+  # ============================================================================
+  # ETAPA 2: ANÁLISIS ESTÁTICO DE SEGURIDAD (SAST, SCA, IaC)
+  # ============================================================================
+  security-static-analysis:
+    name: "2. Static Security (SAST, SCA, IaC)"
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Crear Directorio de Evidencias
+        run: mkdir -p evidencias/sast evidencias/sca evidencias/iac
+
+      # 2.a SAST: Semgrep Community Edition
+      - name: Ejecutar SAST con Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: config/.semgrep.yml
+          generateSarif: "evidencias/sast/semgrep_report.sarif"
+        continue-on-error: true
+
+      - name: Exportar Reporte Semgrep JSON
+        run: |
+          docker run --rm -v $(pwd):/src -w /src semgrep/semgrep semgrep scan --config config/.semgrep.yml --json -o evidencias/sast/semgrep_report.json app/ || true
+
+      # 2.b SCA: Trivy Dependency Scanner
+      - name: Ejecutar SCA de Dependencias con Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'app'
+          format: 'json'
+          output: 'evidencias/sca/trivy_sca_report.json'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          exit-code: '0'
+
+      # 2.c IaC: Trivy Config & Container Scanner (Dockerfile y K8s)
+      - name: Ejecutar Auditoría IaC con Trivy (Dockerfile & K8s)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: 'app'
+          format: 'json'
+          output: 'evidencias/iac/trivy_iac_report.json'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+          exit-code: '0'
+
+      - name: Subir Evidencias de Análisis Estático
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-security-reports
+          path: evidencias/
+
+  # ============================================================================
+  # QUALITY GATE A: MODO AVISO (ADVISORY QUALITY GATE)
+  # ============================================================================
+  quality-gate-advisory:
+    name: "3. Quality Gate A (Modo Aviso)"
+    needs: [security-static-analysis]
+    runs-on: ubuntu-latest
+    # continue-on-error permite advertir de vulnerabilidades conocidas sin abortar el pipeline
+    continue-on-error: true
+    steps:
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Descargar Evidencias Estáticas
+        uses: actions/download-artifact@v4
+        with:
+          name: static-security-reports
+          path: evidencias/
+
+      - name: Evaluar Quality Gate A (Advisory Mode)
+        run: |
+          python3 scripts/quality_gate.py \
+            --mode advisory \
+            --semgrep evidencias/sast/semgrep_report.json \
+            --trivy-sca evidencias/sca/trivy_sca_report.json \
+            --trivy-iac evidencias/iac/trivy_iac_report.json
+
+  # ============================================================================
+  # ETAPA 4: DESPLIEGUE EN STAGING Y ANÁLISIS DINÁMICO (DAST)
+  # ============================================================================
+  dynamic-security-analysis:
+    name: "4. Staging Deploy & DAST (OWASP ZAP)"
+    needs: [quality-gate-advisory]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Levantar Microservicio en Staging (Docker)
+        run: |
+          cd app
+          docker-compose up -d --build
+          echo "[*] Esperando a que el servicio esté disponible en http://localhost:3000..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000/health | grep -q "UP"; then
+              echo "[+] Servicio disponible y verificado."
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Crear Directorio DAST
+        run: mkdir -p evidencias/dast
+
+      - name: Ejecutar OWASP ZAP Baseline Scan (DAST)
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: 'http://localhost:3000'
+          rules_file_name: 'config/zap-baseline.conf'
+          cmd_options: '-a -j'
+          fail_action: false
+        continue-on-error: true
+
+      - name: Desmantelar Entorno de Staging
+        if: always()
+        run: |
+          cd app
+          docker-compose down
+
+      - name: Subir Evidencias DAST
+        uses: actions/upload-artifact@v4
+        with:
+          name: dast-security-reports
+          path: evidencias/dast/
+
+  # ============================================================================
+  # ETAPA 5: CENTRALIZACIÓN Y TRIAJE EN DEFECTDOJO (API REST v2)
+  # ============================================================================
+  defectdojo-centralization:
+    name: "5. Vulnerability Management (DefectDojo)"
+    needs: [dynamic-security-analysis]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Descargar Todos los Informes de Seguridad
+        uses: actions/download-artifact@v4
+        with:
+          path: evidencias/
+
+      - name: Sincronizar Informes con DefectDojo API v2
+        run: |
+          python3 scripts/defectdojo_client.py \
+            --action import \
+            --semgrep evidencias/sast/semgrep_report.json \
+            --trivy-sca evidencias/sca/trivy_sca_report.json \
+            --trivy-iac evidencias/iac/trivy_iac_report.json \
+            --zap evidencias/dast/zap_report.json
+
+      - name: Ejecutar Triaje de Vulnerabilidades y Falsos Positivos
+        run: |
+          python3 scripts/defectdojo_client.py --action triage
+
+      - name: Exportar Resumen Consolidado DefectDojo
+        run: |
+          python3 scripts/defectdojo_client.py \
+            --action export \
+            --output evidencias/defectdojo/defectdojo_consolidated.json
+
+      - name: Subir Métricas de DefectDojo
+        uses: actions/upload-artifact@v4
+        with:
+          name: defectdojo-audit-metrics
+          path: evidencias/defectdojo/
+
+  # ============================================================================
+  # QUALITY GATE B: MODO BLOQUEANTE (RELEASE QUALITY GATE)
+  # ============================================================================
+  quality-gate-blocking:
+    name: "6. Quality Gate B (Modo Bloqueante)"
+    needs: [defectdojo-centralization]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Descargar Métricas e Informes
+        uses: actions/download-artifact@v4
+        with:
+          path: evidencias/
+
+      - name: Evaluar Criterios de Seguridad de Release
+        run: |
+          python3 scripts/quality_gate.py \
+            --mode blocking \
+            --critical 0 \
+            --high 0 \
+            --medium 10 \
+            --semgrep evidencias/sast/semgrep_report.json \
+            --trivy-sca evidencias/sca/trivy_sca_report.json \
+            --trivy-iac evidencias/iac/trivy_iac_report.json \
+            --zap evidencias/dast/zap_report.json
+
+  # ============================================================================
+  # ETAPA 7: DESPLIEGUE CONTINUO EN PRODUCCIÓN (KUBERNETES)
+  # ============================================================================
+  deploy-to-production:
+    name: "7. Deploy to Production (Kubernetes)"
+    needs: [quality-gate-blocking]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+    steps:
+      - name: Checkout Código Fuente
+        uses: actions/checkout@v4
+
+      - name: Simular Despliegue en Clúster de Producción
+        run: |
+          echo "[+] Despliegue en producción autorizado por Quality Gate B."
+          echo "[+] Desplegando en clúster Kubernetes (Namespace: insegus-production)..."
+          echo "[OK] Despliegue completado exitosamente sin vulnerabilidades críticas ni altas."

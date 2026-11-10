@@ -1,0 +1,56 @@
+rules:
+  - id: insecure-sql-string-concatenation
+    pattern-either:
+      - pattern: $DB.get(`... ${$VAR} ...`, ...)
+      - pattern: $DB.all(`... ${$VAR} ...`, ...)
+      - pattern: $DB.run(`... ${$VAR} ...`, ...)
+      - pattern: $DB.get("..." + $VAR + "...", ...)
+      - pattern: $DB.all("..." + $VAR + "...", ...)
+    message: "Inyección SQL detectada (CWE-89): concatenación directa de variables no confiables en consulta SQL."
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      cwe: "CWE-89: Improper Neutralization of Special Elements used in an SQL Command"
+      owasp: "A03:2021-Injection"
+      category: security
+      confidence: HIGH
+
+  - id: hardcoded-secret-key-token
+    patterns:
+      - pattern-either:
+          - pattern: const $SECRET = "...";
+          - pattern: let $SECRET = "...";
+          - pattern: var $SECRET = "...";
+      - metavariable-regex:
+          metavariable: $SECRET
+          regex: (?i)(jwt_secret|api_key|db_admin_pass|aws_secret|token)
+    message: "Secreto o clave privada hardcodeada en el código fuente (CWE-798)."
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      owasp: "A07:2021-Identification and Authentication Failures"
+      category: security
+      confidence: HIGH
+
+  - id: dangerous-eval-usage
+    pattern: eval(...)
+    message: "Uso de eval() detectado (CWE-95). Permite inyección y ejecución arbitraria de código."
+    severity: ERROR
+    languages: [javascript, typescript]
+    metadata:
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      owasp: "A03:2021-Injection"
+      category: security
+      confidence: HIGH
+
+  - id: insecure-cors-wildcard
+    pattern: "cors({ origin: '*' })"
+    message: "Configuración CORS excesivamente permisiva con comodín '*' (CWE-942)."
+    severity: WARNING
+    languages: [javascript, typescript]
+    metadata:
+      cwe: "CWE-942: Permissive Cross-domain Policy with Untrusted Domains"
+      owasp: "A05:2021-Security Misconfiguration"
+      category: security
+      confidence: MEDIUM

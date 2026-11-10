@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>INSEGUS Security Portal - Entorno de Evaluación DevSecOps</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; background-color: #f8fafc; color: #1e293b; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h1 { color: #0f172a; border-bottom: 2px solid #0284c7; padding-bottom: 10px; }
+        .card { background: #f1f5f9; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #0284c7; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 8px; margin: 6px 0 12px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #0284c7; color: white; padding: 10px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        button:hover { background-color: #0369a1; }
+        .badge { background: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>INSEGUS Enterprise Portal <span class="badge">Vulnerable Testbed</span></h1>
+        <p>Este portal forma parte del caso práctico <strong>PAI 4 DevSecOps</strong> (Yellow Team / Security Team 3). Diseñado para auditar la cadena de suministro en CI/CD mediante escaneo SAST, SCA, DAST e IaC.</p>
+
+        <div class="card">
+            <h3>Búsqueda en Catálogo de Servicios (Vector SQLi / XSS)</h3>
+            <form action="/api/search" method="GET">
+                <label for="q">Término de búsqueda:</label>
+                <input type="text" id="q" name="q" placeholder="Ej: Servidor, SIEM, o payload ' OR 1=1--">
+                <button type="submit">Buscar en Catálogo</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Autenticación Corporativa (Vector SQL Injection en Login)</h3>
+            <form action="/api/login" method="POST">
+                <label for="username">Usuario:</label>
+                <input type="text" id="username" name="username" placeholder="admin' --">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" placeholder="Cualquier contraseña">
+                <button type="submit">Iniciar Sesión</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Módulo de Previsualización Externa (Vector SSRF)</h3>
+            <form action="/api/preview-avatar" method="GET">
+                <label for="url">URL Remota:</label>
+                <input type="text" id="url" name="url" placeholder="http://169.254.169.254/latest/meta-data/">
+                <button type="submit">Previsualizar Recurso</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

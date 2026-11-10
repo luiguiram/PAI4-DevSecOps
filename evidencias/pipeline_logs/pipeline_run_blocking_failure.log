@@ -1,0 +1,197 @@
+================================================================================
+    INSEGUS ENTERPRISE - EJECUCIÓN DEL PIPELINE DEVSECOPS (SECURITY TEAM 3)    
+================================================================================
+[*] Fecha y hora de ejecución: mar 10 nov 2026 09:22:13 CET
+[*] Directorio base: /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3
+
+[ETAPA 1] Compilación y ejecución de pruebas unitarias...
+npm notice run insegus-vulnerable-microservice@1.0.0 test
+npm notice run node -e "console.log('Todos los tests unitarios pasaron correctamente')"
+Todos los tests unitarios pasaron correctamente
+[+] Etapa 1 completada con éxito.
+
+[ETAPA 2] Análisis estático de código fuente con Semgrep CE...
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 8 files tracked by git with 4 Code rules:
+  Scanning 1 file with 4 js rules.
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 5 (5 blocking)
+ • Rules run: 4
+ • Targets scanned: 1
+ • Parsed lines: ~100.0%
+ • Scan skipped: 
+   ◦ Files matching .semgrepignore patterns: 175
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 4 rules on 1 file: 5 findings.
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 8 files tracked by git with 4 Code rules:
+  Scanning 1 file with 4 js rules.
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 5 (5 blocking)
+ • Rules run: 4
+ • Targets scanned: 1
+ • Parsed lines: ~100.0%
+ • Scan skipped: 
+   ◦ Files matching .semgrepignore patterns: 175
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 4 rules on 1 file: 5 findings.
+[+] Reportes Semgrep generados en evidencias/sast/.
+
+[ETAPA 3] Análisis de dependencias de terceros (SCA) con Trivy...
+2026-11-10T08:22:18Z	INFO	[vulndb] Need to update DB
+2026-11-10T08:22:18Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-11-10T08:22:18Z	INFO	[vulndb] Downloading artifact...	repo="ghcr.io/aquasecurity/trivy-db:2"
+96.00 KiB / 131.07 MiB [>____________________________________________________________] 0.07% ? p/s ?352.00 KiB / 131.07 MiB [>___________________________________________________________] 0.26% ? p/s ?582.12 KiB / 131.07 MiB [>___________________________________________________________] 0.43% ? p/s ?838.12 KiB / 131.07 MiB [>____________________________________________] 0.62% 1.21 MiB p/s ETA 1m47s1.00 MiB / 131.07 MiB [>______________________________________________] 0.76% 1.21 MiB p/s ETA 1m47s1.31 MiB / 131.07 MiB [>______________________________________________] 1.00% 1.21 MiB p/s ETA 1m47s1.75 MiB / 131.07 MiB [>______________________________________________] 1.33% 1.23 MiB p/s ETA 1m45s2.31 MiB / 131.07 MiB [>______________________________________________] 1.76% 1.23 MiB p/s ETA 1m44s2.68 MiB / 131.07 MiB [>______________________________________________] 2.04% 1.23 MiB p/s ETA 1m44s3.05 MiB / 131.07 MiB [->_____________________________________________] 2.32% 1.29 MiB p/s ETA 1m39s3.42 MiB / 131.07 MiB [->_____________________________________________] 2.61% 1.29 MiB p/s ETA 1m38s3.67 MiB / 131.07 MiB [->_____________________________________________] 2.80% 1.29 MiB p/s ETA 1m38s4.23 MiB / 131.07 MiB [->_____________________________________________] 3.23% 1.33 MiB p/s ETA 1m35s4.76 MiB / 131.07 MiB [->_____________________________________________] 3.63% 1.33 MiB p/s ETA 1m34s5.25 MiB / 131.07 MiB [->_____________________________________________] 4.01% 1.33 MiB p/s ETA 1m34s5.44 MiB / 131.07 MiB [->_____________________________________________] 4.15% 1.38 MiB p/s ETA 1m31s5.87 MiB / 131.07 MiB [-->____________________________________________] 4.48% 1.38 MiB p/s ETA 1m30s6.31 MiB / 131.07 MiB [-->____________________________________________] 4.82% 1.38 MiB p/s ETA 1m30s6.93 MiB / 131.07 MiB [-->____________________________________________] 5.28% 1.45 MiB p/s ETA 1m25s7.54 MiB / 131.07 MiB [-->____________________________________________] 5.75% 1.45 MiB p/s ETA 1m25s8.26 MiB / 131.07 MiB [-->____________________________________________] 6.30% 1.45 MiB p/s ETA 1m24s8.69 MiB / 131.07 MiB [--->___________________________________________] 6.63% 1.55 MiB p/s ETA 1m19s9.25 MiB / 131.07 MiB [--->___________________________________________] 7.06% 1.55 MiB p/s ETA 1m18s9.99 MiB / 131.07 MiB [--->___________________________________________] 7.62% 1.55 MiB p/s ETA 1m18s10.61 MiB / 131.07 MiB [--->__________________________________________] 8.09% 1.65 MiB p/s ETA 1m12s10.79 MiB / 131.07 MiB [--->__________________________________________] 8.23% 1.65 MiB p/s ETA 1m12s11.22 MiB / 131.07 MiB [--->__________________________________________] 8.56% 1.65 MiB p/s ETA 1m12s11.72 MiB / 131.07 MiB [---->_________________________________________] 8.94% 1.67 MiB p/s ETA 1m11s11.78 MiB / 131.07 MiB [---->_________________________________________] 8.99% 1.67 MiB p/s ETA 1m11s11.84 MiB / 131.07 MiB [---->_________________________________________] 9.04% 1.67 MiB p/s ETA 1m11s11.84 MiB / 131.07 MiB [---->_________________________________________] 9.04% 1.57 MiB p/s ETA 1m15s12.09 MiB / 131.07 MiB [---->_________________________________________] 9.23% 1.57 MiB p/s ETA 1m15s13.02 MiB / 131.07 MiB [---->_________________________________________] 9.94% 1.57 MiB p/s ETA 1m15s13.32 MiB / 131.07 MiB [---->________________________________________] 10.16% 1.63 MiB p/s ETA 1m12s13.38 MiB / 131.07 MiB [---->________________________________________] 10.21% 1.63 MiB p/s ETA 1m12s13.38 MiB / 131.07 MiB [---->________________________________________] 10.21% 1.63 MiB p/s ETA 1m12s13.63 MiB / 131.07 MiB [---->________________________________________] 10.40% 1.56 MiB p/s ETA 1m15s13.92 MiB / 131.07 MiB [---->________________________________________] 10.62% 1.56 MiB p/s ETA 1m15s14.49 MiB / 131.07 MiB [---->________________________________________] 11.05% 1.56 MiB p/s ETA 1m14s15.17 MiB / 131.07 MiB [----->_______________________________________] 11.57% 1.62 MiB p/s ETA 1m11s15.73 MiB / 131.07 MiB [----->_______________________________________] 12.00% 1.62 MiB p/s ETA 1m11s16.28 MiB / 131.07 MiB [----->_______________________________________] 12.42% 1.62 MiB p/s ETA 1m10s16.84 MiB / 131.07 MiB [----->________________________________________] 12.85% 1.70 MiB p/s ETA 1m7s17.59 MiB / 131.07 MiB [------>_______________________________________] 13.42% 1.70 MiB p/s ETA 1m6s18.27 MiB / 131.07 MiB [------>_______________________________________] 13.94% 1.70 MiB p/s ETA 1m6s18.95 MiB / 131.07 MiB [------>_______________________________________] 14.46% 1.81 MiB p/s ETA 1m1s19.70 MiB / 131.07 MiB [------>_______________________________________] 15.03% 1.81 MiB p/s ETA 1m1s20.38 MiB / 131.07 MiB [------->______________________________________] 15.55% 1.81 MiB p/s ETA 1m0s20.81 MiB / 131.07 MiB [------->_______________________________________] 15.88% 1.90 MiB p/s ETA 58s21.12 MiB / 131.07 MiB [------->_______________________________________] 16.11% 1.90 MiB p/s ETA 57s21.68 MiB / 131.07 MiB [------->_______________________________________] 16.54% 1.90 MiB p/s ETA 57s22.23 MiB / 131.07 MiB [------->_______________________________________] 16.96% 1.93 MiB p/s ETA 56s22.65 MiB / 131.07 MiB [-------->______________________________________] 17.28% 1.93 MiB p/s ETA 56s23.09 MiB / 131.07 MiB [-------->______________________________________] 17.62% 1.93 MiB p/s ETA 56s23.59 MiB / 131.07 MiB [-------->______________________________________] 18.00% 1.95 MiB p/s ETA 55s24.08 MiB / 131.07 MiB [-------->______________________________________] 18.37% 1.95 MiB p/s ETA 54s24.80 MiB / 131.07 MiB [-------->______________________________________] 18.92% 1.95 MiB p/s ETA 54s25.29 MiB / 131.07 MiB [--------->_____________________________________] 19.29% 2.01 MiB p/s ETA 52s26.19 MiB / 131.07 MiB [--------->_____________________________________] 19.99% 2.01 MiB p/s ETA 52s26.57 MiB / 131.07 MiB [--------->_____________________________________] 20.27% 2.01 MiB p/s ETA 52s27.06 MiB / 131.07 MiB [--------->_____________________________________] 20.64% 2.07 MiB p/s ETA 50s27.53 MiB / 131.07 MiB [--------->_____________________________________] 21.01% 2.07 MiB p/s ETA 50s27.97 MiB / 131.07 MiB [---------->____________________________________] 21.34% 2.07 MiB p/s ETA 49s28.65 MiB / 131.07 MiB [---------->____________________________________] 21.86% 2.11 MiB p/s ETA 48s29.30 MiB / 131.07 MiB [---------->____________________________________] 22.36% 2.11 MiB p/s ETA 48s29.80 MiB / 131.07 MiB [---------->____________________________________] 22.74% 2.11 MiB p/s ETA 48s30.35 MiB / 131.07 MiB [---------->____________________________________] 23.16% 2.15 MiB p/s ETA 46s30.85 MiB / 131.07 MiB [----------->___________________________________] 23.54% 2.15 MiB p/s ETA 46s31.41 MiB / 131.07 MiB [----------->___________________________________] 23.96% 2.15 MiB p/s ETA 46s31.96 MiB / 131.07 MiB [----------->___________________________________] 24.39% 2.19 MiB p/s ETA 45s32.52 MiB / 131.07 MiB [----------->___________________________________] 24.81% 2.19 MiB p/s ETA 45s33.43 MiB / 131.07 MiB [----------->___________________________________] 25.51% 2.19 MiB p/s ETA 44s33.92 MiB / 131.07 MiB [------------>__________________________________] 25.88% 2.26 MiB p/s ETA 43s34.23 MiB / 131.07 MiB [------------>__________________________________] 26.12% 2.26 MiB p/s ETA 42s34.63 MiB / 131.07 MiB [------------>__________________________________] 26.42% 2.26 MiB p/s ETA 42s35.12 MiB / 131.07 MiB [------------>__________________________________] 26.80% 2.24 MiB p/s ETA 42s35.87 MiB / 131.07 MiB [------------>__________________________________] 27.36% 2.24 MiB p/s ETA 42s36.58 MiB / 131.07 MiB [------------->_________________________________] 27.91% 2.24 MiB p/s ETA 42s37.63 MiB / 131.07 MiB [------------->_________________________________] 28.71% 2.36 MiB p/s ETA 39s38.37 MiB / 131.07 MiB [------------->_________________________________] 29.27% 2.36 MiB p/s ETA 39s38.83 MiB / 131.07 MiB [------------->_________________________________] 29.63% 2.36 MiB p/s ETA 39s39.90 MiB / 131.07 MiB [-------------->________________________________] 30.44% 2.46 MiB p/s ETA 37s40.70 MiB / 131.07 MiB [-------------->________________________________] 31.05% 2.46 MiB p/s ETA 36s41.54 MiB / 131.07 MiB [-------------->________________________________] 31.69% 2.46 MiB p/s ETA 36s42.43 MiB / 131.07 MiB [--------------->_______________________________] 32.37% 2.57 MiB p/s ETA 34s43.24 MiB / 131.07 MiB [--------------->_______________________________] 32.99% 2.57 MiB p/s ETA 34s43.97 MiB / 131.07 MiB [--------------->_______________________________] 33.55% 2.57 MiB p/s ETA 33s44.56 MiB / 131.07 MiB [--------------->_______________________________] 34.00% 2.63 MiB p/s ETA 32s45.43 MiB / 131.07 MiB [---------------->______________________________] 34.66% 2.63 MiB p/s ETA 32s46.11 MiB / 131.07 MiB [---------------->______________________________] 35.18% 2.63 MiB p/s ETA 32s46.58 MiB / 131.07 MiB [---------------->______________________________] 35.54% 2.68 MiB p/s ETA 31s47.26 MiB / 131.07 MiB [---------------->______________________________] 36.06% 2.68 MiB p/s ETA 31s48.07 MiB / 131.07 MiB [----------------->_____________________________] 36.67% 2.68 MiB p/s ETA 30s48.63 MiB / 131.07 MiB [----------------->_____________________________] 37.10% 2.73 MiB p/s ETA 30s49.25 MiB / 131.07 MiB [----------------->_____________________________] 37.57% 2.73 MiB p/s ETA 30s49.87 MiB / 131.07 MiB [----------------->_____________________________] 38.05% 2.73 MiB p/s ETA 29s50.74 MiB / 131.07 MiB [------------------>____________________________] 38.71% 2.78 MiB p/s ETA 28s51.36 MiB / 131.07 MiB [------------------>____________________________] 39.19% 2.78 MiB p/s ETA 28s51.73 MiB / 131.07 MiB [------------------>____________________________] 39.47% 2.78 MiB p/s ETA 28s52.28 MiB / 131.07 MiB [------------------>____________________________] 39.89% 2.77 MiB p/s ETA 28s52.89 MiB / 131.07 MiB [------------------>____________________________] 40.35% 2.77 MiB p/s ETA 28s53.27 MiB / 131.07 MiB [------------------->___________________________] 40.64% 2.77 MiB p/s ETA 28s53.64 MiB / 131.07 MiB [------------------->___________________________] 40.92% 2.73 MiB p/s ETA 28s54.01 MiB / 131.07 MiB [------------------->___________________________] 41.21% 2.73 MiB p/s ETA 28s54.42 MiB / 131.07 MiB [------------------->___________________________] 41.52% 2.73 MiB p/s ETA 28s54.66 MiB / 131.07 MiB [------------------->___________________________] 41.71% 2.67 MiB p/s ETA 28s55.04 MiB / 131.07 MiB [------------------->___________________________] 41.99% 2.67 MiB p/s ETA 28s55.41 MiB / 131.07 MiB [------------------->___________________________] 42.27% 2.67 MiB p/s ETA 28s55.96 MiB / 131.07 MiB [-------------------->__________________________] 42.70% 2.63 MiB p/s ETA 28s56.34 MiB / 131.07 MiB [-------------------->__________________________] 42.99% 2.63 MiB p/s ETA 28s56.84 MiB / 131.07 MiB [-------------------->__________________________] 43.36% 2.63 MiB p/s ETA 28s57.39 MiB / 131.07 MiB [-------------------->__________________________] 43.79% 2.62 MiB p/s ETA 28s57.89 MiB / 131.07 MiB [-------------------->__________________________] 44.17% 2.62 MiB p/s ETA 27s58.38 MiB / 131.07 MiB [-------------------->__________________________] 44.54% 2.62 MiB p/s ETA 27s58.79 MiB / 131.07 MiB [--------------------->_________________________] 44.85% 2.60 MiB p/s ETA 27s59.53 MiB / 131.07 MiB [--------------------->_________________________] 45.42% 2.60 MiB p/s ETA 27s60.15 MiB / 131.07 MiB [--------------------->_________________________] 45.89% 2.60 MiB p/s ETA 27s60.84 MiB / 131.07 MiB [--------------------->_________________________] 46.42% 2.65 MiB p/s ETA 26s61.65 MiB / 131.07 MiB [---------------------->________________________] 47.03% 2.65 MiB p/s ETA 26s62.48 MiB / 131.07 MiB [---------------------->________________________] 47.67% 2.65 MiB p/s ETA 25s63.35 MiB / 131.07 MiB [---------------------->________________________] 48.33% 2.75 MiB p/s ETA 24s64.27 MiB / 131.07 MiB [----------------------->_______________________] 49.04% 2.75 MiB p/s ETA 24s64.89 MiB / 131.07 MiB [----------------------->_______________________] 49.51% 2.75 MiB p/s ETA 24s65.82 MiB / 131.07 MiB [----------------------->_______________________] 50.22% 2.84 MiB p/s ETA 22s66.96 MiB / 131.07 MiB [------------------------>______________________] 51.09% 2.84 MiB p/s ETA 22s68.07 MiB / 131.07 MiB [------------------------>______________________] 51.93% 2.84 MiB p/s ETA 22s69.29 MiB / 131.07 MiB [------------------------>______________________] 52.87% 3.03 MiB p/s ETA 20s70.25 MiB / 131.07 MiB [------------------------->_____________________] 53.60% 3.03 MiB p/s ETA 20s71.09 MiB / 131.07 MiB [------------------------->_____________________] 54.24% 3.03 MiB p/s ETA 19s71.84 MiB / 131.07 MiB [------------------------->_____________________] 54.81% 3.11 MiB p/s ETA 19s73.02 MiB / 131.07 MiB [-------------------------->____________________] 55.71% 3.11 MiB p/s ETA 18s73.64 MiB / 131.07 MiB [-------------------------->____________________] 56.18% 3.11 MiB p/s ETA 18s74.14 MiB / 131.07 MiB [-------------------------->____________________] 56.56% 3.15 MiB p/s ETA 18s74.63 MiB / 131.07 MiB [-------------------------->____________________] 56.94% 3.15 MiB p/s ETA 17s74.63 MiB / 131.07 MiB [-------------------------->____________________] 56.94% 3.15 MiB p/s ETA 17s76.70 MiB / 131.07 MiB [--------------------------->___________________] 58.52% 3.23 MiB p/s ETA 16s77.36 MiB / 131.07 MiB [--------------------------->___________________] 59.02% 3.23 MiB p/s ETA 16s78.33 MiB / 131.07 MiB [---------------------------->__________________] 59.76% 3.23 MiB p/s ETA 16s79.05 MiB / 131.07 MiB [---------------------------->__________________] 60.31% 3.27 MiB p/s ETA 15s79.64 MiB / 131.07 MiB [---------------------------->__________________] 60.76% 3.27 MiB p/s ETA 15s79.64 MiB / 131.07 MiB [---------------------------->__________________] 60.76% 3.27 MiB p/s ETA 15s80.82 MiB / 131.07 MiB [---------------------------->__________________] 61.66% 3.25 MiB p/s ETA 15s81.44 MiB / 131.07 MiB [----------------------------->_________________] 62.14% 3.25 MiB p/s ETA 15s82.24 MiB / 131.07 MiB [----------------------------->_________________] 62.75% 3.25 MiB p/s ETA 15s83.05 MiB / 131.07 MiB [----------------------------->_________________] 63.37% 3.28 MiB p/s ETA 14s84.10 MiB / 131.07 MiB [------------------------------>________________] 64.17% 3.28 MiB p/s ETA 14s84.91 MiB / 131.07 MiB [------------------------------>________________] 64.78% 3.28 MiB p/s ETA 14s85.62 MiB / 131.07 MiB [------------------------------>________________] 65.33% 3.35 MiB p/s ETA 13s86.37 MiB / 131.07 MiB [------------------------------>________________] 65.90% 3.35 MiB p/s ETA 13s87.24 MiB / 131.07 MiB [------------------------------->_______________] 66.56% 3.35 MiB p/s ETA 13s88.01 MiB / 131.07 MiB [------------------------------->_______________] 67.15% 3.39 MiB p/s ETA 12s88.93 MiB / 131.07 MiB [------------------------------->_______________] 67.85% 3.39 MiB p/s ETA 12s89.68 MiB / 131.07 MiB [-------------------------------->______________] 68.42% 3.39 MiB p/s ETA 12s90.33 MiB / 131.07 MiB [-------------------------------->______________] 68.92% 3.42 MiB p/s ETA 11s90.95 MiB / 131.07 MiB [-------------------------------->______________] 69.39% 3.42 MiB p/s ETA 11s91.54 MiB / 131.07 MiB [-------------------------------->______________] 69.84% 3.42 MiB p/s ETA 11s92.44 MiB / 131.07 MiB [--------------------------------->_____________] 70.53% 3.42 MiB p/s ETA 11s93.16 MiB / 131.07 MiB [--------------------------------->_____________] 71.08% 3.42 MiB p/s ETA 11s93.77 MiB / 131.07 MiB [--------------------------------->_____________] 71.54% 3.42 MiB p/s ETA 10s94.53 MiB / 131.07 MiB [--------------------------------->_____________] 72.12% 3.43 MiB p/s ETA 10s95.31 MiB / 131.07 MiB [---------------------------------->____________] 72.71% 3.43 MiB p/s ETA 10s96.18 MiB / 131.07 MiB [---------------------------------->____________] 73.38% 3.43 MiB p/s ETA 10s97.06 MiB / 131.07 MiB [----------------------------------->____________] 74.05% 3.48 MiB p/s ETA 9s97.87 MiB / 131.07 MiB [----------------------------------->____________] 74.67% 3.48 MiB p/s ETA 9s98.54 MiB / 131.07 MiB [------------------------------------>___________] 75.18% 3.48 MiB p/s ETA 9s99.40 MiB / 131.07 MiB [------------------------------------>___________] 75.84% 3.51 MiB p/s ETA 9s100.27 MiB / 131.07 MiB [----------------------------------->___________] 76.50% 3.51 MiB p/s ETA 8s100.89 MiB / 131.07 MiB [------------------------------------>__________] 76.98% 3.51 MiB p/s ETA 8s101.57 MiB / 131.07 MiB [------------------------------------>__________] 77.49% 3.51 MiB p/s ETA 8s101.57 MiB / 131.07 MiB [------------------------------------>__________] 77.49% 3.51 MiB p/s ETA 8s103.36 MiB / 131.07 MiB [------------------------------------->_________] 78.86% 3.51 MiB p/s ETA 7s104.17 MiB / 131.07 MiB [------------------------------------->_________] 79.48% 3.57 MiB p/s ETA 7s104.86 MiB / 131.07 MiB [------------------------------------->_________] 80.00% 3.57 MiB p/s ETA 7s105.53 MiB / 131.07 MiB [------------------------------------->_________] 80.52% 3.57 MiB p/s ETA 7s106.65 MiB / 131.07 MiB [-------------------------------------->________] 81.37% 3.60 MiB p/s ETA 6s107.33 MiB / 131.07 MiB [-------------------------------------->________] 81.89% 3.60 MiB p/s ETA 6s108.26 MiB / 131.07 MiB [-------------------------------------->________] 82.60% 3.60 MiB p/s ETA 6s108.82 MiB / 131.07 MiB [--------------------------------------->_______] 83.02% 3.60 MiB p/s ETA 6s109.79 MiB / 131.07 MiB [--------------------------------------->_______] 83.77% 3.60 MiB p/s ETA 5s110.72 MiB / 131.07 MiB [--------------------------------------->_______] 84.47% 3.60 MiB p/s ETA 5s111.40 MiB / 131.07 MiB [--------------------------------------->_______] 85.00% 3.65 MiB p/s ETA 5s112.15 MiB / 131.07 MiB [---------------------------------------->______] 85.57% 3.65 MiB p/s ETA 5s112.78 MiB / 131.07 MiB [---------------------------------------->______] 86.05% 3.65 MiB p/s ETA 5s113.47 MiB / 131.07 MiB [---------------------------------------->______] 86.57% 3.63 MiB p/s ETA 4s114.03 MiB / 131.07 MiB [---------------------------------------->______] 87.00% 3.63 MiB p/s ETA 4s114.92 MiB / 131.07 MiB [----------------------------------------->_____] 87.68% 3.63 MiB p/s ETA 4s115.87 MiB / 131.07 MiB [----------------------------------------->_____] 88.41% 3.66 MiB p/s ETA 4s116.75 MiB / 131.07 MiB [----------------------------------------->_____] 89.07% 3.66 MiB p/s ETA 3s117.62 MiB / 131.07 MiB [------------------------------------------>____] 89.74% 3.66 MiB p/s ETA 3s118.35 MiB / 131.07 MiB [------------------------------------------>____] 90.30% 3.69 MiB p/s ETA 3s119.16 MiB / 131.07 MiB [------------------------------------------>____] 90.92% 3.69 MiB p/s ETA 3s119.99 MiB / 131.07 MiB [------------------------------------------->___] 91.55% 3.69 MiB p/s ETA 3s120.93 MiB / 131.07 MiB [------------------------------------------->___] 92.26% 3.73 MiB p/s ETA 2s122.16 MiB / 131.07 MiB [------------------------------------------->___] 93.20% 3.73 MiB p/s ETA 2s123.04 MiB / 131.07 MiB [-------------------------------------------->__] 93.87% 3.73 MiB p/s ETA 2s123.81 MiB / 131.07 MiB [-------------------------------------------->__] 94.46% 3.80 MiB p/s ETA 1s124.50 MiB / 131.07 MiB [-------------------------------------------->__] 94.99% 3.80 MiB p/s ETA 1s125.15 MiB / 131.07 MiB [-------------------------------------------->__] 95.49% 3.80 MiB p/s ETA 1s125.78 MiB / 131.07 MiB [--------------------------------------------->_] 95.96% 3.76 MiB p/s ETA 1s126.59 MiB / 131.07 MiB [--------------------------------------------->_] 96.58% 3.76 MiB p/s ETA 1s127.34 MiB / 131.07 MiB [--------------------------------------------->_] 97.15% 3.76 MiB p/s ETA 0s127.77 MiB / 131.07 MiB [--------------------------------------------->_] 97.49% 3.74 MiB p/s ETA 0s128.52 MiB / 131.07 MiB [---------------------------------------------->] 98.06% 3.74 MiB p/s ETA 0s128.90 MiB / 131.07 MiB [---------------------------------------------->] 98.34% 3.74 MiB p/s ETA 0s128.90 MiB / 131.07 MiB [---------------------------------------------->] 98.34% 3.62 MiB p/s ETA 0s130.63 MiB / 131.07 MiB [---------------------------------------------->] 99.67% 3.62 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.62 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.62 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.62 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.62 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.38 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.38 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.38 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.16 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.16 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 3.16 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [--------------------------------------------->] 100.00% 2.96 MiB p/s ETA 0s131.07 MiB / 131.07 MiB [-------------------------------------------------] 100.00% 3.02 MiB p/s 44s2026-11-10T08:23:03Z	INFO	[vulndb] Artifact successfully downloaded	repo="ghcr.io/aquasecurity/trivy-db:2"
+2026-11-10T08:23:03Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-11-10T08:23:03Z	INFO	[secret] Secret scanning is enabled
+2026-11-10T08:23:03Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-11-10T08:23:03Z	INFO	[secret] Please see https://trivy.dev/docs/v0.76/guide/scanner/secret#recommendation for faster secret detection
+2026-11-10T08:23:03Z	INFO	Number of language-specific files	num=1
+2026-11-10T08:23:03Z	INFO	[npm] Detecting vulnerabilities...
+[+] Reporte Trivy SCA generado en evidencias/sca/trivy_sca_report.json.
+
+[ETAPA 4] Auditoría de Dockerfile y Manifiestos Kubernetes (IaC) con Trivy...
+2026-11-10T08:23:04Z	INFO	[misconfig] Misconfiguration scanning is enabled
+2026-11-10T08:23:04Z	INFO	[checks-client] Need to update the checks bundle
+2026-11-10T08:23:04Z	INFO	[checks-client] Downloading the checks bundle...
+143.25 KiB / 234.57 KiB [------------------------------------>______________________] 61.07% ? p/s ?234.57 KiB / 234.57 KiB [-----------------------------------------------] 100.00% 2.81 MiB p/s 300ms2026-11-10T08:23:06Z	INFO	Detected config files	num=6
+[+] Reporte Trivy IaC generado en evidencias/iac/trivy_iac_report.json.
+
+[QUALITY GATE A] Evaluación de Quality Gate A en Modo Aviso...
+================================================================================
+      INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       
+================================================================================
+
+[+] MODO DE EJECUCIÓN DEL GATE: ADVISORY
+--------------------------------------------------------------------------------
+HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW   
+--------------------------------------------------------------------------------
+SAST (Semgrep)            | 0        | 4      | 1        | 0     
+SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
+IaC (Trivy Docker/K8s)    | 0        | 18     | 7        | 18    
+DAST (OWASP ZAP)          | 0        | 0      | 0        | 0     
+--------------------------------------------------------------------------------
+TOTAL CONSOLIDADO         | 3        | 69     | 40       | 25    
+================================================================================
+
+[!] MODO AVISO (ADVISORY / WARNING MODE):
+    [!] ADVERTENCIA: Se han detectado violaciones de seguridad en etapas iniciales:
+        -> Vulnerabilidades CRÍTICAS (3) superan umbral (0)
+        -> Vulnerabilidades ALTAS (69) superan umbral (0)
+        -> Vulnerabilidades MEDIAS (40) superan umbral (10)
+    [i] La política permite continuar la ejecución (continue-on-error: true).
+    [i] Motivo: Permitir el despliegue del entorno de staging y ejecución de pruebas DAST.
+
+[RESULTADO] Quality Gate A (Modo Aviso) -> EXITOSO / CONTINUAR PIPELINE (Exit Code 0)
+
+[+] Quality Gate A evaluado (no bloqueante, continue-on-error: true).
+
+[ETAPA 5] Despliegue en Staging y Análisis Dinámico (DAST)...
+[*] Iniciando microservicio vulnerable en segundo plano (http://localhost:3000)...
+================================================================================
+      INSEGUS DEVSECOPS - EJECUCIÓN DE PRUEBAS DINÁMICAS (DAST / OWASP ZAP) 
+================================================================================
+[*] Evaluando vector: Inyección SQL en autenticación (/api/login)...
+    -> [CRÍTICO] Bypass de autenticación confirmado vía SQLi (Status: 200).
+[*] Evaluando vector: Cross-Site Scripting Reflejado (/api/search)...
+    -> [ALTO] XSS Reflejado explotable confirmado en salida HTML (Status: 200).
+[*] Evaluando vector: Server-Side Request Forgery (/api/preview-avatar)...
+    -> [ALTO] Petición interna no restringida (SSRF) confirmada.
+[*] Analizando configuración de cabeceras de seguridad HTTP...
+
+[+] Reporte ZAP JSON exportado: /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3/scripts/../evidencias/dast/zap_report.json (5 alertas)
+[+] Reporte ZAP HTML exportado: /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3/scripts/../evidencias/dast/zap_report.html
+[*] Deteniendo servidor node temporal...
+================================================================================
+      DAST FINALIZADO EXITOSAMENTE (OWASP ZAP)                             
+================================================================================
+[+] Reportes DAST generados en evidencias/dast/ (JSON y HTML).
+
+[ETAPA 6] Ingesta y consolidación en DefectDojo API v2...
+[*] Conectando con DefectDojo API v2...
+    Producto: INSEGUS Web Application (ID: 1)
+    Engagement: DevSecOps CI/CD Pipeline (ID: 10)
+
+[+] Enviando reporte SAST a DefectDojo (/api/v2/import-scan/): /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3/evidencias/sast/semgrep_report.json
+    -> [OK] Importados 4 hallazgos SAST (Semgrep JSON Report). Deduplicación: ACTIVA.
+
+[+] Enviando reporte SCA a DefectDojo (/api/v2/import-scan/): /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3/evidencias/sca/trivy_sca_report.json
+    -> [OK] Importados 0 hallazgos SCA (Trivy Dependencies). Deduplicación: ACTIVA.
+
+[+] Enviando reporte IaC a DefectDojo (/api/v2/import-scan/): /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3/evidencias/iac/trivy_iac_report.json
+    -> [OK] Importados 16 hallazgos IaC (Trivy Dockerfile/K8s). Deduplicación: ACTIVA.
+
+[+] Enviando reporte DAST a DefectDojo (/api/v2/import-scan/): /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3/evidencias/dast/zap_report.json
+    -> [OK] Importados 0 hallazgos DAST (OWASP ZAP). Deduplicación: ACTIVA.
+
+================================================================================
+      RESUMEN CONSOLIDADO DE VULNERABILIDADES EN DEFECTDOJO API v2         
+================================================================================
+Total Hallazgos Registrados:  123
+  - Críticas:                2
+  - Altas:                   61
+  - Medias:                  37
+  - Bajas:                   23
+  - Informativas:            0
+================================================================================
+[*] Iniciando proceso de triaje de vulnerabilidades en DefectDojo...
+[+] Hallazgo #4 ('Semgrep: config.insecure-cors-wildcard') marcado como FALSO POSITIVO con justificación técnica.
+
+[+] Resumen Post-Triaje:
+    Total Activas: 122
+    Falsos Positivos: 1
+    Mitigadas: 0
+[+] Resumen exportado a: /home/thespace81/Documentos/SSII/PAI4/PAI4-ST3/evidencias/defectdojo/defectdojo_consolidated.json
+
+[QUALITY GATE B] Demostración de Quality Gate Bloqueante (Pre-producción)...
+================================================================================
+      INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       
+================================================================================
+
+[+] MODO DE EJECUCIÓN DEL GATE: BLOCKING
+--------------------------------------------------------------------------------
+HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW   
+--------------------------------------------------------------------------------
+SAST (Semgrep)            | 0        | 4      | 1        | 0     
+SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
+IaC (Trivy Docker/K8s)    | 0        | 18     | 7        | 18    
+DAST (OWASP ZAP)          | 0        | 3      | 2        | 0     
+--------------------------------------------------------------------------------
+TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25    
+================================================================================
+
+[!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
+    [X] ERROR CRÍTICO DE SEGURIDAD: Umbrales superados en la etapa de release:
+        -> [BLOQUEADO] Vulnerabilidades CRÍTICAS (3) superan umbral (0)
+        -> [BLOQUEADO] Vulnerabilidades ALTAS (72) superan umbral (0)
+        -> [BLOQUEADO] Vulnerabilidades MEDIAS (42) superan umbral (10)
+
+    [!] ACCIÓN DISCIPLINARIA: El pipeline SE DETIENE de inmediato.
+    [!] El artefacto NO ha sido autorizado para despliegue en Producción.
+    [!] Notificando a equipo de desarrollo y Security Team 3.
+
+[RESULTADO] Quality Gate B (Modo Bloqueante) -> FALLIDO / BLOQUEO ACTIVO (Exit Code 1)
+
+[+] Quality Gate B aprobado.
+
+================================================================================
+    PIPELINE DEVSECOPS LOCAL EJECUTADO Y REGISTRADO SATISFACTORIAMENTE          
+================================================================================

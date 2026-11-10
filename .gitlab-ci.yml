@@ -1,0 +1,131 @@
+# ==============================================================================
+# GitLab CI/CD Pipeline - INSEGUS Enterprise DevSecOps
+# Security Team 3 (PAI 4) - Universidad de Sevilla
+# ==============================================================================
+
+stages:
+  - build
+  - test_static
+  - quality_gate_advisory
+  - staging_and_dast
+  - defectdojo_sync
+  - quality_gate_blocking
+  - deploy_production
+
+variables:
+  DOCKER_DRIVER: overlay2
+  SECURE_LOG_LEVEL: "info"
+  # Las credenciales de DefectDojo se definen en CI/CD Variables (Masked / Protected)
+  # DEFECTDOJO_URL y DEFECTDOJO_API_KEY
+
+# ------------------------------------------------------------------------------
+# 1. BUILD Y PRUEBAS UNITARIAS
+# ------------------------------------------------------------------------------
+build_job:
+  stage: build
+  image: node:18-alpine
+  script:
+    - cd app
+    - npm install --legacy-peer-deps
+    - npm test
+  artifacts:
+    paths:
+      - app/node_modules/
+    expire_in: 1 hour
+
+# ------------------------------------------------------------------------------
+# 2. ANÁLISIS ESTÁTICO DE SEGURIDAD (SAST, SCA, IaC)
+# ------------------------------------------------------------------------------
+sast_semgrep:
+  stage: test_static
+  image: semgrep/semgrep:latest
+  script:
+    - mkdir -p evidencias/sast
+    - semgrep scan --config config/.semgrep.yml --json -o evidencias/sast/semgrep_report.json app/ || true
+  artifacts:
+    paths:
+      - evidencias/sast/
+
+sca_trivy:
+  stage: test_static
+  image: aquasec/trivy:latest
+  script:
+    - mkdir -p evidencias/sca
+    - trivy fs --format json -o evidencias/sca/trivy_sca_report.json app/
+  artifacts:
+    paths:
+      - evidencias/sca/
+
+iac_trivy:
+  stage: test_static
+  image: aquasec/trivy:latest
+  script:
+    - mkdir -p evidencias/iac
+    - trivy config --format json -o evidencias/iac/trivy_iac_report.json app/
+  artifacts:
+    paths:
+      - evidencias/iac/
+
+# ------------------------------------------------------------------------------
+# 3. QUALITY GATE A: MODO AVISO (allow_failure: true)
+# ------------------------------------------------------------------------------
+gate_advisory:
+  stage: quality_gate_advisory
+  image: python:3.10-slim
+  allow_failure: true # Equivalente a continue-on-error en GitHub Actions
+  script:
+    - python3 scripts/quality_gate.py --mode advisory --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json
+
+# ------------------------------------------------------------------------------
+# 4. DESPLIEGUE EN STAGING Y ANÁLISIS DINÁMICO (DAST)
+# ------------------------------------------------------------------------------
+dast_zap:
+  stage: staging_and_dast
+  image: docker:24.0
+  services:
+    - docker:24.0-dind
+  script:
+    - docker-compose -f app/docker-compose.yml up -d --build
+    - sleep 10
+    - mkdir -p evidencias/dast
+    - docker run --rm -v $(pwd)/evidencias/dast:/zap/wrk/:rw zaproxy/zap-baseline -t http://docker:3000 -J zap_report.json -r zap_report.html || true
+    - docker-compose -f app/docker-compose.yml down
+  artifacts:
+    paths:
+      - evidencias/dast/
+
+# ------------------------------------------------------------------------------
+# 5. SINCRONIZACIÓN CON DEFECTDOJO API v2
+# ------------------------------------------------------------------------------
+defectdojo_import:
+  stage: defectdojo_sync
+  image: python:3.10-slim
+  when: always
+  script:
+    - python3 scripts/defectdojo_client.py --action import --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
+    - python3 scripts/defectdojo_client.py --action triage
+    - python3 scripts/defectdojo_client.py --action export --output evidencias/defectdojo/defectdojo_consolidated.json
+  artifacts:
+    paths:
+      - evidencias/defectdojo/
+
+# ------------------------------------------------------------------------------
+# 6. QUALITY GATE B: MODO BLOQUEANTE
+# ------------------------------------------------------------------------------
+gate_blocking:
+  stage: quality_gate_blocking
+  image: python:3.10-slim
+  allow_failure: false # Bloquea el pipeline ante violaciones de umbral
+  script:
+    - python3 scripts/quality_gate.py --mode blocking --critical 0 --high 0 --medium 10 --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
+
+# ------------------------------------------------------------------------------
+# 7. DESPLIEGUE EN PRODUCCIÓN
+# ------------------------------------------------------------------------------
+deploy_prod:
+  stage: deploy_production
+  image: bitnami/kubectl:latest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  script:
+    - echo "Despliegue a Producción autorizado y validado por DevSecOps."

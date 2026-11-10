@@ -1,0 +1,28 @@
+================================================================================
+      INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       
+================================================================================
+
+[+] MODO DE EJECUCIÓN DEL GATE: BLOCKING
+--------------------------------------------------------------------------------
+HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW   
+--------------------------------------------------------------------------------
+SAST (Semgrep)            | 0        | 4      | 1        | 0     
+SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
+IaC (Trivy Docker/K8s)    | 0        | 18     | 7        | 18    
+DAST (OWASP ZAP)          | 0        | 3      | 2        | 0     
+--------------------------------------------------------------------------------
+TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25    
+================================================================================
+
+[!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
+    [X] ERROR CRÍTICO DE SEGURIDAD: Umbrales superados en la etapa de release:
+        -> [BLOQUEADO] Vulnerabilidades CRÍTICAS (3) superan umbral (0)
+        -> [BLOQUEADO] Vulnerabilidades ALTAS (72) superan umbral (0)
+        -> [BLOQUEADO] Vulnerabilidades MEDIAS (42) superan umbral (10)
+
+    [!] ACCIÓN DISCIPLINARIA: El pipeline SE DETIENE de inmediato.
+    [!] El artefacto NO ha sido autorizado para despliegue en Producción.
+    [!] Notificando a equipo de desarrollo y Security Team 3.
+
+[RESULTADO] Quality Gate B (Modo Bloqueante) -> FALLIDO / BLOQUEO ACTIVO (Exit Code 1)
+

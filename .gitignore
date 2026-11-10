@@ -1,0 +1,6 @@
+node_modules/
+__pycache__/
+*.pyc
+informe_temp.html
+PAI4-ST3.zip
+.DS_Store

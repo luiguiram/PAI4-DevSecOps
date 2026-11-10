@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  insegus-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: insegus/vulnerable-microservice:staging
+    container_name: insegus-staging-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

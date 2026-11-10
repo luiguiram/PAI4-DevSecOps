@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insegus-microservice-deployment
+  namespace: insegus-staging
+  labels:
+    app: insegus-microservice
+    environment: staging
+    team: security-team-3
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: insegus-microservice
+  template:
+    metadata:
+      labels:
+        app: insegus-microservice
+    spec:
+      # VULNERABILIDAD IaC (K8s) #1: Acceso a red y namespace de procesos del host
+      hostNetwork: true
+      hostPID: false
+      containers:
+      - name: insegus-microservice
+        image: insegus/vulnerable-microservice:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        # VULNERABILIDAD IaC (K8s) #2: Contenedor privilegiado y escalada de privilegios
+        securityContext:
+          privileged: true
+          allowPrivilegeEscalation: true
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+          capabilities:
+            add:
+              - SYS_ADMIN
+        # VULNERABILIDAD IaC (K8s) #3: Ausencia de límites de recursos (CPU/Memoria DoS)
+        resources: {}
+        env:
+        - name: NODE_ENV
+          value: "development"
+        - name: DATABASE_URL
+          value: "sqlite:///app/data.db"

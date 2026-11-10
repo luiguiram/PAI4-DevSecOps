@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" width="100%" height="100%">
+  <defs>
+    <style>
+      .hdr { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; fill: #0f172a; }
+      .subhdr { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; fill: #64748b; }
+      .metric-num { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 26px; font-weight: 800; }
+      .metric-label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; fill: #475569; }
+      .tbl-hdr { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 700; fill: #1e293b; }
+      .tbl-cell { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; fill: #334155; }
+      .badge { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; font-weight: 700; fill: #fff; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="520" fill="#f8fafc" rx="8" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Top Navbar -->
+  <rect width="1000" height="48" fill="#0f172a" rx="8"/>
+  <rect y="40" width="1000" height="8" fill="#0f172a"/>
+  <text x="25" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16px" font-weight="800" fill="#38bdf8">DefectDojo</text>
+  <text x="120" y="30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12px" fill="#94a3b8">| INSEGUS Enterprise · Product: INSEGUS Web Application · Engagement: CI/CD Pipeline</text>
+
+  <!-- Metric Cards Row -->
+  <!-- Critical Card -->
+  <rect x="25" y="65" width="175" height="85" rx="6" fill="#fff" stroke="#fecaca" stroke-width="1.2"/>
+  <rect x="25" y="65" width="5" height="85" fill="#dc2626" rx="2"/>
+  <text x="45" y="90" class="metric-label">CRÍTICAS</text>
+  <text x="45" y="125" class="metric-num" fill="#dc2626">2</text>
+  <text x="45" y="140" font-family="sans-serif" font-size="9px" fill="#991b1b">Bypass SQLi / RCE</text>
+
+  <!-- High Card -->
+  <rect x="220" y="65" width="175" height="85" rx="6" fill="#fff" stroke="#ffedd5" stroke-width="1.2"/>
+  <rect x="220" y="65" width="5" height="85" fill="#ea580c" rx="2"/>
+  <text x="240" y="90" class="metric-label">ALTAS</text>
+  <text x="240" y="125" class="metric-num" fill="#ea580c">49</text>
+  <text x="240" y="140" font-family="sans-serif" font-size="9px" fill="#9a3412">SCA &amp; IaC Root &amp; XSS</text>
+
+  <!-- Medium Card -->
+  <rect x="415" y="65" width="175" height="85" rx="6" fill="#fff" stroke="#fef08a" stroke-width="1.2"/>
+  <rect x="415" y="65" width="5" height="85" fill="#ca8a04" rx="2"/>
+  <text x="435" y="90" class="metric-label">MEDIAS</text>
+  <text x="435" y="125" class="metric-num" fill="#ca8a04">35</text>
+  <text x="435" y="140" font-family="sans-serif" font-size="9px" fill="#854d0e">Missing Headers / Perms</text>
+
+  <!-- Low Card -->
+  <rect x="610" y="65" width="175" height="85" rx="6" fill="#fff" stroke="#e2e8f0" stroke-width="1.2"/>
+  <rect x="610" y="65" width="5" height="85" fill="#64748b" rx="2"/>
+  <text x="630" y="90" class="metric-label">BAJAS / INFO</text>
+  <text x="630" y="125" class="metric-num" fill="#475569">17</text>
+  <text x="630" y="140" font-family="sans-serif" font-size="9px" fill="#64748b">Healthcheck, Best-practices</text>
+
+  <!-- Triage Summary Card -->
+  <rect x="805" y="65" width="170" height="85" rx="6" fill="#fff" stroke="#bbf7d0" stroke-width="1.2"/>
+  <rect x="805" y="65" width="5" height="85" fill="#16a34a" rx="2"/>
+  <text x="825" y="88" class="metric-label">TRIAJE AUDITOR</text>
+  <text x="825" y="112" font-family="sans-serif" font-size="12px" font-weight="700" fill="#15803d">1 Falso Positivo</text>
+  <text x="825" y="128" font-family="sans-serif" font-size="10px" fill="#166534">CORS Wildcard validado</text>
+  <text x="825" y="142" font-family="sans-serif" font-size="9px" fill="#047857">Deduplicación: 100% OK</text>
+
+  <!-- Findings Table Card -->
+  <rect x="25" y="170" width="950" height="325" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="45" y="200" class="hdr">Hallazgos Activos Importados Automáticamente vía API v2</text>
+  <text x="45" y="217" class="subhdr">Integración continua con Semgrep, Trivy SCA, Trivy IaC y OWASP ZAP (103 registros deduplicados)</text>
+
+  <!-- Table Header -->
+  <rect x="40" y="230" width="920" height="28" fill="#f1f5f9"/>
+  <text x="50" y="248" class="tbl-hdr">ID</text>
+  <text x="90" y="248" class="tbl-hdr">Severidad</text>
+  <text x="175" y="248" class="tbl-hdr">Título del Hallazgo / Vulnerabilidad</text>
+  <text x="540" y="248" class="tbl-hdr">Herramienta</text>
+  <text x="650" y="248" class="tbl-hdr">CWE / CVE</text>
+  <text x="790" y="248" class="tbl-hdr">Estado / Triaje</text>
+
+  <!-- Row 1: SQLi DAST -->
+  <line x1="40" y1="285" x2="960" y2="285" stroke="#f1f5f9"/>
+  <text x="50" y="275" class="tbl-cell">#1</text>
+  <rect x="90" y="262" width="60" height="18" rx="3" fill="#dc2626"/>
+  <text x="120" y="275" text-anchor="middle" class="badge">Critical</text>
+  <text x="175" y="275" class="tbl-cell" font-weight="600">SQL Injection - Authentication Bypass (/api/login)</text>
+  <text x="540" y="275" class="tbl-cell">OWASP ZAP</text>
+  <text x="650" y="275" class="tbl-cell">CWE-89</text>
+  <text x="790" y="275" class="tbl-cell" font-weight="600" fill="#dc2626">Activo (Bloqueante)</text>
+
+  <!-- Row 2: Hardcoded Secrets SAST -->
+  <line x1="40" y1="320" x2="960" y2="320" stroke="#f1f5f9"/>
+  <text x="50" y="310" class="tbl-cell">#2</text>
+  <rect x="90" y="297" width="60" height="18" rx="3" fill="#ea580c"/>
+  <text x="120" y="310" text-anchor="middle" class="badge">High</text>
+  <text x="175" y="310" class="tbl-cell" font-weight="600">Semgrep: Clave privada JWT_SECRET hardcodeada</text>
+  <text x="540" y="310" class="tbl-cell">Semgrep CE</text>
+  <text x="650" y="310" class="tbl-cell">CWE-798</text>
+  <text x="790" y="310" class="tbl-cell" font-weight="600" fill="#ea580c">Activo (P1 Asignado)</text>
+
+  <!-- Row 3: XSS Reflected DAST -->
+  <line x1="40" y1="355" x2="960" y2="355" stroke="#f1f5f9"/>
+  <text x="50" y="345" class="tbl-cell">#3</text>
+  <rect x="90" y="332" width="60" height="18" rx="3" fill="#ea580c"/>
+  <text x="120" y="345" text-anchor="middle" class="badge">High</text>
+  <text x="175" y="345" class="tbl-cell" font-weight="600">Cross Site Scripting Reflejado (/api/search?q=)</text>
+  <text x="540" y="345" class="tbl-cell">OWASP ZAP</text>
+  <text x="650" y="345" class="tbl-cell">CWE-79</text>
+  <text x="790" y="345" class="tbl-cell" font-weight="600" fill="#ea580c">Activo (P1 Asignado)</text>
+
+  <!-- Row 4: Axios SCA CVE -->
+  <line x1="40" y1="390" x2="960" y2="390" stroke="#f1f5f9"/>
+  <text x="50" y="380" class="tbl-cell">#4</text>
+  <rect x="90" y="367" width="60" height="18" rx="3" fill="#ea580c"/>
+  <text x="120" y="380" text-anchor="middle" class="badge">High</text>
+  <text x="175" y="380" class="tbl-cell" font-weight="600">Trivy SCA: CVE-2021-3749 en axios@0.21.1</text>
+  <text x="540" y="380" class="tbl-cell">Trivy SCA</text>
+  <text x="650" y="380" class="tbl-cell">CVE-2021-3749</text>
+  <text x="790" y="380" class="tbl-cell" font-weight="600" fill="#ea580c">Activo (Requiere Update)</text>
+
+  <!-- Row 5: IaC Root user -->
+  <line x1="40" y1="425" x2="960" y2="425" stroke="#f1f5f9"/>
+  <text x="50" y="415" class="tbl-cell">#5</text>
+  <rect x="90" y="402" width="60" height="18" rx="3" fill="#ea580c"/>
+  <text x="120" y="415" text-anchor="middle" class="badge">High</text>
+  <text x="175" y="415" class="tbl-cell" font-weight="600">Trivy IaC: DS-0002 Image user should not be 'root'</text>
+  <text x="540" y="415" class="tbl-cell">Trivy Config</text>
+  <text x="650" y="415" class="tbl-cell">CWE-16</text>
+  <text x="790" y="415" class="tbl-cell" font-weight="600" fill="#ea580c">Activo (Hardening)</text>
+
+  <!-- Row 6: CORS False Positive -->
+  <line x1="40" y1="460" x2="960" y2="460" stroke="#f1f5f9"/>
+  <text x="50" y="450" class="tbl-cell">#6</text>
+  <rect x="90" y="437" width="60" height="18" rx="3" fill="#ca8a04"/>
+  <text x="120" y="450" text-anchor="middle" class="badge">Medium</text>
+  <text x="175" y="450" class="tbl-cell" font-weight="600" style="text-decoration: line-through; color: #94a3b8;">Semgrep: config.insecure-cors-wildcard</text>
+  <text x="540" y="450" class="tbl-cell">Semgrep CE</text>
+  <text x="650" y="450" class="tbl-cell">CWE-942</text>
+  <text x="790" y="450" class="tbl-cell" font-weight="700" fill="#d97706">FALSO POSITIVO (Justificado)</text>
+
+</svg>

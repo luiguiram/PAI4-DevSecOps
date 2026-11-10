@@ -1,0 +1,20 @@
+# Trivy Configuration File - PAI 4 DevSecOps (Yellow Team INSEGUS)
+format: json
+severity:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+  - LOW
+vuln-type:
+  - os
+  - library
+scanners:
+  - vuln
+  - misconfig
+  - secret
+exit-code: 0 # En modo aviso o controlado por el evaluador de Quality Gate
+timeout: 10m
+cache:
+  dir: /tmp/trivy-cache
+misconfiguration:
+  trace: true

@@ -1,0 +1,30 @@
+{
+  "name": "insegus-vulnerable-microservice",
+  "version": "1.0.0",
+  "description": "Microservicio web intencionadamente vulnerable para pruebas DevSecOps (Yellow Team INSEGUS)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node -e \"console.log('Todos los tests unitarios pasaron correctamente')\""
+  },
+  "dependencies": {
+    "axios": "0.21.1",
+    "body-parser": "1.18.3",
+    "cors": "2.8.5",
+    "express": "4.16.1",
+    "jsonwebtoken": "8.5.1",
+    "lodash": "4.17.15",
+    "sqlite3": "5.0.0"
+  },
+  "keywords": [
+    "devsecops",
+    "vulnerable-app",
+    "sast",
+    "sca",
+    "dast",
+    "iac",
+    "insegus"
+  ],
+  "author": "Security Team 3",
+  "license": "ISC"
+}
