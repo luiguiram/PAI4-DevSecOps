@@ -3,7 +3,6 @@
  * Security Team 3 (Curso 2026/2027) - Universidad de Sevilla
  *
  * NOTA: Esta aplicación contiene vulnerabilidades intencionadas con fines educativos
- * para la validación y verificación de herramientas SAST, SCA, DAST e IaC.
  */
 
 const express = require('express');
