@@ -136,15 +136,22 @@ jobs:
       - name: Levantar Microservicio en Staging (Docker)
         run: |
           cd app
-          docker-compose up -d --build
+          docker compose up -d --build
           echo "[*] Esperando a que el servicio esté disponible en http://localhost:3000..."
+          UP=0
           for i in {1..30}; do
-            if curl -s http://localhost:3000/health | grep -q "UP"; then
+            if curl -sf http://localhost:3000/health | grep -q "UP"; then
               echo "[+] Servicio disponible y verificado."
+              UP=1
               break
             fi
             sleep 2
           done
+          if [ "$UP" -ne 1 ]; then
+            echo "[-] El microservicio no respondió en /health"
+            docker compose logs
+            exit 1
+          fi
 
       - name: Crear Directorio DAST
         run: mkdir -p evidencias/dast
@@ -155,14 +162,21 @@ jobs:
           target: 'http://localhost:3000'
           rules_file_name: 'config/zap-baseline.conf'
           cmd_options: '-a -j'
+          allow_issue_writing: false
           fail_action: false
         continue-on-error: true
+
+      - name: Ejecutar DAST Activo (SQLi, XSS, SSRF) sobre Staging
+        run: |
+          python3 scripts/run_zap_dast.py
+          if [ -f report_json.json ]; then cp report_json.json evidencias/dast/zap_baseline_report.json; fi
+          if [ -f report_html.html ]; then cp report_html.html evidencias/dast/zap_baseline_report.html; fi
 
       - name: Desmantelar Entorno de Staging
         if: always()
         run: |
           cd app
-          docker-compose down
+          docker compose down
 
       - name: Subir Evidencias DAST
         uses: actions/upload-artifact@v4
@@ -186,9 +200,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: evidencias/
+          merge-multiple: true
 
       - name: Sincronizar Informes con DefectDojo API v2
         run: |
+          rm -f evidencias/defectdojo/defectdojo_findings_db.json
           python3 scripts/defectdojo_client.py \
             --action import \
             --semgrep evidencias/sast/semgrep_report.json \
@@ -227,6 +243,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: evidencias/
+          merge-multiple: true
 
       - name: Evaluar Criterios de Seguridad de Release
         run: |
