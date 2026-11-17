@@ -208,25 +208,20 @@ El siguiente diagrama detalla la secuencia ordenada de etapas, las herramientas 
 7. **Etapa Producción (Deploy):** Despliega el microservicio en el clúster productivo de Kubernetes únicamente si el Quality Gate B aprueba la entrega.
 
 ### 3.2. Diagrama de Flujo ante Detección de Vulnerabilidades (Objetivo 1.b)
-El segundo diagrama modela las decisiones automáticas y humanas desde que un escáner detecta una anomalía hasta su resolución y marcado como mitigada:
+El segundo diagrama detalla el ciclo de vida de gestión de una vulnerabilidad desde su detección por las herramientas hasta su resolución final en DefectDojo (omitiendo la lógica de bloqueo por etapas ya representada en el diagrama 3.1 y profundizando en las casuísticas tras el triaje):
 
 <img src="evidencias/diagramas/vulnerability_flowchart_diagram.svg" alt="Diagrama de Flujo ante una Vulnerabilidad" width="100%"/>
 
-**Secuencia Lógica de Decisión:**
+**Secuencia Lógica de Gestión y Triaje:**
 
-1. **Detección:** Un escáner (SAST, SCA, IaC o DAST) encuentra un hallazgo.
-2. **Ingesta:** El informe se transmite de forma desatendida a DefectDojo.
-3. **¿Severidad Crítica o Alta?:**
-   - **NO (Media / Baja / Info):** Se cataloga en DefectDojo como hallazgo activo para planificación en deuda técnica; el pipeline continúa.
-   - **SÍ:** Se evalúa la naturaleza del Quality Gate de la etapa en curso.
-4. **¿La etapa es bloqueante?:**
-   - **NO (Quality Gate A - Build):** El pipeline emite una advertencia formal en el Pull Request y continúa para posibilitar las pruebas DAST.
-   - **SÍ (Quality Gate B - Pre-producción):** El pipeline **SE DETIENE** de inmediato (`exit 1`), se bloquea el paso a producción y se emite alerta prioritaria al desarrollador y al Security Team.
-5. **Triaje en DefectDojo:** El Green Team / Security Team 3 analiza la vulnerabilidad en el dashboard centralizado.
-6. **¿Es un Falso Positivo?:**
-   - **SÍ:** Se marca el hallazgo en DefectDojo como `False Positive` con justificación técnica detallada y se ajustan los filtros del escáner (`.semgrepignore`, directivas ignore en Trivy).
-   - **NO (Vulnerabilidad Real):** Se asigna prioridad P1/P2 al equipo de desarrollo, quienes corrigen el código (parametrización, sanitización) o actualizan dependencias (`npm audit fix`).
-7. **Ciclo de Cierre:** El desarrollador realiza un nuevo `commit & push`. El pipeline se re-ejecuta automáticamente y, al reimportar el escaneo sin la vulnerabilidad, DefectDojo actualiza el estado a `Mitigated`.
+1. **Detección:** Una herramienta de seguridad (SAST, SCA, IaC o DAST) detecta un hallazgo.
+2. **Ingesta y Deduplicación en DefectDojo:** El informe se envía de forma automática mediante la API REST v2 (`POST /api/v2/import-scan/`), aplicando deduplicación por hash SHA-256 y notificando al equipo.
+3. **Triaje y Priorización (Security Team 3):** El Green Team analiza el contexto técnico del hallazgo, valida su explotabilidad y lo clasifica según CVSS v3.1, derivando en cuatro posibles escenarios de resolución:
+   - **Caso 1 — Falso Positivo (`False Positive`):** Si el hallazgo no es aplicable o explotable en el entorno real, se marca como `False Positive` con justificación técnica y se ajusta la regla/exclusión del escáner (`.semgrepignore`, `.trivyignore`, `zap-baseline.conf`).
+   - **Caso 2 — Duplicado o Fuera de Alcance (`Duplicate` / `Out of Scope`):** Si dos herramientas reportan el mismo problema por distinto vector (p. ej. SAST y DAST) se vincula al hallazgo original; si afecta únicamente a ficheros de pruebas o dependencias de desarrollo aisladas, se marca como `Out of Scope`.
+   - **Caso 3 — Riesgo Aceptado (`Risk Accepted`):** Para hallazgos de severidad baja/media sin parche disponible o mitigados por controles compensatorios perimetrales (WAF, aislamiento de red ClusterIP), la dirección/CISO aprueba una aceptación temporal del riesgo con fecha de revisión obligatoria.
+   - **Caso 4 — Vulnerabilidad Real Confirmada (`Verified` → Remediación):** Se asigna prioridad (**P1 Crítica**, **P2 < 48h**, **P3 Sprint**, **P4 Backlog**) al Yellow Team para corregir el código fuente (parametrización SQLi, sanitización XSS), actualizar dependencias (`npm update`) o endurecer manifiestos IaC, realizando un nuevo `commit & push`.
+4. **Re-verificación y Cierre Automático:** El nuevo commit dispara automáticamente el pipeline desde el paso 1; al reimportar los informes limpios en DefectDojo, la plataforma comprueba la ausencia del hallazgo y lo marca automáticamente como **`Mitigated`**.
 
 ---
 
