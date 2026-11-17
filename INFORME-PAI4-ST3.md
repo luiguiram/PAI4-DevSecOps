@@ -195,6 +195,7 @@ El siguiente diagrama detalla la secuencia ordenada de etapas, las herramientas 
 <img src="evidencias/diagramas/pipeline_devsecops_diagram.svg" alt="Diagrama de Arquitectura del Pipeline DevSecOps" width="100%"/>
 
 **Análisis de Etapas del Pipeline:**
+
 1. **Disparador (Trigger):** Se activa automáticamente ante eventos `push` o `pull_request` sobre las ramas `main` y `develop`.
 2. **Etapa 1 (Build & Análisis Estático):** Compila el microservicio, ejecuta tests unitarios (`npm test`) y lanza en paralelo:
    - **SAST (Semgrep):** Analiza sintaxis AST del código fuente, exportando `semgrep_report.json`.
@@ -212,6 +213,7 @@ El segundo diagrama modela las decisiones automáticas y humanas desde que un es
 <img src="evidencias/diagramas/vulnerability_flowchart_diagram.svg" alt="Diagrama de Flujo ante una Vulnerabilidad" width="100%"/>
 
 **Secuencia Lógica de Decisión:**
+
 1. **Detección:** Un escáner (SAST, SCA, IaC o DAST) encuentra un hallazgo.
 2. **Ingesta:** El informe se transmite de forma desatendida a DefectDojo.
 3. **¿Severidad Crítica o Alta?:**
@@ -312,12 +314,12 @@ Durante la puesta en marcha técnica se identificaron tres discrepancias operati
 ### 7.1. Criterios de Calidad, Umbrales y Políticas de Fallo
 Las políticas de seguridad se parametrizaron formalmente en el evaluador `scripts/quality_gate.py` conforme a los siguientes umbrales numéricos:
 
-$$\text{Decisión Gate B} = \begin{cases} \text{BLOQUEADO (exit 1)}, & \text{si } N_{\text{Critical}} > 0 \lor N_{\text{High}} > 0 \lor N_{\text{Medium}} > 10 \\ \text{APROBADO (exit 0)}, & \text{en caso contrario} \end{cases}$$
+> **Regla de Decisión (Gate B):** Si `(N_Critical > 0) OR (N_High > 0) OR (N_Medium > 10)` → **BLOQUEADO (`exit 1`)**; en caso contrario → **APROBADO (`exit 0`)**.
 
 | Quality Gate | Etapa del Pipeline | Modo de Operación | Umbral Crítico | Umbral Alto | Umbral Medio | Acción ante Incumplimiento |
 | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
 | **Quality Gate A** | Build / Análisis Estático | **Modo Aviso (Advisory)** | Sin límite | Sin límite | Sin límite | Publica advertencia en PR; continúa ejecución (`continue-on-error: true`). |
-| **Quality Gate B** | Pre-Producción / Release | **Modo Bloqueante (Blocking)** | **$\le 0$** | **$\le 0$** | **$\le 10$** | **Aborta el pipeline (`exit 1`)**, cancela el despliegue y alerta al CISO. |
+| **Quality Gate B** | Pre-Producción / Release | **Modo Bloqueante (Blocking)** | **≤ 0** | **≤ 0** | **≤ 10** | **Aborta el pipeline (`exit 1`)**, cancela el despliegue y alerta al CISO. |
 
 ### 7.2. Demostración Técnica de Etapa en Modo Aviso (Quality Gate A)
 En la etapa de compilación, el evaluador de Quality Gate A consolidó las evidencias estáticas de Semgrep y Trivy. Pese a detectar anomalías severas, el pipeline reaccionó según lo previsto en el diseño: **notificó las infracciones y permitió continuar la ejecución sin detener el flujo**:
@@ -402,12 +404,13 @@ El proceso de ingesta procesó de manera transparente los formatos nativos de la
 ### 8.2. Deduplicación Automática y Correlación de Hallazgos
 Uno de los valores fundamentales de DefectDojo es su motor de deduplicación. Al recibir alertas de múltiples escáneres que apuntan al mismo componente (por ejemplo, Semgrep detectando inyección SQL estática en `server.js` y OWASP ZAP detectando SQL Injection dinámica en `/api/login`), DefectDojo genera una firma hash SHA-256 única:
 
-$$\text{Hash}_{\text{vuln}} = \text{SHA-256}(\text{CWE} \parallel \text{Endpoint/Fichero} \parallel \text{Parámetro/Línea})$$
+`Hash_vuln = SHA-256(CWE || Endpoint/Fichero || Parámetro/Línea)`
 
 Esto permitió consolidar las alertas brutas en un inventario estructurado de **103 vulnerabilidades deduplicadas**, evitando duplicidades en el cuadro de mando de auditoría.
 
 ### 8.3. Triaje Técnico, Priorización (P1-P4) y Tratamiento de Falsos Positivos
 El equipo auditor llevó a cabo el triaje técnico de los hallazgos según la matriz de riesgo del marco FIRST CVSS v3.1:
+
 - **P1 - Inmediato / Bloqueante (CVSS 9.0 - 10.0):** Inyecciones SQL explotables en login y RCE potencial por `eval()`. Subsanación obligatoria antes de cualquier despliegue.
 - **P2 - Alta Prioridad (CVSS 7.0 - 8.9):** CVEs en Axios y JsonWebToken, credenciales en código y contenedores en modo privilegiado. Plazo máximo de remediación: 48 horas.
 - **P3 - Media Prioridad (CVSS 4.0 - 6.9):** Falta de cabeceras HTTP de seguridad (CSP, X-Frame-Options). Programado en el siguiente sprint de hardening.
