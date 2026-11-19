@@ -32,7 +32,7 @@
   <!-- Header Banner -->
   <rect x="20" y="18" width="1140" height="54" rx="6" ry="6" fill="url(#headerGrad)"/>
   <text x="40" y="43" class="title">ARQUITECTURA DEL PIPELINE DEVSECOPS - INSEGUS ENTERPRISE</text>
-  <text x="40" y="62" class="subtitle">Objetivo 1.a | Yellow Team (Security Team 3) | Microservicios en Kubernetes | CI/CD GitHub Actions &amp; GitLab</text>
+  <text x="40" y="62" class="subtitle">Objetivo 1.a | Yellow Team (Security Team 3) | Microservicios en Kubernetes | CI/CD GitHub Actions</text>
 
   <!-- Trigger Box -->
   <rect x="20" y="115" width="105" height="165" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>

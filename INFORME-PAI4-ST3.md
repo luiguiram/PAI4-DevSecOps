@@ -50,7 +50,7 @@ Avda. Reina Mercedes s/n. 41012 Sevilla | Tel: +34 954 557 139 | Web: [www.lsi.u
    - 3.2. Diagrama de Flujo ante Detección de Vulnerabilidades (Objetivo 1.b)
    - 3.3. Trazabilidad de Estados y Notificaciones
 4. **Decisiones de Diseño de Ingeniería**
-   - 4.1. Selección del Motor de CI/CD: GitHub Actions y GitLab CI/CD
+   - 4.1. Selección del Motor de CI/CD: GitHub Actions
    - 4.2. Estrategia de Mitigación de Falsos Bloqueos: Modo Aviso vs. Modo Bloqueante
    - 4.3. Gestión Cero Credenciales en Código Fuente (Security as Code)
 5. **Selección y Justificación de Herramientas de Seguridad (Objetivo 2)**
@@ -60,7 +60,7 @@ Avda. Reina Mercedes s/n. 41012 Sevilla | Tel: +34 954 557 139 | Web: [www.lsi.u
    - 5.4. DAST (Dynamic Application Security Testing): OWASP ZAP
    - 5.5. Centralización: OWASP DefectDojo v2
 6. **Implementación e Integración en el Pipeline (Objetivo 3)**
-   - 6.1. Definición del Flujo Automatizado (.github/workflows y .gitlab-ci.yml)
+   - 6.1. Definición del Flujo Automatizado (.github/workflows/devsecops-pipeline.yml)
    - 6.2. Adaptaciones y Cambios Respecto al Diseño Preliminar Justificados
 7. **Quality Gates de Seguridad (Objetivo 4)**
    - 7.1. Criterios de Calidad, Umbrales y Políticas de Fallo
@@ -148,7 +148,6 @@ El repositorio corporativo se organiza bajo la siguiente estructura modular est�
 PAI4-ST3/
 ├── .github/workflows/          # Pipeline DevSecOps en GitHub Actions
 │   └── devsecops-pipeline.yml
-├── .gitlab-ci.yml              # Pipeline alternativo para entornos GitLab CI/CD
 ├── app/                        # Código fuente del microservicio vulnerable
 │   ├── Dockerfile              # Manifiesto de contenedor con fallas IaC
 │   ├── docker-compose.yml      # Entorno orquestado para pruebas locales/staging
@@ -181,7 +180,7 @@ PAI4-ST3/
 ```
 
 > [!IMPORTANT]
-> **POLÍTICA DE CERO SECRETOS EN CÓDIGO:** Conforme a las normas del entregable, todos los secretos e identificadores sensibles (API keys de DefectDojo, tokens de GitHub/GitLab, claves de registro) se gestionan mediante variables enmascaradas y secretas del servidor CI (`secrets.DEFECTDOJO_API_KEY`). Ningún secreto real figura en el código ni en los ficheros entregados.
+> **POLÍTICA DE CERO SECRETOS EN CÓDIGO:** Conforme a las normas del entregable, todos los secretos e identificadores sensibles (API keys de DefectDojo, tokens de GitHub, claves de registro) se gestionan mediante variables enmascaradas y secretas del servidor CI (`secrets.DEFECTDOJO_API_KEY`). Ningún secreto real figura en el código ni en los ficheros entregados.
 
 ---
 
@@ -227,16 +226,14 @@ El segundo diagrama detalla el ciclo de vida de gestión de una vulnerabilidad d
 
 ## 4. Decisiones de Diseño de Ingeniería
 
-### 4.1. Selección del Motor de CI/CD: GitHub Actions y GitLab CI/CD
-Se seleccionó como motor principal de ejecución **GitHub Actions** debido a su integración nativa con repositorios de código, su sistema de contenedores de servicio para entornos efímeros de staging y el amplio ecosistema de acciones mantenidas oficialmente por los fabricantes de seguridad (`returntocorp/semgrep-action`, `aquasecurity/trivy-action`, `zaproxy/action-baseline`).
-
-Asimismo, para garantizar máxima portabilidad corporativa, se implementó la especificación complementaria para **GitLab CI/CD** (`.gitlab-ci.yml`) utilizando runners basados en Docker, replicando de forma idéntica las etapas, variables y comportamientos de fallo.
+### 4.1. Selección del Motor de CI/CD: GitHub Actions
+Se seleccionó como motor de ejecución **GitHub Actions** debido a su integración nativa con el repositorio del proyecto, su soporte directo de Docker Compose para levantar entornos efímeros de *staging*, la gestión integrada de secretos y el amplio ecosistema de acciones mantenidas oficialmente por los fabricantes de seguridad (`returntocorp/semgrep-action`, `aquasecurity/trivy-action`, `zaproxy/action-baseline`). Frente a alternativas evaluadas como Jenkins (que exige infraestructura dedicada y mantenimiento de plugins) o GitLab CI/CD (que requeriría migrar el repositorio fuera de GitHub), GitHub Actions centraliza código, Pull Requests, artefactos y trazabilidad de ejecuciones en una única plataforma.
 
 ### 4.2. Estrategia de Mitigación de Falsos Bloqueos: Modo Aviso vs. Modo Bloqueante
 Un dilema arquitectónico crítico en DevSecOps al evaluar aplicaciones vulnerables es el siguiente: *si un Quality Gate bloquea de forma rígida en la etapa de compilación ante cualquier hallazgo alto, las etapas posteriores de staging y análisis dinámico (DAST) nunca llegarían a ejecutarse*, impidiendo obtener una visibilidad integral de la superficie de ataque.
 
 Para resolver este desafío sin comprometer la seguridad productiva, se adoptó una arquitectura de **Quality Gates diferenciados en dos niveles**:
-- **Gate A (Nivel Compilación/Estático - Modo Aviso):** Inspecciona el código fuente y manifiestos. Emite diagnósticos detallados pero opera con `continue-on-error: true` (en GitHub Actions) o `allow_failure: true` (en GitLab CI/CD). Esto garantiza que el artefacto pueda construirse y desplegarse en staging para su prueba dinámica.
+- **Gate A (Nivel Compilación/Estático - Modo Aviso):** Inspecciona el código fuente y manifiestos. Emite diagnósticos detallados pero opera con `continue-on-error: true` en GitHub Actions. Esto garantiza que el artefacto pueda construirse y desplegarse en staging para su prueba dinámica.
 - **Gate B (Nivel Certificación Pre-Producción - Modo Bloqueante):** Se posiciona tras consolidar los informes de SAST, SCA, IaC y DAST en DefectDojo. Aplica la política de **Tolerancia Cero** a vulnerabilidades Críticas y Altas. Si el número de hallazgos en estos niveles es superior a cero, el pipeline falla de forma irrevocable (`exit 1`), protegiendo el entorno de producción.
 
 ### 4.3. Gestión Cero Credenciales en Código Fuente (Security as Code)
@@ -263,7 +260,7 @@ El pliego de condiciones del proyecto requería la selección justificada de al 
 ## 6. Implementación e Integración en el Pipeline (Objetivo 3)
 
 ### 6.1. Definición del Flujo Automatizado
-El pipeline se implementó íntegramente en `.github/workflows/devsecops-pipeline.yml` (y su contrapartida en `.gitlab-ci.yml`), orquestando 7 jobs secuenciales y paralelos:
+El pipeline se implementó íntegramente en `.github/workflows/devsecops-pipeline.yml`, orquestando 7 jobs secuenciales y paralelos:
 
 ```
 [1. Build & Unit Tests]

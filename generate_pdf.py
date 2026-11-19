@@ -14,13 +14,47 @@ Universidad de Sevilla - E.T.S. Ingeniería Informática
 import os
 import sys
 import re
+import shutil
 import subprocess
+from pathlib import Path
 import markdown
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MD_PATH = os.path.join(BASE_DIR, "INFORME-PAI4-ST3.md")
 PDF_PATH = os.path.join(BASE_DIR, "INFORME-PAI4-ST3.pdf")
 HTML_TEMP = os.path.join(BASE_DIR, "informe_temp.html")
+
+
+def find_chromium_browser():
+    """Detecta un navegador compatible con Chromium (Brave, Chrome, Chromium o Edge) en Linux, Windows o macOS."""
+    override = os.environ.get("PDF_BROWSER")
+    if override and (shutil.which(override) or os.path.isfile(override)):
+        return override
+
+    for binary in ("brave", "brave-browser", "google-chrome", "chromium", "chromium-browser", "chrome", "msedge"):
+        found = shutil.which(binary)
+        if found:
+            return found
+
+    local_app_data = os.environ.get("LOCALAPPDATA", "")
+    candidate_paths = [
+        r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe",
+        r"C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe",
+        os.path.join(local_app_data, r"BraveSoftware\Brave-Browser\Application\brave.exe"),
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        os.path.join(local_app_data, r"Google\Chrome\Application\chrome.exe"),
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    ]
+    for path in candidate_paths:
+        if path and os.path.isfile(path):
+            return path
+
+    return None
 
 def convert_markdown_to_pdf():
     if not os.path.exists(MD_PATH):
@@ -58,9 +92,10 @@ def convert_markdown_to_pdf():
 
     body_html = markdown.markdown(text, extensions=["tables", "fenced_code", "extra", "sane_lists"])
 
-    # Conversión de rutas relativas de imágenes a absolutas
-    body_html = body_html.replace('src="evidencias/', f'src="file://{BASE_DIR}/evidencias/')
-    body_html = body_html.replace('src="./evidencias/', f'src="file://{BASE_DIR}/evidencias/')
+    # Conversión de rutas relativas de imágenes a URIs absolutos (compatible con Linux/Windows/macOS)
+    evidencias_uri = Path(BASE_DIR, "evidencias").as_uri()
+    body_html = body_html.replace('src="evidencias/', f'src="{evidencias_uri}/')
+    body_html = body_html.replace('src="./evidencias/', f'src="{evidencias_uri}/')
 
     html_content = f"""<!DOCTYPE html>
 <html lang="es">
@@ -229,34 +264,41 @@ def convert_markdown_to_pdf():
 </body>
 </html>"""
 
+    browser = find_chromium_browser()
+    if not browser:
+        print("[!] Error: No se encontró un navegador compatible (Brave, Chrome, Chromium o Edge).")
+        print("    Instale alguno o indique la ruta en la variable de entorno PDF_BROWSER.")
+        sys.exit(1)
+
     with open(HTML_TEMP, "w", encoding="utf-8") as f:
         f.write(html_content)
 
-    print(f"[*] Compilando PDF mediante Brave headless...")
+    print(f"[*] Compilando PDF mediante navegador headless ({os.path.basename(browser)})...")
     cmd = [
-        "brave",
+        browser,
         "--headless",
         "--disable-gpu",
         "--no-sandbox",
         "--no-pdf-header-footer",
         f"--print-to-pdf={PDF_PATH}",
-        HTML_TEMP
+        Path(HTML_TEMP).as_uri()
     ]
-    subprocess.run(cmd, check=True)
-
-    if os.path.exists(HTML_TEMP):
-        os.remove(HTML_TEMP)
+    try:
+        subprocess.run(cmd, check=True)
+    finally:
+        if os.path.exists(HTML_TEMP):
+            os.remove(HTML_TEMP)
 
     if os.path.exists(PDF_PATH):
+        size_kb = os.path.getsize(PDF_PATH) / 1024
         try:
             pdfinfo = subprocess.check_output(["pdfinfo", PDF_PATH], text=True)
             pages_match = re.search(r"Pages:\s+(\d+)", pdfinfo)
             pages = pages_match.group(1) if pages_match else "?"
-            size_kb = os.path.getsize(PDF_PATH) / 1024
             print(f"[OK] Documento PDF oficial generado exitosamente: {PDF_PATH}")
             print(f"     Páginas totales: {pages} (Límite normativo: máx. 15 páginas sin portada ni anexos) | Tamaño: {size_kb:.1f} KB")
-        except Exception as e:
-            print(f"[OK] PDF generado: {PDF_PATH}")
+        except Exception:
+            print(f"[OK] Documento PDF oficial generado exitosamente: {PDF_PATH} | Tamaño: {size_kb:.1f} KB")
 
 if __name__ == "__main__":
     convert_markdown_to_pdf()

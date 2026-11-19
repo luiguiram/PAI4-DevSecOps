@@ -18,7 +18,7 @@ El pipeline automatiza las comprobaciones de seguridad en cada `push` o `pull_re
 
 ## 2. Arquitectura del Pipeline y Herramientas Integradas
 
-El flujo automatizado en [`.github/workflows/devsecops-pipeline.yml`](.github/workflows/devsecops-pipeline.yml) (con especificación equivalente en [`.gitlab-ci.yml`](.gitlab-ci.yml)) cubre cuatro categorías de análisis de seguridad y una plataforma centralizada de gestión de vulnerabilidades:
+El flujo automatizado en [`.github/workflows/devsecops-pipeline.yml`](.github/workflows/devsecops-pipeline.yml) cubre cuatro categorías de análisis de seguridad y una plataforma centralizada de gestión de vulnerabilidades:
 
 | Tipo de Prueba | Herramienta | Alcance y Detección | Salida Generada |
 | :--- | :--- | :--- | :--- |
@@ -49,7 +49,6 @@ El pipeline implementa dos *Quality Gates* con comportamiento diferenciado para 
 .
 ├── .github/workflows/
 │   └── devsecops-pipeline.yml        # Definición principal del pipeline en GitHub Actions
-├── .gitlab-ci.yml                    # Definición equivalente para GitLab CI/CD
 ├── app/                              # Microservicio web vulnerable (Node.js/Express + Docker + K8s)
 │   ├── Dockerfile
 │   ├── docker-compose.yml
