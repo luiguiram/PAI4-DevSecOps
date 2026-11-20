@@ -114,7 +114,7 @@ Conforme a la rueda de colores de la seguridad de la información (*InfoSec Colo
 
 | Indicador KPI de Seguridad | Valor Pre-DevSecOps | Valor Post-DevSecOps (Pipeline ST3) | Impacto / Estado |
 | :--- | :---: | :---: | :--- |
-| **Tiempo de Detección de Vulnerabilidades (MTTD)** | 45 días (en producción) | **< 3 minutos** (en etapa de build/commit) | Reducción del 99.9% en latencia |
+| **Tiempo de Detección de Vulnerabilidades (MTTD)** | 45 días (en producción) | **3 min 00 s** (optimizado desde 5 min 43 s) | Reducción del 99.9% frente a prod. (-47,5% en CI) |
 | **Cobertura de Capas de Seguridad** | 0% (solo tests funcionales) | **100% (SAST, SCA, IaC y DAST activos)** | Cobertura integral de la cadena |
 | **Hallazgos Críticos/Altos en Release a Producción** | No auditado (> 5 en prod) | **0 Tolerados (Quality Gate Bloqueante)** | Despliegue seguro garantizado |
 | **Deduplicación y Triaje Centralizado** | Inexistente (silos aislados) | **100% Automatizado en DefectDojo API** | Trazabilidad y visibilidad CISO |
@@ -286,7 +286,7 @@ El pipeline se implementó íntegramente en `.github/workflows/devsecops-pipelin
 ```
 
 ### 6.2. Adaptaciones y Cambios Respecto al Diseño Preliminar Justificados
-Durante la puesta en marcha técnica se identificaron tres discrepancias operativas respecto al borrador inicial, las cuales fueron resueltas y justificadas en el diseño definitivo:
+Durante la puesta en marcha técnica se identificaron cuatro adaptaciones operativas respecto al borrador inicial, las cuales fueron resueltas y justificadas en el diseño definitivo:
 
 1. **Gestión de Descarga y Caché de Base de Datos de Vulnerabilidades (Trivy DB):**
    - *Problema detectado:* Durante las pruebas iniciales de integración continua, el mirror por defecto de Trivy en Google Cloud (`mirror.gcr.io`) presentó interrupciones temporales por límites de cuota de red y fallos de apretón TLS (`tls: bad record MAC`), abortando el pipeline.
@@ -299,6 +299,10 @@ Durante la puesta en marcha técnica se identificaron tres discrepancias operati
 3. **Independencia de Compiladores C++ Nativos para Persistencia en Staging:**
    - *Problema detectado:* El microservicio utilizaba la librería nativa `sqlite3@5.0.0`, cuyo script de compilación nativo C++ (`node-pre-gyp`) era bloqueado por las políticas de seguridad de entornos Node.js modernos (v26 LTS).
    - *Solución implementada:* Se implementó un controlador de base de datos híbrido en `server.js` con fallback transparente en memoria. Mantiene la sintaxis vulnerable exacta que analiza Semgrep y los metadatos de vulnerabilidad que audita Trivy, a la vez que garantiza un tiempo de arranque instantáneo (< 200 ms) en staging para el análisis dinámico DAST.
+
+4. **Paralelización del Análisis Estático, Actualización de ZAP y Reducción de Tiempos de CI/CD (-47,5 %):**
+   - *Problema detectado:* En las primeras ejecuciones en GitHub Actions (p. ej., ejecución `#13`, [`runs/44716341230`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716341230)), SAST, SCA e IaC corrían de forma secuencial en un único job, `npm install` ejecutaba scripts nativos innecesarios y `zaproxy/action-baseline@v0.12.0` emitía un aviso de nombre de artefacto inválido (`zap_scan`), elevando la duración total a **5 min 43 s**.
+   - *Solución implementada:* Se refactorizó `.github/workflows/devsecops-pipeline.yml` desacoplando la Etapa 2 en **tres jobs paralelos independientes** (`2a. SAST (Semgrep)`, `2b. SCA (Trivy Deps)` y `2c. IaC (Trivy Config)`) con artefactos separados por herramienta, se incorporaron 8 pruebas unitarias reales (`node --test`) con `npm install --legacy-peer-deps --ignore-scripts`, se actualizó `zaproxy/action-baseline` a `v0.15.0` (`artifact_name: owasp-zap-baseline-report`) y se añadieron tablas ejecutivas en `$GITHUB_STEP_SUMMARY`. Gracias a estas mejoras, **el tiempo total del pipeline cayó casi a la mitad (-47,5 %), pasando de 5 min 43 s a 3 min 00 s** en la ejecución oficial `#14` sobre `main` ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617)).
 
 ---
 
@@ -377,7 +381,7 @@ TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25
 ```
 
 > [!WARNING]
-> La evidencia de bloqueo con código `exit 1` ha quedado documentada en el log oficial `evidencias/pipeline_logs/pipeline_failure_quality_gate.log` y en `evidencias/quality_gates/quality_gate_blocking_failure.log`.
+> La evidencia de bloqueo con código `exit 1` ha quedado documentada tanto en las ejecuciones reales de GitHub Actions — en Pull Request `#11` ([`runs/44645741212`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44645741212)) y en `push` a `main` `#14` ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617)) — como en los logs locales `evidencias/pipeline_logs/pipeline_failure_quality_gate.log` y `evidencias/quality_gates/quality_gate_blocking_failure.log`.
 
 ---
 
