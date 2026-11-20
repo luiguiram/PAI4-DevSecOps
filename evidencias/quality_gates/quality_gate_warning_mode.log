@@ -8,17 +8,17 @@ HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW
 --------------------------------------------------------------------------------
 SAST (Semgrep)            | 0        | 4      | 1        | 0     
 SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
-IaC (Trivy Docker/K8s)    | 0        | 18     | 7        | 18    
+IaC (Trivy Docker/K8s)    | 0        | 6      | 6        | 11    
 DAST (OWASP ZAP)          | 0        | 0      | 0        | 0     
 --------------------------------------------------------------------------------
-TOTAL CONSOLIDADO         | 3        | 69     | 40       | 25    
+TOTAL CONSOLIDADO         | 3        | 57     | 39       | 18    
 ================================================================================
 
 [!] MODO AVISO (ADVISORY / WARNING MODE):
     [!] ADVERTENCIA: Se han detectado violaciones de seguridad en etapas iniciales:
         -> Vulnerabilidades CRÍTICAS (3) superan umbral (0)
-        -> Vulnerabilidades ALTAS (69) superan umbral (0)
-        -> Vulnerabilidades MEDIAS (40) superan umbral (10)
+        -> Vulnerabilidades ALTAS (57) superan umbral (0)
+        -> Vulnerabilidades MEDIAS (39) superan umbral (10)
     [i] La política permite continuar la ejecución (continue-on-error: true).
     [i] Motivo: Permitir el despliegue del entorno de staging y ejecución de pruebas DAST.
 

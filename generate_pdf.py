@@ -30,25 +30,29 @@ def convert_markdown_to_pdf():
     with open(MD_PATH, "r", encoding="utf-8") as f:
         text = f.read()
 
+    def render_callout(css_class, title, raw_md):
+        inner = markdown.markdown(raw_md.replace('> ', ''), extensions=["extra"])
+        return f'<div class="callout {css_class}"><strong>{title}</strong>{inner}</div>\n'
+
     # Sustitución de callouts de GitHub por bloques estilizados
     text = re.sub(
         r'> \[!IMPORTANT\]\n((?:> .*\n?)+)',
-        lambda m: '<div class="callout callout-important"><strong>AVISO DE SEGURIDAD CRÍTICO:</strong><br/>' + m.group(1).replace('> ', '') + '</div>\n',
+        lambda m: render_callout('callout-important', 'AVISO DE SEGURIDAD CRÍTICO:', m.group(1)),
         text
     )
     text = re.sub(
         r'> \[!NOTE\]\n((?:> .*\n?)+)',
-        lambda m: '<div class="callout callout-note"><strong>NOTA TÉCNICA:</strong><br/>' + m.group(1).replace('> ', '') + '</div>\n',
+        lambda m: render_callout('callout-note', 'NOTA TÉCNICA:', m.group(1)),
         text
     )
     text = re.sub(
         r'> \[!WARNING\]\n((?:> .*\n?)+)',
-        lambda m: '<div class="callout callout-warning"><strong>ADVERTENCIA DEVSECOPS:</strong><br/>' + m.group(1).replace('> ', '') + '</div>\n',
+        lambda m: render_callout('callout-warning', 'ADVERTENCIA DEVSECOPS:', m.group(1)),
         text
     )
     text = re.sub(
         r'> \[!TIP\]\n((?:> .*\n?)+)',
-        lambda m: '<div class="callout callout-tip"><strong>RECOMENDACIÓN TÉCNICA:</strong><br/>' + m.group(1).replace('> ', '') + '</div>\n',
+        lambda m: render_callout('callout-tip', 'RECOMENDACIÓN TÉCNICA:', m.group(1)),
         text
     )
 

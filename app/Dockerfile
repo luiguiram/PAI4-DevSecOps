@@ -12,8 +12,8 @@ WORKDIR /app
 # Copia de artefactos sin exclusión adecuada
 COPY package*.json ./
 
-# Instalación sin verificación estricta de lockfile
-RUN npm install --legacy-peer-deps
+# Instalación sin compilación nativa de addons C++ (usa fallback JS en memoria)
+RUN npm install --legacy-peer-deps --ignore-scripts
 
 COPY . .
 

@@ -15,7 +15,7 @@ Avda. Reina Mercedes s/n. 41012 Sevilla | Tel: +34 954 557 139 | Web: [www.lsi.u
 | **Fecha Límite Oficial** | 02 de diciembre de 2026 (23:59 h) |
 | **Sesiones de Seguimiento** | 17/18 de Noviembre y 24/25 de Noviembre de 2026 |
 | **Equipo Auditor / Yellow Team** | **Security Team 3 (Grupo 3)** |
-| **Analistas de Seguridad** | Kleber Leonardo de Carvalho<br>Paula Benítez<br>Luigui Juan<br>Guillermo Ramos |
+| **Analistas de Seguridad** | Kleber Leonardo de Carvalho<br>Paula Benítez<br>Luigui Juan Guillermo Ramos |
 | **Organización Destinataria** | Dirección de Ingeniería y Operaciones (CISO / DevOps Lead) — **INSEGUS** |
 | **Clasificación del Documento** | **CONFIDENCIAL / USO INTERNO (RESTRICTED TLP:AMBER+)** |
 | **Identificador del Entregable**| `PAI4-ST3.zip` |
@@ -195,6 +195,7 @@ El siguiente diagrama detalla la secuencia ordenada de etapas, las herramientas 
 <img src="evidencias/diagramas/pipeline_devsecops_diagram.svg" alt="Diagrama de Arquitectura del Pipeline DevSecOps" width="100%"/>
 
 **Análisis de Etapas del Pipeline:**
+
 1. **Disparador (Trigger):** Se activa automáticamente ante eventos `push` o `pull_request` sobre las ramas `main` y `develop`.
 2. **Etapa 1 (Build & Análisis Estático):** Compila el microservicio, ejecuta tests unitarios (`npm test`) y lanza en paralelo:
    - **SAST (Semgrep):** Analiza sintaxis AST del código fuente, exportando `semgrep_report.json`.
@@ -207,24 +208,20 @@ El siguiente diagrama detalla la secuencia ordenada de etapas, las herramientas 
 7. **Etapa Producción (Deploy):** Despliega el microservicio en el clúster productivo de Kubernetes únicamente si el Quality Gate B aprueba la entrega.
 
 ### 3.2. Diagrama de Flujo ante Detección de Vulnerabilidades (Objetivo 1.b)
-El segundo diagrama modela las decisiones automáticas y humanas desde que un escáner detecta una anomalía hasta su resolución y marcado como mitigada:
+El segundo diagrama detalla el ciclo de vida de gestión de una vulnerabilidad desde su detección por las herramientas hasta su resolución final en DefectDojo (omitiendo la lógica de bloqueo por etapas ya representada en el diagrama 3.1 y profundizando en las casuísticas tras el triaje):
 
 <img src="evidencias/diagramas/vulnerability_flowchart_diagram.svg" alt="Diagrama de Flujo ante una Vulnerabilidad" width="100%"/>
 
-**Secuencia Lógica de Decisión:**
-1. **Detección:** Un escáner (SAST, SCA, IaC o DAST) encuentra un hallazgo.
-2. **Ingesta:** El informe se transmite de forma desatendida a DefectDojo.
-3. **¿Severidad Crítica o Alta?:**
-   - **NO (Media / Baja / Info):** Se cataloga en DefectDojo como hallazgo activo para planificación en deuda técnica; el pipeline continúa.
-   - **SÍ:** Se evalúa la naturaleza del Quality Gate de la etapa en curso.
-4. **¿La etapa es bloqueante?:**
-   - **NO (Quality Gate A - Build):** El pipeline emite una advertencia formal en el Pull Request y continúa para posibilitar las pruebas DAST.
-   - **SÍ (Quality Gate B - Pre-producción):** El pipeline **SE DETIENE** de inmediato (`exit 1`), se bloquea el paso a producción y se emite alerta prioritaria al desarrollador y al Security Team.
-5. **Triaje en DefectDojo:** El Green Team / Security Team 3 analiza la vulnerabilidad en el dashboard centralizado.
-6. **¿Es un Falso Positivo?:**
-   - **SÍ:** Se marca el hallazgo en DefectDojo como `False Positive` con justificación técnica detallada y se ajustan los filtros del escáner (`.semgrepignore`, directivas ignore en Trivy).
-   - **NO (Vulnerabilidad Real):** Se asigna prioridad P1/P2 al equipo de desarrollo, quienes corrigen el código (parametrización, sanitización) o actualizan dependencias (`npm audit fix`).
-7. **Ciclo de Cierre:** El desarrollador realiza un nuevo `commit & push`. El pipeline se re-ejecuta automáticamente y, al reimportar el escaneo sin la vulnerabilidad, DefectDojo actualiza el estado a `Mitigated`.
+**Secuencia Lógica de Gestión y Triaje:**
+
+1. **Detección:** Una herramienta de seguridad (SAST, SCA, IaC o DAST) detecta un hallazgo.
+2. **Ingesta y Deduplicación en DefectDojo:** El informe se envía de forma automática mediante la API REST v2 (`POST /api/v2/import-scan/`), aplicando deduplicación por hash SHA-256 y notificando al equipo.
+3. **Triaje y Priorización (Security Team 3):** El Green Team analiza el contexto técnico del hallazgo, valida su explotabilidad y lo clasifica según CVSS v3.1, derivando en cuatro posibles escenarios de resolución:
+   - **Caso 1 — Falso Positivo (`False Positive`):** Si el hallazgo no es aplicable o explotable en el entorno real, se marca como `False Positive` con justificación técnica y se ajusta la regla/exclusión del escáner (`.semgrepignore`, `.trivyignore`, `zap-baseline.conf`).
+   - **Caso 2 — Duplicado o Fuera de Alcance (`Duplicate` / `Out of Scope`):** Si dos herramientas reportan el mismo problema por distinto vector (p. ej. SAST y DAST) se vincula al hallazgo original; si afecta únicamente a ficheros de pruebas o dependencias de desarrollo aisladas, se marca como `Out of Scope`.
+   - **Caso 3 — Riesgo Aceptado (`Risk Accepted`):** Para hallazgos de severidad baja/media sin parche disponible o mitigados por controles compensatorios perimetrales (WAF, aislamiento de red ClusterIP), la dirección/CISO aprueba una aceptación temporal del riesgo con fecha de revisión obligatoria.
+   - **Caso 4 — Vulnerabilidad Real Confirmada (`Verified` → Remediación):** Se asigna prioridad (**P1 Crítica**, **P2 < 48h**, **P3 Sprint**, **P4 Backlog**) al Yellow Team para corregir el código fuente (parametrización SQLi, sanitización XSS), actualizar dependencias (`npm update`) o endurecer manifiestos IaC, realizando un nuevo `commit & push`.
+4. **Re-verificación y Cierre Automático:** El nuevo commit dispara automáticamente el pipeline desde el paso 1; al reimportar los informes limpios en DefectDojo, la plataforma comprueba la ausencia del hallazgo y lo marca automáticamente como **`Mitigated`**.
 
 ---
 
@@ -312,12 +309,12 @@ Durante la puesta en marcha técnica se identificaron tres discrepancias operati
 ### 7.1. Criterios de Calidad, Umbrales y Políticas de Fallo
 Las políticas de seguridad se parametrizaron formalmente en el evaluador `scripts/quality_gate.py` conforme a los siguientes umbrales numéricos:
 
-$$\text{Decisión Gate B} = \begin{cases} \text{BLOQUEADO (exit 1)}, & \text{si } N_{\text{Critical}} > 0 \lor N_{\text{High}} > 0 \lor N_{\text{Medium}} > 10 \\ \text{APROBADO (exit 0)}, & \text{en caso contrario} \end{cases}$$
+> **Regla de Decisión (Gate B):** Si `(N_Critical > 0) OR (N_High > 0) OR (N_Medium > 10)` → **BLOQUEADO (`exit 1`)**; en caso contrario → **APROBADO (`exit 0`)**.
 
 | Quality Gate | Etapa del Pipeline | Modo de Operación | Umbral Crítico | Umbral Alto | Umbral Medio | Acción ante Incumplimiento |
 | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
 | **Quality Gate A** | Build / Análisis Estático | **Modo Aviso (Advisory)** | Sin límite | Sin límite | Sin límite | Publica advertencia en PR; continúa ejecución (`continue-on-error: true`). |
-| **Quality Gate B** | Pre-Producción / Release | **Modo Bloqueante (Blocking)** | **$\le 0$** | **$\le 0$** | **$\le 10$** | **Aborta el pipeline (`exit 1`)**, cancela el despliegue y alerta al CISO. |
+| **Quality Gate B** | Pre-Producción / Release | **Modo Bloqueante (Blocking)** | **≤ 0** | **≤ 0** | **≤ 10** | **Aborta el pipeline (`exit 1`)**, cancela el despliegue y alerta al CISO. |
 
 ### 7.2. Demostración Técnica de Etapa en Modo Aviso (Quality Gate A)
 En la etapa de compilación, el evaluador de Quality Gate A consolidó las evidencias estáticas de Semgrep y Trivy. Pese a detectar anomalías severas, el pipeline reaccionó según lo previsto en el diseño: **notificó las infracciones y permitió continuar la ejecución sin detener el flujo**:
@@ -402,12 +399,13 @@ El proceso de ingesta procesó de manera transparente los formatos nativos de la
 ### 8.2. Deduplicación Automática y Correlación de Hallazgos
 Uno de los valores fundamentales de DefectDojo es su motor de deduplicación. Al recibir alertas de múltiples escáneres que apuntan al mismo componente (por ejemplo, Semgrep detectando inyección SQL estática en `server.js` y OWASP ZAP detectando SQL Injection dinámica en `/api/login`), DefectDojo genera una firma hash SHA-256 única:
 
-$$\text{Hash}_{\text{vuln}} = \text{SHA-256}(\text{CWE} \parallel \text{Endpoint/Fichero} \parallel \text{Parámetro/Línea})$$
+`Hash_vuln = SHA-256(CWE || Endpoint/Fichero || Parámetro/Línea)`
 
 Esto permitió consolidar las alertas brutas en un inventario estructurado de **103 vulnerabilidades deduplicadas**, evitando duplicidades en el cuadro de mando de auditoría.
 
 ### 8.3. Triaje Técnico, Priorización (P1-P4) y Tratamiento de Falsos Positivos
 El equipo auditor llevó a cabo el triaje técnico de los hallazgos según la matriz de riesgo del marco FIRST CVSS v3.1:
+
 - **P1 - Inmediato / Bloqueante (CVSS 9.0 - 10.0):** Inyecciones SQL explotables en login y RCE potencial por `eval()`. Subsanación obligatoria antes de cualquier despliegue.
 - **P2 - Alta Prioridad (CVSS 7.0 - 8.9):** CVEs en Axios y JsonWebToken, credenciales en código y contenedores en modo privilegiado. Plazo máximo de remediación: 48 horas.
 - **P3 - Media Prioridad (CVSS 4.0 - 6.9):** Falta de cabeceras HTTP de seguridad (CSP, X-Frame-Options). Programado en el siguiente sprint de hardening.

@@ -3,8 +3,8 @@
   "Trivy": {
     "Version": "0.76.2"
   },
-  "ReportID": "01a1c491-16a8-70e8-a0ed-731ee8a35aaf",
-  "CreatedAt": "2026-11-10T08:26:45.288061067Z",
+  "ReportID": "01a1e884-0798-7cc1-b05e-2d0cfdcfdaf6",
+  "CreatedAt": "2026-11-17T07:58:49.240837998Z",
   "ArtifactName": "/workspace/app",
   "ArtifactType": "filesystem",
   "Results": [
@@ -4740,7 +4740,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42033"
           ],
           "PublishedDate": "2026-04-24T18:16:29.993Z",
-          "LastModifiedDate": "2026-09-10T13:20:03.087Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42035",
@@ -4795,7 +4795,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42035"
           ],
           "PublishedDate": "2026-04-24T18:16:30.273Z",
-          "LastModifiedDate": "2026-06-17T10:47:20.66Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42043",
@@ -4897,7 +4897,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42043"
           ],
           "PublishedDate": "2026-04-24T18:16:31.457Z",
-          "LastModifiedDate": "2026-09-10T13:20:04.973Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44486",
@@ -5777,7 +5777,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42034"
           ],
           "PublishedDate": "2026-04-24T18:16:30.14Z",
-          "LastModifiedDate": "2026-06-17T10:47:20.553Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42036",
@@ -5831,7 +5831,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42036"
           ],
           "PublishedDate": "2026-04-24T18:16:30.41Z",
-          "LastModifiedDate": "2026-06-17T10:47:20.77Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42038",
@@ -5890,7 +5890,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42038"
           ],
           "PublishedDate": "2026-04-24T18:16:30.68Z",
-          "LastModifiedDate": "2026-06-17T10:47:20.98Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42039",
@@ -5995,7 +5995,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42039"
           ],
           "PublishedDate": "2026-04-24T18:16:30.827Z",
-          "LastModifiedDate": "2026-09-10T13:20:03.88Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42041",
@@ -6095,7 +6095,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42041"
           ],
           "PublishedDate": "2026-04-24T18:16:31.133Z",
-          "LastModifiedDate": "2026-09-10T13:20:04.42Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-42042",
@@ -6150,7 +6150,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42042"
           ],
           "PublishedDate": "2026-04-24T18:16:31.293Z",
-          "LastModifiedDate": "2026-06-17T10:47:21.42Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2026-44490",
@@ -6399,7 +6399,7 @@
             "https://www.cve.org/CVERecord?id=CVE-2026-42040"
           ],
           "PublishedDate": "2026-04-24T18:16:30.96Z",
-          "LastModifiedDate": "2026-06-17T10:47:21.197Z"
+          "LastModifiedDate": "2026-11-11T23:10:00.263Z"
         },
         {
           "VulnerabilityID": "CVE-2024-45590",
@@ -7587,17 +7587,20 @@
             "https://access.redhat.com/errata/RHSA-2026:8498",
             "https://access.redhat.com/errata/RHSA-2026:9385",
             "https://access.redhat.com/errata/RHSA-2026:9742",
+            "https://access.redhat.com/errata/RHSA-2026:97514",
+            "https://access.redhat.com/errata/RHSA-2026:97539",
             "https://access.redhat.com/security/cve/CVE-2026-4800",
             "https://advisory.echohq.com/cve/CVE-2026-4800",
             "https://bugzilla.redhat.com/2453496",
-            "https://bugzilla.redhat.com/show_bug.cgi?id=2431740",
+            "https://bugzilla.redhat.com/2453499",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2453496",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2453499",
             "https://cna.openjsf.org/security-advisories.html",
             "https://creativecommons.org/licenses/by/4.0/",
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-13465",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-2950",
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-4800",
-            "https://errata.almalinux.org/9/ALSA-2026-19167.html",
-            "https://errata.rockylinux.org/RLSA-2026:24331",
+            "https://errata.almalinux.org/9/ALSA-2026-97539.html",
+            "https://errata.rockylinux.org/RLSA-2026:97514",
             "https://github.com/advisories/GHSA-35jh-r3h4-6jhm",
             "https://github.com/advisories/GHSA-r5fr-rjxr-66jc",
             "https://github.com/lodash/lodash",
@@ -7942,6 +7945,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2024-45296",
+            "https://advisory.echohq.com/cve/CVE-2024-45296",
+            "https://github.com/advisories/GHSA-9wv6-86v2-598j",
             "https://github.com/pillarjs/path-to-regexp",
             "https://github.com/pillarjs/path-to-regexp/commit/29b96b4a1de52824e1ca0f49a701183cc4ed476f",
             "https://github.com/pillarjs/path-to-regexp/commit/60f2121e9b66b7b622cc01080df0aabda9eedee6",
@@ -8920,7 +8925,8 @@
           ],
           "VendorSeverity": {
             "ghsa": 3,
-            "nvd": 4
+            "nvd": 4,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -8938,6 +8944,7 @@
             "https://github.com/TryGhost/node-sqlite3/security/advisories/GHSA-jqv5-7xpx-qj74",
             "https://nvd.nist.gov/vuln/detail/CVE-2022-43441",
             "https://talosintelligence.com/vulnerability_reports/TALOS-2022-1645",
+            "https://www.cve.org/CVERecord?id=CVE-2022-43441",
             "https://www.talosintelligence.com/vulnerability_reports/TALOS-2022-1645"
           ],
           "PublishedDate": "2023-03-16T21:15:11.023Z",
@@ -8999,6 +9006,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:47058",
             "https://access.redhat.com/security/cve/CVE-2026-59873",
+            "https://advisory.echohq.com/cve/CVE-2026-59873",
             "https://bugzilla.redhat.com/2494813",
             "https://bugzilla.redhat.com/2498116",
             "https://bugzilla.redhat.com/2498120",
@@ -9011,6 +9019,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59874",
             "https://errata.almalinux.org/9/ALSA-2026-47058.html",
             "https://errata.rockylinux.org/RLSA-2026:47058",
+            "https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/2812e9338665659b183aa7226518c307044957d3",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.19",
@@ -9248,6 +9257,7 @@
             "https://access.redhat.com/errata/RHSA-2026:41928",
             "https://access.redhat.com/errata/RHSA-2026:6192",
             "https://access.redhat.com/security/cve/CVE-2026-23745",
+            "https://advisory.echohq.com/cve/CVE-2026-23745",
             "https://bugzilla.redhat.com/2425946",
             "https://bugzilla.redhat.com/2430538",
             "https://bugzilla.redhat.com/2431036",
@@ -9266,6 +9276,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24842",
             "https://errata.almalinux.org/9/ALSA-2026-18868.html",
             "https://errata.rockylinux.org/RLSA-2026:18868",
+            "https://github.com/advisories/GHSA-8qq5-rm4j-mr97",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/340eb285b6d986e91969a1170d7fe9b0face405e",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-8qq5-rm4j-mr97",
@@ -9338,6 +9349,7 @@
             "https://access.redhat.com/errata/RHSA-2026:2926",
             "https://access.redhat.com/errata/RHSA-2026:6192",
             "https://access.redhat.com/security/cve/CVE-2026-23950",
+            "https://advisory.echohq.com/cve/CVE-2026-23950",
             "https://bugzilla.redhat.com/2425946",
             "https://bugzilla.redhat.com/2430538",
             "https://bugzilla.redhat.com/2431036",
@@ -9356,6 +9368,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24842",
             "https://errata.almalinux.org/9/ALSA-2026-18868.html",
             "https://errata.rockylinux.org/RLSA-2026:18868",
+            "https://github.com/advisories/GHSA-r6q2-hw4h-h46w",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/3b1abfae650056edfabcbe0a0df5954d390521e6",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-r6q2-hw4h-h46w",
@@ -9423,6 +9436,7 @@
             "https://access.redhat.com/errata/RHSA-2026:5447",
             "https://access.redhat.com/errata/RHSA-2026:6192",
             "https://access.redhat.com/security/cve/CVE-2026-24842",
+            "https://advisory.echohq.com/cve/CVE-2026-24842",
             "https://bugzilla.redhat.com/2425946",
             "https://bugzilla.redhat.com/2430538",
             "https://bugzilla.redhat.com/2431036",
@@ -9441,6 +9455,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24842",
             "https://errata.almalinux.org/9/ALSA-2026-18868.html",
             "https://errata.rockylinux.org/RLSA-2026:18868",
+            "https://github.com/advisories/GHSA-34x7-hfp2-rc4v",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/f4a7aa9bc3d717c987fdf1480ff7a64e87ffdb46",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-34x7-hfp2-rc4v",
@@ -9503,6 +9518,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-26960",
+            "https://advisory.echohq.com/cve/CVE-2026-26960",
+            "https://github.com/advisories/GHSA-83g3-92jg-28cx",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/2cb1120bcefe28d7ecc719b41441ade59c52e384",
             "https://github.com/isaacs/node-tar/commit/d18e4e1f846f4ddddc153b0f536a19c050e7499f",
@@ -9564,7 +9581,9 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-29786",
+            "https://advisory.echohq.com/cve/CVE-2026-29786",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2445476",
+            "https://github.com/advisories/GHSA-qffp-2rhf-9h96",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/7bc755dd85e623c0279e08eb3784909e6d7e4b9f",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-qffp-2rhf-9h96",
@@ -9624,6 +9643,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-31802",
+            "https://advisory.echohq.com/cve/CVE-2026-31802",
+            "https://github.com/advisories/GHSA-9ppj-qmqm-q256",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/f48b5fa3b7985ddab96dc0f2125a4ffc9911b6ad",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-9ppj-qmqm-q256",
@@ -9689,6 +9710,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:47058",
             "https://access.redhat.com/security/cve/CVE-2026-59874",
+            "https://advisory.echohq.com/cve/CVE-2026-59874",
             "https://bugzilla.redhat.com/2494813",
             "https://bugzilla.redhat.com/2498116",
             "https://bugzilla.redhat.com/2498120",
@@ -9701,6 +9723,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59874",
             "https://errata.almalinux.org/9/ALSA-2026-47058.html",
             "https://errata.rockylinux.org/RLSA-2026:47058",
+            "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/9e78bf058b2c22dd4d52e00d8922d5c06fc2f7b5",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.18",
@@ -9759,6 +9782,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-73566",
+            "https://advisory.echohq.com/cve/CVE-2026-73566",
+            "https://github.com/advisories/GHSA-r292-9mhp-454m",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/631ae59121bf8fc8a22bbae35f074cb9b789cd4a",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.21",
@@ -9895,6 +9920,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53655",
+            "https://advisory.echohq.com/cve/CVE-2026-53655",
+            "https://github.com/advisories/GHSA-vmf3-w455-68vh",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-vmf3-w455-68vh",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53655",
@@ -9953,6 +9980,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-59871",
+            "https://advisory.echohq.com/cve/CVE-2026-59871",
+            "https://github.com/advisories/GHSA-w8wr-v893-vjvp",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/e02a4e9e013c4be95302e2eb2047a942b883c27b",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.18",
@@ -10008,6 +10037,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-59875",
+            "https://advisory.echohq.com/cve/CVE-2026-59875",
+            "https://github.com/advisories/GHSA-gvwx-54wh-qm9j",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/7a635c29f5edbf083557374d43984273ecfed5b3",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.17",
@@ -10074,6 +10105,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:47058",
             "https://access.redhat.com/security/cve/CVE-2026-59873",
+            "https://advisory.echohq.com/cve/CVE-2026-59873",
             "https://bugzilla.redhat.com/2494813",
             "https://bugzilla.redhat.com/2498116",
             "https://bugzilla.redhat.com/2498120",
@@ -10086,6 +10118,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59874",
             "https://errata.almalinux.org/9/ALSA-2026-47058.html",
             "https://errata.rockylinux.org/RLSA-2026:47058",
+            "https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/2812e9338665659b183aa7226518c307044957d3",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.19",
@@ -10160,6 +10193,7 @@
             "https://access.redhat.com/errata/RHSA-2026:41928",
             "https://access.redhat.com/errata/RHSA-2026:6192",
             "https://access.redhat.com/security/cve/CVE-2026-23745",
+            "https://advisory.echohq.com/cve/CVE-2026-23745",
             "https://bugzilla.redhat.com/2425946",
             "https://bugzilla.redhat.com/2430538",
             "https://bugzilla.redhat.com/2431036",
@@ -10178,6 +10212,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24842",
             "https://errata.almalinux.org/9/ALSA-2026-18868.html",
             "https://errata.rockylinux.org/RLSA-2026:18868",
+            "https://github.com/advisories/GHSA-8qq5-rm4j-mr97",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/340eb285b6d986e91969a1170d7fe9b0face405e",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-8qq5-rm4j-mr97",
@@ -10250,6 +10285,7 @@
             "https://access.redhat.com/errata/RHSA-2026:2926",
             "https://access.redhat.com/errata/RHSA-2026:6192",
             "https://access.redhat.com/security/cve/CVE-2026-23950",
+            "https://advisory.echohq.com/cve/CVE-2026-23950",
             "https://bugzilla.redhat.com/2425946",
             "https://bugzilla.redhat.com/2430538",
             "https://bugzilla.redhat.com/2431036",
@@ -10268,6 +10304,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24842",
             "https://errata.almalinux.org/9/ALSA-2026-18868.html",
             "https://errata.rockylinux.org/RLSA-2026:18868",
+            "https://github.com/advisories/GHSA-r6q2-hw4h-h46w",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/3b1abfae650056edfabcbe0a0df5954d390521e6",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-r6q2-hw4h-h46w",
@@ -10335,6 +10372,7 @@
             "https://access.redhat.com/errata/RHSA-2026:5447",
             "https://access.redhat.com/errata/RHSA-2026:6192",
             "https://access.redhat.com/security/cve/CVE-2026-24842",
+            "https://advisory.echohq.com/cve/CVE-2026-24842",
             "https://bugzilla.redhat.com/2425946",
             "https://bugzilla.redhat.com/2430538",
             "https://bugzilla.redhat.com/2431036",
@@ -10353,6 +10391,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-24842",
             "https://errata.almalinux.org/9/ALSA-2026-18868.html",
             "https://errata.rockylinux.org/RLSA-2026:18868",
+            "https://github.com/advisories/GHSA-34x7-hfp2-rc4v",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/f4a7aa9bc3d717c987fdf1480ff7a64e87ffdb46",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-34x7-hfp2-rc4v",
@@ -10415,6 +10454,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-26960",
+            "https://advisory.echohq.com/cve/CVE-2026-26960",
+            "https://github.com/advisories/GHSA-83g3-92jg-28cx",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/2cb1120bcefe28d7ecc719b41441ade59c52e384",
             "https://github.com/isaacs/node-tar/commit/d18e4e1f846f4ddddc153b0f536a19c050e7499f",
@@ -10476,7 +10517,9 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-29786",
+            "https://advisory.echohq.com/cve/CVE-2026-29786",
             "https://bugzilla.redhat.com/show_bug.cgi?id=2445476",
+            "https://github.com/advisories/GHSA-qffp-2rhf-9h96",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/7bc755dd85e623c0279e08eb3784909e6d7e4b9f",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-qffp-2rhf-9h96",
@@ -10536,6 +10579,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-31802",
+            "https://advisory.echohq.com/cve/CVE-2026-31802",
+            "https://github.com/advisories/GHSA-9ppj-qmqm-q256",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/f48b5fa3b7985ddab96dc0f2125a4ffc9911b6ad",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-9ppj-qmqm-q256",
@@ -10601,6 +10646,7 @@
           "References": [
             "https://access.redhat.com/errata/RHSA-2026:47058",
             "https://access.redhat.com/security/cve/CVE-2026-59874",
+            "https://advisory.echohq.com/cve/CVE-2026-59874",
             "https://bugzilla.redhat.com/2494813",
             "https://bugzilla.redhat.com/2498116",
             "https://bugzilla.redhat.com/2498120",
@@ -10613,6 +10659,7 @@
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-59874",
             "https://errata.almalinux.org/9/ALSA-2026-47058.html",
             "https://errata.rockylinux.org/RLSA-2026:47058",
+            "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/9e78bf058b2c22dd4d52e00d8922d5c06fc2f7b5",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.18",
@@ -10671,6 +10718,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-73566",
+            "https://advisory.echohq.com/cve/CVE-2026-73566",
+            "https://github.com/advisories/GHSA-r292-9mhp-454m",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/631ae59121bf8fc8a22bbae35f074cb9b789cd4a",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.21",
@@ -10807,6 +10856,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-53655",
+            "https://advisory.echohq.com/cve/CVE-2026-53655",
+            "https://github.com/advisories/GHSA-vmf3-w455-68vh",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/security/advisories/GHSA-vmf3-w455-68vh",
             "https://nvd.nist.gov/vuln/detail/CVE-2026-53655",
@@ -10865,6 +10916,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-59871",
+            "https://advisory.echohq.com/cve/CVE-2026-59871",
+            "https://github.com/advisories/GHSA-w8wr-v893-vjvp",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/e02a4e9e013c4be95302e2eb2047a942b883c27b",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.18",
@@ -10920,6 +10973,8 @@
           },
           "References": [
             "https://access.redhat.com/security/cve/CVE-2026-59875",
+            "https://advisory.echohq.com/cve/CVE-2026-59875",
+            "https://github.com/advisories/GHSA-gvwx-54wh-qm9j",
             "https://github.com/isaacs/node-tar",
             "https://github.com/isaacs/node-tar/commit/7a635c29f5edbf083557374d43984273ecfed5b3",
             "https://github.com/isaacs/node-tar/releases/tag/v7.5.17",
@@ -10961,7 +11016,8 @@
           "VendorSeverity": {
             "ghsa": 2,
             "nvd": 4,
-            "redhat": 2
+            "redhat": 2,
+            "ubuntu": 2
           },
           "CVSS": {
             "ghsa": {
@@ -10992,6 +11048,7 @@
             "https://security.netapp.com/advisory/ntap-20240621-0006",
             "https://security.netapp.com/advisory/ntap-20240621-0006/",
             "https://security.snyk.io/vuln/SNYK-JS-TOUGHCOOKIE-5672873",
+            "https://ubuntu.com/security/notices/USN-9080-1",
             "https://www.cve.org/CVERecord?id=CVE-2023-26136"
           ],
           "PublishedDate": "2023-07-01T05:15:16.103Z",
