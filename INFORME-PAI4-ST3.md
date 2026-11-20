@@ -163,6 +163,7 @@ PAI4-ST3/
 │   ├── zap-baseline.conf       # Directivas y umbrales DAST ZAP
 │   └── quality_gate_policy.json# Definición formal de Quality Gates
 ├── evidencias/                 # Reportes generados por herramientas y logs
+│   ├── capturas/               # Capturas reales de GitHub Actions y DefectDojo (PNG)
 │   ├── diagramas/              # Diagramas vectoriales de diseño (1.a y 1.b)
 │   ├── sast/                   # Informes Semgrep JSON y SARIF
 │   ├── sca/                    # Informe de vulnerabilidades Trivy SCA
@@ -331,16 +332,16 @@ HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW
 --------------------------------------------------------------------------------
 SAST (Semgrep)            | 0        | 4      | 1        | 0     
 SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
-IaC (Trivy Docker/K8s)    | 0        | 18     | 7        | 18    
-DAST (OWASP ZAP)          | 0        | 3      | 2        | 0     
+IaC (Trivy Docker/K8s)    | 0        | 6      | 6        | 11    
+DAST (OWASP ZAP)          | 0        | 0      | 0        | 0     
 --------------------------------------------------------------------------------
-TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25    
+TOTAL CONSOLIDADO         | 3        | 57     | 39       | 18    
 ================================================================================
 [!] MODO AVISO (ADVISORY / WARNING MODE):
     [!] ADVERTENCIA: Se han detectado violaciones de seguridad en etapas iniciales:
         -> Vulnerabilidades CRÍTICAS (3) superan umbral (0)
-        -> Vulnerabilidades ALTAS (72) superan umbral (0)
-        -> Vulnerabilidades MEDIAS (42) superan umbral (10)
+        -> Vulnerabilidades ALTAS (57) superan umbral (0)
+        -> Vulnerabilidades MEDIAS (39) superan umbral (10)
     [i] La política permite continuar la ejecución (continue-on-error: true).
     [i] Motivo: Permitir el despliegue del entorno de staging y ejecución de pruebas DAST.
 
@@ -350,7 +351,7 @@ TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25
 ### 7.3. Demostración Técnica de Etapa Bloqueante (Quality Gate B)
 Para dar estricto cumplimiento al **requisito 4 y a las normas de entrega** (*«entre ellos debe haber al menos una ejecución que falle por un quality gate»*), el equipo configuró la verificación de release en modo bloqueante sobre el microservicio vulnerable. 
 
-El evaluador detectó 3 vulnerabilidades Críticas y 72 Altas, violando el umbral admisible de cero. En consecuencia, **el pipeline detuvo fulminantemente la entrega con código de retorno `exit 1`**, bloqueando el paso a producción:
+El evaluador detectó 3 vulnerabilidades Críticas y 60 Altas (sumando SAST, SCA, IaC y las 3 alertas altas confirmadas en DAST), violando el umbral admisible de cero. En consecuencia, **el pipeline detuvo fulminantemente la entrega con código de retorno `exit 1`**, bloqueando el paso a producción:
 
 ```text
 ================================================================================
@@ -362,16 +363,16 @@ HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW
 --------------------------------------------------------------------------------
 SAST (Semgrep)            | 0        | 4      | 1        | 0     
 SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
-IaC (Trivy Docker/K8s)    | 0        | 18     | 7        | 18    
+IaC (Trivy Docker/K8s)    | 0        | 6      | 6        | 11    
 DAST (OWASP ZAP)          | 0        | 3      | 2        | 0     
 --------------------------------------------------------------------------------
-TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25    
+TOTAL CONSOLIDADO         | 3        | 60     | 41       | 18    
 ================================================================================
 [!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
     [X] ERROR CRÍTICO DE SEGURIDAD: Umbrales superados en la etapa de release:
         -> [BLOQUEADO] Vulnerabilidades CRÍTICAS (3) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades ALTAS (72) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades MEDIAS (42) superan umbral (10)
+        -> [BLOQUEADO] Vulnerabilidades ALTAS (60) superan umbral (0)
+        -> [BLOQUEADO] Vulnerabilidades MEDIAS (41) superan umbral (10)
 
     [!] ACCIÓN DISCIPLINARIA: El pipeline SE DETIENE de inmediato.
     [!] El artefacto NO ha sido autorizado para despliegue en Producción.
@@ -381,7 +382,7 @@ TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25
 ```
 
 > [!WARNING]
-> La evidencia de bloqueo con código `exit 1` ha quedado documentada tanto en las ejecuciones reales de GitHub Actions — en Pull Request `#11` ([`runs/44645741212`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44645741212)) y en `push` a `main` `#14` ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617)) — como en los logs locales `evidencias/pipeline_logs/pipeline_failure_quality_gate.log` y `evidencias/quality_gates/quality_gate_blocking_failure.log`.
+> La evidencia de bloqueo con código `exit 1` ha quedado documentada tanto en las ejecuciones reales de GitHub Actions — en Pull Request `#11` ([`runs/44645741212`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44645741212)) y en `push` a `main` `#14` ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617)) — como en las capturas guardadas en `evidencias/capturas/` y los logs `evidencias/pipeline_logs/pipeline_failure_quality_gate.log` y `evidencias/quality_gates/quality_gate_blocking_failure.log`.
 
 ---
 
@@ -633,7 +634,7 @@ rules:
 ```
 
 ### Anexo C: Trazas de Ejecución de Quality Gates (Aviso vs. Bloqueo Exit Code 1)
-Fragmento verificado del log `evidencias/pipeline_logs/pipeline_failure_quality_gate.log`:
+Fragmento verificado de la ejecución `#14` en GitHub Actions ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617), captura `evidencias/capturas/github_actions_gate_b_bloqueante.png`):
 
 ```text
 ================================================================================
@@ -645,17 +646,17 @@ HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW
 --------------------------------------------------------------------------------
 SAST (Semgrep)            | 0        | 4      | 1        | 0     
 SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
-IaC (Trivy Docker/K8s)    | 0        | 18     | 7        | 18    
+IaC (Trivy Docker/K8s)    | 0        | 6      | 6        | 11    
 DAST (OWASP ZAP)          | 0        | 3      | 2        | 0     
 --------------------------------------------------------------------------------
-TOTAL CONSOLIDADO         | 3        | 72     | 42       | 25    
+TOTAL CONSOLIDADO         | 3        | 60     | 41       | 18    
 ================================================================================
 
 [!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
     [X] ERROR CRÍTICO DE SEGURIDAD: Umbrales superados en la etapa de release:
         -> [BLOQUEADO] Vulnerabilidades CRÍTICAS (3) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades ALTAS (72) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades MEDIAS (42) superan umbral (10)
+        -> [BLOQUEADO] Vulnerabilidades ALTAS (60) superan umbral (0)
+        -> [BLOQUEADO] Vulnerabilidades MEDIAS (41) superan umbral (10)
 
     [!] ACCIÓN DISCIPLINARIA: El pipeline SE DETIENE de inmediato.
     [!] El artefacto NO ha sido autorizado para despliegue en Producción.

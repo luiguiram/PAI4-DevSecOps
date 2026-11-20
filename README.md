@@ -61,7 +61,8 @@ El pipeline implementa dos *Quality Gates* con comportamiento diferenciado para 
 │   ├── trivy.yaml
 │   ├── zap-baseline.conf
 │   └── quality_gate_policy.json
-├── evidencias/                       # Diagramas, informes de escáneres, logs y salidas de DefectDojo
+├── evidencias/                       # Diagramas, capturas, informes de escáneres, logs y DefectDojo
+│   ├── capturas/                     # Capturas reales de ejecuciones CI/CD y DefectDojo (PNG)
 │   ├── diagramas/
 │   ├── sast/
 │   ├── sca/
