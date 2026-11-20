@@ -6,7 +6,7 @@
 # Asignatura: Seguridad en Sistemas Informáticos y en Internet
 # ==============================================================================
 
-set -e
+set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_DIR="$(dirname "$SCRIPT_DIR")"
@@ -101,6 +101,7 @@ echo "[+] Reportes DAST generados en evidencias/dast/ (JSON y HTML)."
 # ETAPA 6: CENTRALIZACIÓN Y TRIAJE EN DEFECTDOJO API v2
 # ------------------------------------------------------------------------------
 echo -e "\n[ETAPA 6] Ingesta y consolidación en DefectDojo API v2..."
+rm -f "$EVIDENCIAS_DIR/defectdojo/defectdojo_findings_db.json"
 python3 "$SCRIPT_DIR/defectdojo_client.py" \
   --action import \
   --semgrep "$EVIDENCIAS_DIR/sast/semgrep_report.json" \
@@ -118,7 +119,7 @@ python3 "$SCRIPT_DIR/defectdojo_client.py" \
 # QUALITY GATE B: MODO BLOQUEANTE (EVALUACIÓN ANTE VULNERABILIDADES)
 # ------------------------------------------------------------------------------
 GATE_MODE="blocking"
-if [ "$1" == "--advisory" ]; then
+if [ "${1:-}" == "--advisory" ]; then
   GATE_MODE="advisory"
 fi
 
@@ -134,13 +135,14 @@ python3 "$SCRIPT_DIR/quality_gate.py" \
   --trivy-iac "$EVIDENCIAS_DIR/iac/trivy_iac_report.json" \
   --zap "$EVIDENCIAS_DIR/dast/zap_report.json" \
   | tee "$EVIDENCIAS_DIR/quality_gates/quality_gate_${GATE_MODE}.log"
-GATE_EXIT_CODE=$?
-set -e
+GATE_EXIT_CODE=${PIPESTATUS[0]}
+set -eo pipefail
 
-if [ $GATE_EXIT_CODE -ne 0 ]; then
+if [ "$GATE_EXIT_CODE" -ne 0 ]; then
   echo -e "\n[!] DEMOSTRACIÓN EXITOSA DEL REQUISITO 4:"
   echo "    El Quality Gate Bloqueante ha detenido el pipeline con código $GATE_EXIT_CODE."
   echo "    El artefacto no pasa a Producción debido a vulnerabilidades Críticas y Altas detectadas."
+  exit "$GATE_EXIT_CODE"
 else
   echo -e "\n[+] Quality Gate B superado o en modo aviso ($GATE_MODE). Paso a producción autorizado."
 fi

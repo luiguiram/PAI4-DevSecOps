@@ -34,7 +34,7 @@ jobs:
       - name: Instalar Dependencias de Aplicación
         run: |
           cd app
-          npm install --legacy-peer-deps
+          npm install --legacy-peer-deps --ignore-scripts
 
       - name: Ejecutar Pruebas Unitarias
         run: |
