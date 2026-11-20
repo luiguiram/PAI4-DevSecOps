@@ -157,11 +157,12 @@ jobs:
         run: mkdir -p evidencias/dast
 
       - name: Ejecutar OWASP ZAP Baseline Scan (DAST)
-        uses: zaproxy/action-baseline@v0.12.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://localhost:3000'
           rules_file_name: 'config/zap-baseline.conf'
           cmd_options: '-a -j'
+          artifact_name: 'owasp-zap-baseline-report'
           allow_issue_writing: false
           fail_action: false
         continue-on-error: true
@@ -196,11 +197,17 @@ jobs:
       - name: Checkout Código Fuente
         uses: actions/checkout@v4
 
-      - name: Descargar Todos los Informes de Seguridad
+      - name: Descargar Informes Estáticos (SAST, SCA, IaC)
         uses: actions/download-artifact@v4
         with:
+          name: static-security-reports
           path: evidencias/
-          merge-multiple: true
+
+      - name: Descargar Informes Dinámicos (DAST)
+        uses: actions/download-artifact@v4
+        with:
+          name: dast-security-reports
+          path: evidencias/dast/
 
       - name: Sincronizar Informes con DefectDojo API v2
         run: |
@@ -239,11 +246,17 @@ jobs:
       - name: Checkout Código Fuente
         uses: actions/checkout@v4
 
-      - name: Descargar Métricas e Informes
+      - name: Descargar Informes Estáticos (SAST, SCA, IaC)
         uses: actions/download-artifact@v4
         with:
+          name: static-security-reports
           path: evidencias/
-          merge-multiple: true
+
+      - name: Descargar Informes Dinámicos (DAST)
+        uses: actions/download-artifact@v4
+        with:
+          name: dast-security-reports
+          path: evidencias/dast/
 
       - name: Evaluar Criterios de Seguridad de Release
         run: |
