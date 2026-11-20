@@ -92,6 +92,66 @@ def parse_zap_report(filepath: str) -> Dict[str, int]:
         print(f"[-] Error parseando ZAP ({filepath}): {e}")
     return counts
 
+def write_markdown_summary(
+    summary_file: str,
+    mode: str,
+    sast: Dict[str, int],
+    sca: Dict[str, int],
+    iac: Dict[str, int],
+    dast: Dict[str, int],
+    totals: Dict[str, int],
+    threshold_critical: int,
+    threshold_high: int,
+    threshold_medium: int,
+    breaches: List[str],
+    passed: bool,
+):
+    if not summary_file:
+        return
+
+    is_advisory = mode.lower() == "advisory"
+    gate_label = "Quality Gate A — Modo Aviso (Análisis Estático)" if is_advisory else "Quality Gate B — Modo Bloqueante (Pre-Producción)"
+    if is_advisory:
+        status_badge = "🟡 **ADVERTENCIA (Modo Aviso — `continue-on-error: true`, Exit Code `0`)**" if breaches else "🟢 **APROBADO (Exit Code `0`)**"
+    else:
+        status_badge = "🟢 **APROBADO — Paso a Producción autorizado (Exit Code `0`)**" if passed else "🔴 **BLOQUEADO — Despliegue a Producción detenido (Exit Code `1`)**"
+
+    lines = [
+        f"## 🛡️ {gate_label}",
+        "",
+        f"**Estado:** {status_badge}",
+        "",
+        "| Herramienta / Capa | Críticas | Altas | Medias | Bajas |",
+        "| :--- | :---: | :---: | :---: | :---: |",
+        f"| **SAST** (Semgrep CE) | {sast['CRITICAL']} | {sast['HIGH']} | {sast['MEDIUM']} | {sast['LOW']} |",
+        f"| **SCA** (Trivy Dependencies) | {sca['CRITICAL']} | {sca['HIGH']} | {sca['MEDIUM']} | {sca['LOW']} |",
+        f"| **IaC** (Trivy Docker/K8s) | {iac['CRITICAL']} | {iac['HIGH']} | {iac['MEDIUM']} | {iac['LOW']} |",
+    ]
+    if not is_advisory:
+        lines.append(
+            f"| **DAST** (OWASP ZAP) | {dast['CRITICAL']} | {dast['HIGH']} | {dast['MEDIUM']} | {dast['LOW']} |"
+        )
+    lines.extend([
+        f"| **TOTAL CONSOLIDADO** | **{totals['CRITICAL']}** | **{totals['HIGH']}** | **{totals['MEDIUM']}** | **{totals['LOW']}** |",
+        "",
+        "| Severidad | Detectadas | Umbral Permitido | Resultado |",
+        "| :--- | :---: | :---: | :---: |",
+        f"| **Críticas** | {totals['CRITICAL']} | `≤ {threshold_critical}` | {'❌ Superado' if totals['CRITICAL'] > threshold_critical else '✅ OK'} |",
+        f"| **Altas** | {totals['HIGH']} | `≤ {threshold_high}` | {'❌ Superado' if totals['HIGH'] > threshold_high else '✅ OK'} |",
+        f"| **Medias** | {totals['MEDIUM']} | `≤ {threshold_medium}` | {'❌ Superado' if totals['MEDIUM'] > threshold_medium else '✅ OK'} |",
+        "",
+    ])
+    if is_advisory and breaches:
+        lines.append("> ℹ️ **Motivo de continuación:** Este gate opera en modo aviso para permitir el despliegue en *staging* y la ejecución de las pruebas dinámicas (DAST / OWASP ZAP).")
+        lines.append("")
+    elif not is_advisory and not passed:
+        lines.append("> ⛔ **Acción del pipeline:** Se han superado los umbrales de seguridad de release. El pipeline finaliza con `exit 1` y bloquea el despliegue en Kubernetes.")
+        lines.append("")
+
+    with open(summary_file, "a", encoding="utf-8") as sf:
+        sf.write("\n".join(lines) + "\n")
+
+
 def evaluate_quality_gate(
     semgrep_file: str,
     trivy_sca_file: str,
@@ -100,7 +160,8 @@ def evaluate_quality_gate(
     mode: str,
     threshold_critical: int = 0,
     threshold_high: int = 0,
-    threshold_medium: int = 10
+    threshold_medium: int = 10,
+    summary_file: str = ""
 ) -> bool:
     print("=" * 80)
     print("      INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       ")
@@ -149,6 +210,10 @@ def evaluate_quality_gate(
         else:
             print("    [+] No se registraron alertas severas en esta etapa.")
         print("\n[RESULTADO] Quality Gate A (Modo Aviso) -> EXITOSO / CONTINUAR PIPELINE (Exit Code 0)\n")
+        write_markdown_summary(
+            summary_file, mode, sast, sca, iac, dast, totals,
+            threshold_critical, threshold_high, threshold_medium, breaches, True
+        )
         return True
 
     elif mode.lower() == "blocking":
@@ -161,11 +226,19 @@ def evaluate_quality_gate(
             print("    [!] El artefacto NO ha sido autorizado para despliegue en Producción.")
             print("    [!] Notificando a equipo de desarrollo y Security Team 3.\n")
             print("[RESULTADO] Quality Gate B (Modo Bloqueante) -> FALLIDO / BLOQUEO ACTIVO (Exit Code 1)\n")
+            write_markdown_summary(
+                summary_file, mode, sast, sca, iac, dast, totals,
+                threshold_critical, threshold_high, threshold_medium, breaches, False
+            )
             return False
         else:
             print("    [+] Postura de seguridad verificada. Cero vulnerabilidades críticas o altas.")
             print("    [+] Autorización concedida para despliegue en Producción.")
             print("\n[RESULTADO] Quality Gate B (Modo Bloqueante) -> APROBADO (Exit Code 0)\n")
+            write_markdown_summary(
+                summary_file, mode, sast, sca, iac, dast, totals,
+                threshold_critical, threshold_high, threshold_medium, breaches, True
+            )
             return True
     else:
         print(f"[-] Modo desconocido: {mode}")
@@ -181,6 +254,11 @@ def main():
     parser.add_argument("--critical", type=int, default=0, help="Umbral máximo de vulnerabilidades críticas")
     parser.add_argument("--high", type=int, default=0, help="Umbral máximo de vulnerabilidades altas")
     parser.add_argument("--medium", type=int, default=10, help="Umbral máximo de vulnerabilidades medias")
+    parser.add_argument(
+        "--summary-file",
+        default=os.environ.get("GITHUB_STEP_SUMMARY", ""),
+        help="Ruta opcional para exportar resumen Markdown (compatible con GITHUB_STEP_SUMMARY)",
+    )
 
     args = parser.parse_args()
     success = evaluate_quality_gate(
@@ -191,7 +269,8 @@ def main():
         mode=args.mode,
         threshold_critical=args.critical,
         threshold_high=args.high,
-        threshold_medium=args.medium
+        threshold_medium=args.medium,
+        summary_file=args.summary_file,
     )
 
     if not success:

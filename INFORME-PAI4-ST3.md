@@ -50,7 +50,7 @@ Avda. Reina Mercedes s/n. 41012 Sevilla | Tel: +34 954 557 139 | Web: [www.lsi.u
    - 3.2. Diagrama de Flujo ante Detección de Vulnerabilidades (Objetivo 1.b)
    - 3.3. Trazabilidad de Estados y Notificaciones
 4. **Decisiones de Diseño de Ingeniería**
-   - 4.1. Selección del Motor de CI/CD: GitHub Actions y GitLab CI/CD
+   - 4.1. Selección del Motor de CI/CD: GitHub Actions
    - 4.2. Estrategia de Mitigación de Falsos Bloqueos: Modo Aviso vs. Modo Bloqueante
    - 4.3. Gestión Cero Credenciales en Código Fuente (Security as Code)
 5. **Selección y Justificación de Herramientas de Seguridad (Objetivo 2)**
@@ -60,7 +60,7 @@ Avda. Reina Mercedes s/n. 41012 Sevilla | Tel: +34 954 557 139 | Web: [www.lsi.u
    - 5.4. DAST (Dynamic Application Security Testing): OWASP ZAP
    - 5.5. Centralización: OWASP DefectDojo v2
 6. **Implementación e Integración en el Pipeline (Objetivo 3)**
-   - 6.1. Definición del Flujo Automatizado (.github/workflows y .gitlab-ci.yml)
+   - 6.1. Definición del Flujo Automatizado (.github/workflows/devsecops-pipeline.yml)
    - 6.2. Adaptaciones y Cambios Respecto al Diseño Preliminar Justificados
 7. **Quality Gates de Seguridad (Objetivo 4)**
    - 7.1. Criterios de Calidad, Umbrales y Políticas de Fallo
@@ -148,7 +148,6 @@ El repositorio corporativo se organiza bajo la siguiente estructura modular est�
 PAI4-ST3/
 ├── .github/workflows/          # Pipeline DevSecOps en GitHub Actions
 │   └── devsecops-pipeline.yml
-├── .gitlab-ci.yml              # Pipeline alternativo para entornos GitLab CI/CD
 ├── app/                        # Código fuente del microservicio vulnerable
 │   ├── Dockerfile              # Manifiesto de contenedor con fallas IaC
 │   ├── docker-compose.yml      # Entorno orquestado para pruebas locales/staging
@@ -181,7 +180,7 @@ PAI4-ST3/
 ```
 
 > [!IMPORTANT]
-> **POLÍTICA DE CERO SECRETOS EN CÓDIGO:** Conforme a las normas del entregable, todos los secretos e identificadores sensibles (API keys de DefectDojo, tokens de GitHub/GitLab, claves de registro) se gestionan mediante variables enmascaradas y secretas del servidor CI (`secrets.DEFECTDOJO_API_KEY`). Ningún secreto real figura en el código ni en los ficheros entregados.
+> **POLÍTICA DE CERO SECRETOS EN CÓDIGO:** Conforme a las normas del entregable, todos los secretos e identificadores sensibles (API keys de DefectDojo, tokens de GitHub, claves de registro) se gestionan mediante variables enmascaradas y secretas del servidor CI (`secrets.DEFECTDOJO_API_KEY`). Ningún secreto real figura en el código ni en los ficheros entregados.
 
 ---
 
@@ -227,16 +226,14 @@ El segundo diagrama detalla el ciclo de vida de gestión de una vulnerabilidad d
 
 ## 4. Decisiones de Diseño de Ingeniería
 
-### 4.1. Selección del Motor de CI/CD: GitHub Actions y GitLab CI/CD
-Se seleccionó como motor principal de ejecución **GitHub Actions** debido a su integración nativa con repositorios de código, su sistema de contenedores de servicio para entornos efímeros de staging y el amplio ecosistema de acciones mantenidas oficialmente por los fabricantes de seguridad (`returntocorp/semgrep-action`, `aquasecurity/trivy-action`, `zaproxy/action-baseline`).
-
-Asimismo, para garantizar máxima portabilidad corporativa, se implementó la especificación complementaria para **GitLab CI/CD** (`.gitlab-ci.yml`) utilizando runners basados en Docker, replicando de forma idéntica las etapas, variables y comportamientos de fallo.
+### 4.1. Selección del Motor de CI/CD: GitHub Actions
+Se seleccionó como motor de ejecución **GitHub Actions** debido a su integración nativa con el repositorio del proyecto, su soporte directo de Docker Compose para levantar entornos efímeros de *staging*, la gestión integrada de secretos y el amplio ecosistema de acciones mantenidas oficialmente por los fabricantes de seguridad (`returntocorp/semgrep-action`, `aquasecurity/trivy-action`, `zaproxy/action-baseline`). Frente a alternativas evaluadas como Jenkins (que exige infraestructura dedicada y mantenimiento de plugins) o GitLab CI/CD (que requeriría migrar el repositorio fuera de GitHub), GitHub Actions centraliza código, Pull Requests, artefactos y trazabilidad de ejecuciones en una única plataforma.
 
 ### 4.2. Estrategia de Mitigación de Falsos Bloqueos: Modo Aviso vs. Modo Bloqueante
 Un dilema arquitectónico crítico en DevSecOps al evaluar aplicaciones vulnerables es el siguiente: *si un Quality Gate bloquea de forma rígida en la etapa de compilación ante cualquier hallazgo alto, las etapas posteriores de staging y análisis dinámico (DAST) nunca llegarían a ejecutarse*, impidiendo obtener una visibilidad integral de la superficie de ataque.
 
 Para resolver este desafío sin comprometer la seguridad productiva, se adoptó una arquitectura de **Quality Gates diferenciados en dos niveles**:
-- **Gate A (Nivel Compilación/Estático - Modo Aviso):** Inspecciona el código fuente y manifiestos. Emite diagnósticos detallados pero opera con `continue-on-error: true` (en GitHub Actions) o `allow_failure: true` (en GitLab CI/CD). Esto garantiza que el artefacto pueda construirse y desplegarse en staging para su prueba dinámica.
+- **Gate A (Nivel Compilación/Estático - Modo Aviso):** Inspecciona el código fuente y manifiestos. Emite diagnósticos detallados pero opera con `continue-on-error: true` en GitHub Actions. Esto garantiza que el artefacto pueda construirse y desplegarse en staging para su prueba dinámica.
 - **Gate B (Nivel Certificación Pre-Producción - Modo Bloqueante):** Se posiciona tras consolidar los informes de SAST, SCA, IaC y DAST en DefectDojo. Aplica la política de **Tolerancia Cero** a vulnerabilidades Críticas y Altas. Si el número de hallazgos en estos niveles es superior a cero, el pipeline falla de forma irrevocable (`exit 1`), protegiendo el entorno de producción.
 
 ### 4.3. Gestión Cero Credenciales en Código Fuente (Security as Code)
@@ -263,28 +260,29 @@ El pliego de condiciones del proyecto requería la selección justificada de al 
 ## 6. Implementación e Integración en el Pipeline (Objetivo 3)
 
 ### 6.1. Definición del Flujo Automatizado
-El pipeline se implementó íntegramente en `.github/workflows/devsecops-pipeline.yml` (y su contrapartida en `.gitlab-ci.yml`), orquestando 7 jobs secuenciales y paralelos:
+El pipeline se implementó íntegramente en `.github/workflows/devsecops-pipeline.yml`, orquestando 7 etapas (9 jobs con análisis estático en paralelo):
 
 ```
-[1. Build & Unit Tests]
+[1. Build & Tests]
+          │
+    ┌─────┼─────────────┐
+    ▼     ▼             ▼
+[2a. SAST] [2b. SCA] [2c. IaC] ──(Paralelo)──► Artefactos JSON/SARIF
+    └─────┼─────────────┘
+          ▼
+[3. Gate A (Aviso)] ─────────────────────────► continue-on-error: true
           │
           ▼
-[2. Security Static Analysis (SAST, SCA, IaC)] ──(Paralelo)──► Reportes JSON/SARIF
+[4. Staging & DAST (OWASP ZAP)] ─────────────► Artefacto dast-zap-reports
           │
           ▼
-[3. Quality Gate A (Modo Aviso)] ──────────────(continue-on-error: true)
+[5. DefectDojo (API v2)] ────────────────────► Deduplicación y Triaje
           │
           ▼
-[4. Staging Deploy & DAST (OWASP ZAP)] ───────► Reporte zap_report.json
-          │
-          ▼
-[5. Centralización DefectDojo (API v2)] ──────► Deduplicación y Triaje
-          │
-          ▼
-[6. Quality Gate B (Modo Bloqueante)] ────────► exit 1 si hay Críticas/Altas
+[6. Gate B (Bloqueante)] ────────────────────► exit 1 si hay Críticas/Altas
           │ (Solo si Gate B aprueba)
           ▼
-[7. Deploy to Production (Kubernetes)]
+[7. Deploy Producción (Kubernetes)]
 ```
 
 ### 6.2. Adaptaciones y Cambios Respecto al Diseño Preliminar Justificados
@@ -496,59 +494,91 @@ env:
 
 jobs:
   build-and-test:
+    name: "1. Build & Tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: cd app && npm install --legacy-peer-deps && npm test
+      - run: cd app && npm install --legacy-peer-deps --ignore-scripts && npm test
 
-  security-static-analysis:
+  sast-semgrep:
+    name: "2a. SAST (Semgrep)"
     needs: [build-and-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: SAST Semgrep
-        run: docker run --rm -v $(pwd):/src semgrep/semgrep semgrep scan --config config/.semgrep.yml --json -o evidencias/sast/semgrep_report.json app/
-      - name: SCA Trivy
-        run: docker run --rm -v $(pwd):/workspace aquasec/trivy:latest fs --format json -o /workspace/evidencias/sca/trivy_sca_report.json /workspace/app
-      - name: IaC Trivy
-        run: docker run --rm -v $(pwd):/workspace aquasec/trivy:latest config --format json -o /workspace/evidencias/iac/trivy_iac_report.json /workspace/app
+      - uses: returntocorp/semgrep-action@v1
+        with: { config: config/.semgrep.yml, generateSarif: evidencias/sast/semgrep_report.sarif }
+        continue-on-error: true
+      - run: docker run --rm -v "$(pwd):/src" -w /src semgrep/semgrep semgrep scan --config config/.semgrep.yml --json -o evidencias/sast/semgrep_report.json app/ || true
+      - uses: actions/upload-artifact@v4
+        with: { name: sast-semgrep-report, path: evidencias/sast/ }
+
+  sca-trivy:
+    name: "2b. SCA (Trivy Deps)"
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@master
+        with: { scan-type: fs, scan-ref: app, format: json, output: evidencias/sca/trivy_sca_report.json, exit-code: '0' }
+      - uses: actions/upload-artifact@v4
+        with: { name: sca-trivy-report, path: evidencias/sca/ }
+
+  iac-trivy:
+    name: "2c. IaC (Trivy Config)"
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@master
+        with: { scan-type: config, scan-ref: app, format: json, output: evidencias/iac/trivy_iac_report.json, exit-code: '0' }
+      - uses: actions/upload-artifact@v4
+        with: { name: iac-trivy-report, path: evidencias/iac/ }
 
   quality-gate-advisory:
-    needs: [security-static-analysis]
+    name: "3. Gate A (Aviso)"
+    needs: [sast-semgrep, sca-trivy, iac-trivy]
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
       - run: python3 scripts/quality_gate.py --mode advisory --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json
 
   dynamic-security-analysis:
+    name: "4. Staging & DAST (ZAP)"
     needs: [quality-gate-advisory]
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Staging & DAST
-        run: python3 scripts/run_zap_dast.py
+      - run: cd app && docker compose up -d --build
+      - uses: zaproxy/action-baseline@v0.15.0
+        with: { target: 'http://localhost:3000', rules_file_name: config/zap-baseline.conf, artifact_name: owasp-zap-baseline-report, allow_issue_writing: false, fail_action: false }
+        continue-on-error: true
+      - run: python3 scripts/run_zap_dast.py
+      - uses: actions/upload-artifact@v4
+        with: { name: dast-zap-reports, path: evidencias/dast/ }
 
   defectdojo-centralization:
+    name: "5. DefectDojo (API v2)"
     needs: [dynamic-security-analysis]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Sincronizar DefectDojo API v2
-        run: |
+      - run: |
           python3 scripts/defectdojo_client.py --action import --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
           python3 scripts/defectdojo_client.py --action triage
           python3 scripts/defectdojo_client.py --action export --output evidencias/defectdojo/defectdojo_consolidated.json
 
   quality-gate-blocking:
+    name: "6. Gate B (Bloqueante)"
     needs: [defectdojo-centralization]
     runs-on: ubuntu-latest
     steps:
-      - name: Quality Gate Bloqueante de Release
-        run: python3 scripts/quality_gate.py --mode blocking --critical 0 --high 0 --medium 10 --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
+      - run: python3 scripts/quality_gate.py --mode blocking --critical 0 --high 0 --medium 10 --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
 
   deploy-to-production:
+    name: "7. Deploy Producción"
     needs: [quality-gate-blocking]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && success()

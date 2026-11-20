@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node -e \"console.log('Todos los tests unitarios pasaron correctamente')\""
+    "test": "node --test tests/server.test.js"
   },
   "dependencies": {
     "axios": "0.21.1",
