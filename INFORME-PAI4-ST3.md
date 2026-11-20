@@ -260,28 +260,29 @@ El pliego de condiciones del proyecto requería la selección justificada de al 
 ## 6. Implementación e Integración en el Pipeline (Objetivo 3)
 
 ### 6.1. Definición del Flujo Automatizado
-El pipeline se implementó íntegramente en `.github/workflows/devsecops-pipeline.yml`, orquestando 7 jobs secuenciales y paralelos:
+El pipeline se implementó íntegramente en `.github/workflows/devsecops-pipeline.yml`, orquestando 7 etapas (9 jobs con análisis estático en paralelo):
 
 ```
-[1. Build & Unit Tests]
+[1. Build & Tests]
+          │
+    ┌─────┼─────────────┐
+    ▼     ▼             ▼
+[2a. SAST] [2b. SCA] [2c. IaC] ──(Paralelo)──► Artefactos JSON/SARIF
+    └─────┼─────────────┘
+          ▼
+[3. Gate A (Aviso)] ─────────────────────────► continue-on-error: true
           │
           ▼
-[2. Security Static Analysis (SAST, SCA, IaC)] ──(Paralelo)──► Reportes JSON/SARIF
+[4. Staging & DAST (OWASP ZAP)] ─────────────► Artefacto dast-zap-reports
           │
           ▼
-[3. Quality Gate A (Modo Aviso)] ──────────────(continue-on-error: true)
+[5. DefectDojo (API v2)] ────────────────────► Deduplicación y Triaje
           │
           ▼
-[4. Staging Deploy & DAST (OWASP ZAP)] ───────► Reporte zap_report.json
-          │
-          ▼
-[5. Centralización DefectDojo (API v2)] ──────► Deduplicación y Triaje
-          │
-          ▼
-[6. Quality Gate B (Modo Bloqueante)] ────────► exit 1 si hay Críticas/Altas
+[6. Gate B (Bloqueante)] ────────────────────► exit 1 si hay Críticas/Altas
           │ (Solo si Gate B aprueba)
           ▼
-[7. Deploy to Production (Kubernetes)]
+[7. Deploy Producción (Kubernetes)]
 ```
 
 ### 6.2. Adaptaciones y Cambios Respecto al Diseño Preliminar Justificados
@@ -493,59 +494,91 @@ env:
 
 jobs:
   build-and-test:
+    name: "1. Build & Tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: cd app && npm install --legacy-peer-deps && npm test
+      - run: cd app && npm install --legacy-peer-deps --ignore-scripts && npm test
 
-  security-static-analysis:
+  sast-semgrep:
+    name: "2a. SAST (Semgrep)"
     needs: [build-and-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: SAST Semgrep
-        run: docker run --rm -v $(pwd):/src semgrep/semgrep semgrep scan --config config/.semgrep.yml --json -o evidencias/sast/semgrep_report.json app/
-      - name: SCA Trivy
-        run: docker run --rm -v $(pwd):/workspace aquasec/trivy:latest fs --format json -o /workspace/evidencias/sca/trivy_sca_report.json /workspace/app
-      - name: IaC Trivy
-        run: docker run --rm -v $(pwd):/workspace aquasec/trivy:latest config --format json -o /workspace/evidencias/iac/trivy_iac_report.json /workspace/app
+      - uses: returntocorp/semgrep-action@v1
+        with: { config: config/.semgrep.yml, generateSarif: evidencias/sast/semgrep_report.sarif }
+        continue-on-error: true
+      - run: docker run --rm -v "$(pwd):/src" -w /src semgrep/semgrep semgrep scan --config config/.semgrep.yml --json -o evidencias/sast/semgrep_report.json app/ || true
+      - uses: actions/upload-artifact@v4
+        with: { name: sast-semgrep-report, path: evidencias/sast/ }
+
+  sca-trivy:
+    name: "2b. SCA (Trivy Deps)"
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@master
+        with: { scan-type: fs, scan-ref: app, format: json, output: evidencias/sca/trivy_sca_report.json, exit-code: '0' }
+      - uses: actions/upload-artifact@v4
+        with: { name: sca-trivy-report, path: evidencias/sca/ }
+
+  iac-trivy:
+    name: "2c. IaC (Trivy Config)"
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@master
+        with: { scan-type: config, scan-ref: app, format: json, output: evidencias/iac/trivy_iac_report.json, exit-code: '0' }
+      - uses: actions/upload-artifact@v4
+        with: { name: iac-trivy-report, path: evidencias/iac/ }
 
   quality-gate-advisory:
-    needs: [security-static-analysis]
+    name: "3. Gate A (Aviso)"
+    needs: [sast-semgrep, sca-trivy, iac-trivy]
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
       - run: python3 scripts/quality_gate.py --mode advisory --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json
 
   dynamic-security-analysis:
+    name: "4. Staging & DAST (ZAP)"
     needs: [quality-gate-advisory]
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Staging & DAST
-        run: python3 scripts/run_zap_dast.py
+      - run: cd app && docker compose up -d --build
+      - uses: zaproxy/action-baseline@v0.15.0
+        with: { target: 'http://localhost:3000', rules_file_name: config/zap-baseline.conf, artifact_name: owasp-zap-baseline-report, allow_issue_writing: false, fail_action: false }
+        continue-on-error: true
+      - run: python3 scripts/run_zap_dast.py
+      - uses: actions/upload-artifact@v4
+        with: { name: dast-zap-reports, path: evidencias/dast/ }
 
   defectdojo-centralization:
+    name: "5. DefectDojo (API v2)"
     needs: [dynamic-security-analysis]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Sincronizar DefectDojo API v2
-        run: |
+      - run: |
           python3 scripts/defectdojo_client.py --action import --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
           python3 scripts/defectdojo_client.py --action triage
           python3 scripts/defectdojo_client.py --action export --output evidencias/defectdojo/defectdojo_consolidated.json
 
   quality-gate-blocking:
+    name: "6. Gate B (Bloqueante)"
     needs: [defectdojo-centralization]
     runs-on: ubuntu-latest
     steps:
-      - name: Quality Gate Bloqueante de Release
-        run: python3 scripts/quality_gate.py --mode blocking --critical 0 --high 0 --medium 10 --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
+      - run: python3 scripts/quality_gate.py --mode blocking --critical 0 --high 0 --medium 10 --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
 
   deploy-to-production:
+    name: "7. Deploy Producción"
     needs: [quality-gate-blocking]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && success()

@@ -435,6 +435,43 @@ def _run_api_triage(client: DefectDojoAPIClient, product_name: str, engagement_n
     print(f"    Mitigadas:        {summary['mitigated']}")
 
 
+def _write_github_summary(
+    summary: Dict[str, Any],
+    product_name: str,
+    engagement_name: str,
+    source_label: str,
+):
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY", "")
+    if not summary_file:
+        return
+    tot = summary["by_severity_total"]
+    act = summary["by_severity_active"]
+    lines = [
+        "## 📋 Gestión Centralizada de Vulnerabilidades — DefectDojo (API v2)",
+        "",
+        f"- **Producto:** `{product_name}` · **Engagement:** `{engagement_name}`",
+        f"- **Origen de sincronización:** `{source_label}`",
+        "",
+        "| Métrica | Valor |",
+        "| :--- | :---: |",
+        f"| **Total hallazgos deduplicados** | **{summary['total_findings']}** |",
+        f"| Activas tras triaje | {sum(act.values())} |",
+        f"| Falsos Positivos justificados (`False Positive`) | {summary['false_positives']} |",
+        f"| Mitigadas (`Mitigated`) | {summary['mitigated']} |",
+        "",
+        "| Severidad | Registradas | Activas |",
+        "| :--- | :---: | :---: |",
+        f"| 🔴 Críticas | {tot['Critical']} | {act['Critical']} |",
+        f"| 🟠 Altas | {tot['High']} | {act['High']} |",
+        f"| 🟡 Medias | {tot['Medium']} | {act['Medium']} |",
+        f"| 🔵 Bajas | {tot['Low']} | {act['Low']} |",
+        f"| ⚪ Informativas | {tot['Info']} | {act['Info']} |",
+        "",
+    ]
+    with open(summary_file, "a", encoding="utf-8") as sf:
+        sf.write("\n".join(lines) + "\n")
+
+
 def _run_api_export(
     client: DefectDojoAPIClient,
     product_name: str,
@@ -463,6 +500,7 @@ def _run_api_export(
             ensure_ascii=False,
         )
     print(f"[+] Resumen consolidado exportado desde DefectDojo API v2 a: {output_file}")
+    _write_github_summary(summary, product_name, engagement_name, f"API REST v2 ({client.base_url})")
 
 
 def run_mock_import(semgrep_path: str, trivy_sca_path: str, trivy_iac_path: str, zap_path: str):
@@ -529,7 +567,7 @@ def run_mock_triage():
     print(f"    Mitigadas:        {summary['mitigated']}")
 
 
-def run_mock_export(output_file: str):
+def run_mock_export(output_file: str, product_name: str = "INSEGUS Web Application", engagement_name: str = "DevSecOps CI/CD Pipeline"):
     db = DefectDojoDatabase()
     summary = db.get_summary()
     os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
@@ -545,6 +583,7 @@ def run_mock_export(output_file: str):
             ensure_ascii=False,
         )
     print(f"[+] Resumen exportado a: {output_file}")
+    _write_github_summary(summary, product_name, engagement_name, "Backend local compatible API v2 (mock_defectdojo.py)")
 
 
 def main():
@@ -602,7 +641,7 @@ def main():
     elif args.action == "triage":
         run_mock_triage()
     elif args.action == "export":
-        run_mock_export(args.output)
+        run_mock_export(args.output, args.product, args.engagement)
 
 
 if __name__ == "__main__":
