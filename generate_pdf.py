@@ -105,7 +105,7 @@ def convert_markdown_to_pdf():
 <style>
   @page {{
     size: A4;
-    margin: 14mm 14mm 14mm 14mm;
+    margin: 11mm 12.5mm 12mm 12.5mm;
     @bottom-right {{
       content: "Página " counter(page);
       font-size: 8pt;
@@ -115,58 +115,79 @@ def convert_markdown_to_pdf():
   body {{
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color: #1e293b;
-    line-height: 1.42;
-    font-size: 8.9pt;
+    line-height: 1.34;
+    font-size: 8.65pt;
+  }}
+  a {{
+    color: #0369a1;
+    text-decoration: underline;
+    text-decoration-color: #bae6fd;
+    text-underline-offset: 2px;
   }}
   h1 {{
-    font-size: 15.5pt;
+    font-size: 15pt;
     color: #0f172a;
     border-bottom: 2px solid #0284c7;
     padding-bottom: 4px;
-    margin-top: 14px;
+    margin-top: 10px;
     margin-bottom: 6px;
+    break-after: avoid;
     page-break-after: avoid;
   }}
   h2 {{
-    font-size: 12.2pt;
+    font-size: 11.8pt;
     color: #0369a1;
     border-bottom: 1px solid #cbd5e1;
-    padding-bottom: 3px;
-    margin-top: 12px;
-    margin-bottom: 5px;
+    padding-bottom: 2px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    break-after: avoid;
     page-break-after: avoid;
   }}
   h3 {{
-    font-size: 10.2pt;
+    font-size: 9.8pt;
     color: #0284c7;
-    margin-top: 10px;
-    margin-bottom: 4px;
+    margin-top: 8px;
+    margin-bottom: 3px;
+    break-after: avoid;
     page-break-after: avoid;
   }}
   h4 {{
-    font-size: 9.4pt;
+    font-size: 9.2pt;
     color: #334155;
-    margin-top: 8px;
+    margin-top: 6px;
     margin-bottom: 2px;
+    break-after: avoid;
     page-break-after: avoid;
   }}
   p, ul, ol {{
-    margin-top: 3px;
+    margin-top: 2px;
     margin-bottom: 4px;
+    orphans: 3;
+    widows: 3;
   }}
   li {{
     margin-bottom: 2px;
+    orphans: 2;
+    widows: 2;
   }}
   table {{
     width: 100%;
     border-collapse: collapse;
-    margin: 6px 0;
-    font-size: 8.0pt;
+    margin: 5px 0;
+    font-size: 7.9pt;
+    page-break-inside: auto;
+  }}
+  thead {{
+    display: table-header-group;
+  }}
+  tr {{
     page-break-inside: avoid;
+    break-inside: avoid;
   }}
   th, td {{
     border: 1px solid #cbd5e1;
-    padding: 3.5px 5.5px;
+    padding: 3px 5px;
     text-align: left;
     vertical-align: top;
   }}
@@ -180,7 +201,7 @@ def convert_markdown_to_pdf():
   }}
   code {{
     font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    font-size: 8.0pt;
+    font-size: 7.8pt;
     background-color: #f1f5f9;
     padding: 1px 3px;
     border-radius: 3px;
@@ -190,37 +211,41 @@ def convert_markdown_to_pdf():
     background-color: #f8fafc;
     border: 1px solid #e2e8f0;
     border-left: 3px solid #0284c7;
-    padding: 5px 8px;
+    padding: 4px 7px;
     border-radius: 4px;
-    font-size: 7.4pt;
-    line-height: 1.25;
+    font-size: 7.2pt;
+    line-height: 1.18;
     overflow-x: auto;
     margin: 4px 0;
     page-break-inside: avoid;
+    break-inside: avoid;
     white-space: pre-wrap;
-    word-break: break-all;
+    overflow-wrap: break-word;
+    word-break: normal;
   }}
   pre code {{
     background: none;
     padding: 0;
     color: #1e293b;
-    font-size: 7.4pt;
+    font-size: 7.2pt;
   }}
   img {{
     display: block;
-    max-width: 98%;
+    max-width: 96%;
     height: auto;
-    margin: 8px auto;
+    margin: 6px auto;
     border: 1px solid #e2e8f0;
     border-radius: 5px;
     page-break-inside: avoid;
+    break-inside: avoid;
   }}
   .callout {{
-    padding: 6px 10px;
+    padding: 5px 9px;
     margin: 5px 0;
     border-radius: 4px;
-    font-size: 8.3pt;
+    font-size: 8.2pt;
     page-break-inside: avoid;
+    break-inside: avoid;
   }}
   .callout-important {{
     background-color: #eff6ff;
@@ -252,10 +277,11 @@ def convert_markdown_to_pdf():
   hr {{
     border: 0;
     border-top: 1px solid #e2e8f0;
-    margin: 8px 0;
+    margin: 6px 0;
   }}
   .page-break {{
     page-break-before: always;
+    break-before: page;
   }}
 </style>
 </head>
@@ -291,14 +317,23 @@ def convert_markdown_to_pdf():
 
     if os.path.exists(PDF_PATH):
         size_kb = os.path.getsize(PDF_PATH) / 1024
+        pages = "?"
         try:
             pdfinfo = subprocess.check_output(["pdfinfo", PDF_PATH], text=True)
             pages_match = re.search(r"Pages:\s+(\d+)", pdfinfo)
-            pages = pages_match.group(1) if pages_match else "?"
-            print(f"[OK] Documento PDF oficial generado exitosamente: {PDF_PATH}")
-            print(f"     Páginas totales: {pages} (Límite normativo: máx. 15 páginas sin portada ni anexos) | Tamaño: {size_kb:.1f} KB")
+            if pages_match:
+                pages = pages_match.group(1)
         except Exception:
-            print(f"[OK] Documento PDF oficial generado exitosamente: {PDF_PATH} | Tamaño: {size_kb:.1f} KB")
+            try:
+                with open(PDF_PATH, "rb") as pdf_file:
+                    raw = pdf_file.read()
+                count = len(re.findall(rb"/Type\s*/Page\b", raw))
+                if count > 0:
+                    pages = str(count)
+            except Exception:
+                pass
+        print(f"[OK] Documento PDF oficial generado exitosamente: {PDF_PATH}")
+        print(f"     Páginas totales: {pages} (Límite normativo: máx. 15 páginas sin portada, índice, referencias ni anexos) | Tamaño: {size_kb:.1f} KB")
 
 if __name__ == "__main__":
     convert_markdown_to_pdf()

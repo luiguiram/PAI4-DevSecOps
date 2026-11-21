@@ -1,6 +1,30 @@
+# Dependencias de Node.js
 node_modules/
+npm-debug.log*
+
+# Artefactos y entornos de Python
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+venv/
+
+# Secretos y credenciales locales (Uso Responsable / Cero Secretos en Código)
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+
+# Temporales de compilación PDF, OWASP ZAP y empaquetado de entrega
 informe_temp.html
-PAI4-ST3.zip
+report_html.html
+report_json.json
+report_md.md
+report_xml.xml
+*.zip
+
+# Sistema operativo y editores
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
