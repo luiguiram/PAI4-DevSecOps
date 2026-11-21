@@ -1,6 +1,5 @@
 # Departamento de Lenguajes y Sistemas Informáticos
 ### E.T.S. Ingeniería Informática — Universidad de Sevilla
-Avda. Reina Mercedes s/n. 41012 Sevilla | Tel: +34 954 557 139 | Web: [www.lsi.us.es](https://www.lsi.us.es)  
 **Asignatura:** Seguridad en Sistemas Informáticos y en Internet  
 **Convocatoria:** Curso Académico 2026 / 2027  
 
@@ -32,58 +31,28 @@ Avda. Reina Mercedes s/n. 41012 Sevilla | Tel: +34 954 557 139 | Web: [www.lsi.u
 | **0.5** | 06/11/2026 | Security Team 3 | Scaffolding de la aplicación de microservicios, integración de SAST (Semgrep) y SCA (Trivy). |
 | **0.8** | 08/11/2026 | Security Team 3 | Configuración de auditoría IaC (Trivy), despliegue en staging y DAST automatizado con OWASP ZAP. |
 | **1.0** | 10/11/2026 | Security Team 3 | Implementación de Quality Gates (aviso y bloqueante), API v2 de DefectDojo, triaje y validación final. |
-
----
-
-## Índice de Contenidos
-
-1. **Resumen Ejecutivo**
-   - 1.1. Contexto Empresarial e Incidentes Previos en INSEGUS
-   - 1.2. Filosofía Shift Left y Modelo Yellow/Green Team (NICE NIST SP 800-181)
-   - 1.3. Cuadro de Mando de Indicadores Clave de Rendimiento (KPIs)
-2. **Aplicación de Prueba y Repositorio de Código**
-   - 2.1. Arquitectura del Microservicio Web Vulnerable
-   - 2.2. Vectores de Ataque Intencionados y Superficie de Exposición
-   - 2.3. Estructura del Repositorio y Política de Gestión de Secretos
-3. **Diseño del Pipeline DevSecOps (Objetivo 1)**
-   - 3.1. Diagrama de Arquitectura del Pipeline DevSecOps (Objetivo 1.a)
-   - 3.2. Diagrama de Flujo ante Detección de Vulnerabilidades (Objetivo 1.b)
-   - 3.3. Trazabilidad de Estados y Notificaciones
-4. **Decisiones de Diseño de Ingeniería**
-   - 4.1. Selección del Motor de CI/CD: GitHub Actions
-   - 4.2. Estrategia de Mitigación de Falsos Bloqueos: Modo Aviso vs. Modo Bloqueante
-   - 4.3. Gestión Cero Credenciales en Código Fuente (Security as Code)
-5. **Selección y Justificación de Herramientas de Seguridad (Objetivo 2)**
-   - 5.1. SAST (Static Application Security Testing): Semgrep Community Edition
-   - 5.2. SCA (Software Composition Analysis): Trivy Dependencies Scanner
-   - 5.3. IaC & Container Security: Trivy Misconfiguration Scanner
-   - 5.4. DAST (Dynamic Application Security Testing): OWASP ZAP
-   - 5.5. Centralización: OWASP DefectDojo v2
-6. **Implementación e Integración en el Pipeline (Objetivo 3)**
-   - 6.1. Definición del Flujo Automatizado (.github/workflows/devsecops-pipeline.yml)
-   - 6.2. Adaptaciones y Cambios Respecto al Diseño Preliminar Justificados
-7. **Quality Gates de Seguridad (Objetivo 4)**
-   - 7.1. Criterios de Calidad, Umbrales y Políticas de Fallo
-   - 7.2. Demostración Técnica de Etapa en Modo Aviso (Quality Gate A)
-   - 7.3. Demostración Técnica de Etapa Bloqueante (Quality Gate B)
-8. **Gestión Centralizada de Vulnerabilidades en DefectDojo (Objetivo 5)**
-   - 8.1. Ingesta Automática mediante API REST v2 (Job import-scan)
-   - 8.2. Deduplicación Automática y Correlación de Hallazgos
-   - 8.3. Triaje Técnico, Priorización (P1-P4) y Tratamiento de Falsos Positivos
-9. **Resultados y Análisis Comparativo de las Pruebas**
-   - 9.1. Matriz Consolidada de Hallazgos Multicapa
-   - 9.2. Análisis Cruzado: Detección Estática frente a Explotabilidad Dinámica
-10. **Conclusiones y Dictamen Técnico**
-11. **Referencias Normativas y Bibliográficas** *(No computa para límite de páginas)*
-12. **Anexos: Evidencias Técnicas** *(No computa para límite de páginas)*
-    - Anexo A: Definición Completa del Pipeline GitHub Actions
-    - Anexo B: Reglas Personalizadas SAST Semgrep
-    - Anexo C: Trazas de Ejecución de Quality Gates (Aviso vs. Bloqueo Exit Code 1)
-    - Anexo D: Exportación de Base de Datos y Triaje en DefectDojo
+| **1.1** | 20/11/2026 | Security Team 3 | Paralelización CI (-47,5 %), 8 pruebas unitarias (`node --test`), integración real OWASP DefectDojo API v2 y capturas. |
 
 ---
 
 <div class="page-break"></div>
+
+## Índice de Contenidos
+
+1. **Resumen Ejecutivo** — 1.1. Contexto Empresarial e Incidentes Previos · 1.2. Filosofía Shift Left y Modelo Yellow/Green Team · 1.3. Cuadro de Mando de KPIs
+2. **Aplicación de Prueba y Repositorio de Código** — 2.1. Arquitectura del Microservicio · 2.2. Vectores de Ataque Intencionados · 2.3. Estructura y Política de Secretos
+3. **Diseño del Pipeline DevSecOps (Objetivo 1)** — 3.1. Diagrama de Arquitectura del Pipeline (1.a) · 3.2. Diagrama de Flujo ante Vulnerabilidades (1.b)
+4. **Decisiones de Diseño de Ingeniería** — 4.1. Selección de GitHub Actions · 4.2. Modo Aviso vs. Modo Bloqueante · 4.3. Gestión Cero Credenciales
+5. **Selección y Justificación de Herramientas de Seguridad (Objetivo 2)** — 5.1. Matriz Comparativa y Justificación Técnica · 5.2. Limitaciones Conocidas y Alternativas Evaluadas
+6. **Implementación e Integración en el Pipeline (Objetivo 3)** — 6.1. Definición del Flujo Automatizado · 6.2. Adaptaciones Respecto al Diseño Preliminar Justificadas
+7. **Quality Gates de Seguridad (Objetivo 4)** — 7.1. Criterios, Umbrales y Políticas · 7.2. Demostración en Modo Aviso (Gate A) · 7.3. Demostración en Modo Bloqueante (Gate B)
+8. **Gestión Centralizada de Vulnerabilidades en DefectDojo (Objetivo 5)** — 8.1. Ingesta API REST v2 · 8.2. Deduplicación y Correlación · 8.3. Triaje, Priorización (P1-P4) y Falsos Positivos
+9. **Resultados y Análisis Comparativo de las Pruebas** — 9.1. Matriz Consolidada de Hallazgos Multicapa · 9.2. Análisis Cruzado SAST vs. DAST e IaC
+10. **Conclusiones y Dictamen Técnico**
+11. **Referencias Normativas y Bibliográficas** *(No computa para límite de páginas)*
+12. **Anexos: Referencias a Evidencias Técnicas** *(No computa para límite de páginas; enlaces directos a Anexos A–E en el repositorio y entregable)*
+
+---
 
 ## 1. Resumen Ejecutivo
 
@@ -154,24 +123,25 @@ PAI4-ST3/
 │   ├── kubernetes/             # Manifiestos de despliegue en K8s
 │   │   ├── deployment.yaml
 │   │   └── service.yaml
-│   ├── package.json            # Dependencias con CVEs deliberados
-│   ├── server.js               # Lógica del servidor Node.js
-│   └── public/index.html       # Interfaz web de usuario
-├── config/                     # Configuraciones de escáneres y políticas
-│   ├── .semgrep.yml            # Reglas SAST personalizadas
-│   ├── trivy.yaml              # Parámetros de escaneo SCA/IaC
-│   ├── zap-baseline.conf       # Directivas y umbrales DAST ZAP
-│   └── quality_gate_policy.json# Definición formal de Quality Gates
-├── evidencias/                 # Reportes generados por herramientas y logs
-│   ├── capturas/               # Capturas reales de GitHub Actions y DefectDojo (PNG)
-│   ├── diagramas/              # Diagramas vectoriales de diseño (1.a y 1.b)
-│   ├── sast/                   # Informes Semgrep JSON y SARIF
-│   ├── sca/                    # Informe de vulnerabilidades Trivy SCA
-│   ├── iac/                    # Informe de desconfiguraciones Trivy IaC
-│   ├── dast/                   # Informes OWASP ZAP (JSON y HTML)
-│   ├── quality_gates/          # Trazas de evaluación de gates (aviso y fallo)
-│   ├── pipeline_logs/          # Logs completos de ejecución CI/CD
-│   └── defectdojo/             # Informes consolidados de API v2 y triaje
+│   ├── package.json             # Dependencias con CVEs deliberados
+│   ├── server.js                # Lógica del servidor Node.js
+│   ├── tests/server.test.js     # 8 pruebas unitarias reales (node --test)
+│   └── public/index.html        # Interfaz web de usuario
+├── config/                      # Configuraciones de escáneres y políticas
+│   ├── .semgrep.yml             # Reglas SAST personalizadas
+│   ├── trivy.yaml               # Parámetros de escaneo SCA/IaC
+│   ├── zap-baseline.conf        # Directivas y umbrales DAST ZAP
+│   └── quality_gate_policy.json # Definición formal de Quality Gates
+├── evidencias/                  # Reportes generados por herramientas y logs
+│   ├── capturas/                # Capturas reales de GitHub Actions y DefectDojo (PNG/JPG)
+│   ├── diagramas/               # Diagramas vectoriales de diseño (1.a y 1.b)
+│   ├── sast/                    # Informes Semgrep JSON y SARIF
+│   ├── sca/                     # Informe de vulnerabilidades Trivy SCA
+│   ├── iac/                     # Informe de desconfiguraciones Trivy IaC
+│   ├── dast/                    # Informes OWASP ZAP (JSON y HTML)
+│   ├── quality_gates/           # Trazas de evaluación de gates (aviso y bloqueo)
+│   ├── pipeline_logs/           # Logs completos de ejecución CI/CD
+│   └── defectdojo/              # Informes consolidados API v2, triaje y PDFs oficiales
 └── scripts/                    # Automatización de ejecución y orquestación
     ├── quality_gate.py         # Evaluador de umbrales y políticas
     ├── defectdojo_client.py    # Cliente REST API v2 de DefectDojo
@@ -246,6 +216,7 @@ Para dar cumplimiento estricto a las normas de entrega y a las mejores práctica
 
 ## 5. Selección y Justificación de Herramientas de Seguridad (Objetivo 2)
 
+### 5.1. Matriz Comparativa y Justificación Técnica
 El pliego de condiciones del proyecto requería la selección justificada de al menos tres herramientas de pruebas de seguridad de categorías distintas. El Security Team 3 optó por implementar **cuatro tipos de herramientas (SAST, SCA, IaC y DAST)** más la plataforma centralizadora, asegurando cobertura holística en cada capa del microservicio:
 
 | Categoría | Herramienta Seleccionada | Justificación Técnica según la Tecnología de la Aplicación | Salida Generada |
@@ -255,6 +226,14 @@ El pliego de condiciones del proyecto requería la selección justificada de al 
 | **IaC** | **Trivy Misconfiguration Scanner (v0.76.2)** | Motor de auditoría estática basado en políticas Rego alineadas con los benchmarks del CIS (*Center for Internet Security*). Audita el `Dockerfile` y los manifiestos de Kubernetes (`deployment.yaml`), detectando permisos de root, capacidades excesivas y ausencia de límites de recursos. | `trivy_iac_report.json` |
 | **DAST** | **OWASP ZAP (ZED Attack Proxy v2.17.0)** | Escáner dinámico de aplicaciones web estándar de la industria. Ataca la aplicación en ejecución en staging (`http://localhost:3000`), inyectando payloads activos en parámetros GET/POST para verificar la explotabilidad real de inyecciones SQL, XSS reflejado, SSRF y la ausencia de cabeceras HTTP de seguridad (CSP, X-Frame-Options). | `zap_report.json` y `zap_report.html` |
 | **Gestión** | **OWASP DefectDojo (API v2)** | Plataforma unificada de orquestación de vulnerabilidades. Permite ingerir automáticamente los informes heterogéneos de las cuatro herramientas previas, ejecutar deduplicación matemática, gestionar el triaje, registrar falsos positivos y mantener la trazabilidad de cumplimiento. | `defectdojo_consolidated.json` |
+
+### 5.2. Limitaciones Conocidas y Alternativas Evaluadas
+
+- **SAST (Semgrep CE):** *Limitación:* la edición Community realiza análisis intraprocedural (no rastrea flujos complejos entre múltiples ficheros ni valida explotabilidad real). *Alternativas:* **SonarQube Community** (requiere servidor propio y alta memoria) y **CodeQL** (mayor tiempo de compilación y acoplamiento exclusivo a GitHub).
+- **SCA (Trivy Dependencies):** *Limitación:* reporta CVEs por versión en `package-lock.json` sin análisis de alcanzabilidad (*reachability*), alertando incluso sobre dependencias transitivas no invocadas. *Alternativas:* **OWASP Dependency-Check** (más lento y sujeto a cuotas de NVD) y **Snyk** (límites de escaneo en plan gratuito).
+- **IaC (Trivy Config):** *Limitación:* audita únicamente declaraciones estáticas sin validar el estado *runtime* ni políticas de red del clúster real. *Alternativas:* **Checkov** y **KICS** (se eligió Trivy para consolidar SCA e IaC en un solo motor ligero).
+- **DAST (OWASP ZAP):** *Limitación:* exige desplegar el servicio en *staging*, depende de la cobertura de rutas y consume más tiempo de CI; su *parser* en DefectDojo requiere XML. *Alternativas:* **Wapiti** (menor integración nativa con CI/CD) y **Burp Suite Community** (sin automatización en pipeline en su edición gratuita).
+- **Gestión (OWASP DefectDojo):** *Limitación:* requiere infraestructura dedicada (PostgreSQL, Redis, Celery) accesible desde el runner para sincronización continua. *Alternativas:* **OWASP Dependency-Track** (restringido a SCA/SBOM) y **ArcherySec / Faraday** (menos *parsers* nativos en edición libre).
 
 ---
 
@@ -319,6 +298,8 @@ Las políticas de seguridad se parametrizaron formalmente en el evaluador `scrip
 | **Quality Gate A** | Build / Análisis Estático | **Modo Aviso (Advisory)** | Sin límite | Sin límite | Sin límite | Publica advertencia en PR; continúa ejecución (`continue-on-error: true`). |
 | **Quality Gate B** | Pre-Producción / Release | **Modo Bloqueante (Blocking)** | **≤ 0** | **≤ 0** | **≤ 10** | **Aborta el pipeline (`exit 1`)**, cancela el despliegue y alerta al CISO. |
 
+**Justificación de los umbrales elegidos:** se establece **tolerancia cero** para vulnerabilidades Críticas y Altas por su explotabilidad directa (RCE por `eval()`, bypass por SQLi, escape de contenedor con `SYS_ADMIN`), mientras que el margen de **≤ 10 Medias** equilibra seguridad y agilidad operativa, evitando bloquear entregas por deuda técnica moderada (p. ej., cabeceras HTTP) ya planificada en el *sprint* de *hardening*.
+
 ### 7.2. Demostración Técnica de Etapa en Modo Aviso (Quality Gate A)
 En la etapa de compilación, el evaluador de Quality Gate A consolidó las evidencias estáticas de Semgrep y Trivy. Pese a detectar anomalías severas, el pipeline reaccionó según lo previsto en el diseño: **notificó las infracciones y permitió continuar la ejecución sin detener el flujo**:
 
@@ -382,29 +363,29 @@ TOTAL CONSOLIDADO         | 3        | 60     | 41       | 18
 ```
 
 > [!WARNING]
-> La evidencia de bloqueo con código `exit 1` ha quedado documentada tanto en las ejecuciones reales de GitHub Actions — en Pull Request `#11` ([`runs/44645741212`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44645741212)) y en `push` a `main` `#14` ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617)) — como en las capturas guardadas en `evidencias/capturas/` y los logs `evidencias/pipeline_logs/pipeline_failure_quality_gate.log` y `evidencias/quality_gates/quality_gate_blocking_failure.log`.
+> La evidencia de bloqueo con código `exit 1` ha quedado documentada tanto en las ejecuciones reales de GitHub Actions — en Pull Request `#11` ([`runs/44645741212`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44645741212)) y en `push` a `main` `#14` ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617)) — como en las capturas guardadas en `evidencias/capturas/` y los logs `evidencias/pipeline_logs/pipeline_failure_quality_gate.log` y `evidencias/quality_gates/quality_gate_blocking.log`.
 
 ---
 
 ## 8. Gestión Centralizada de Vulnerabilidades en DefectDojo (Objetivo 5)
 
 ### 8.1. Ingesta Automática mediante API REST v2 (Job import-scan)
-La centralización de hallazgos se ejecutó mediante el script cliente `scripts/defectdojo_client.py`, el cual realiza llamadas HTTP autenticadas al endpoint `/api/v2/import-scan/` de DefectDojo asociando los resultados al producto `INSEGUS Web Application` y al engagement `DevSecOps CI/CD Pipeline`:
+La centralización de hallazgos se ejecutó mediante el script cliente `scripts/defectdojo_client.py`, el cual realiza llamadas HTTP autenticadas (`Authorization: Token`) al endpoint `POST /api/v2/import-scan/` de OWASP DefectDojo asociando los resultados al producto `INSEGUS Web Application` y al engagement `DevSecOps CI/CD Pipeline`:
 
-<img src="evidencias/diagramas/defectdojo_dashboard.svg" alt="Dashboard Consolidado en DefectDojo" width="100%"/>
+<img src="evidencias/capturas/defectdojo_dashboard_real.png" alt="Dashboard Real Consolidado en OWASP DefectDojo" width="100%"/>
 
-El proceso de ingesta procesó de manera transparente los formatos nativos de las herramientas:
-- **Semgrep JSON:** 5 hallazgos analizados (Secretos CWE-798, Eval CWE-95, CORS CWE-942).
-- **Trivy SCA JSON:** 70 hallazgos únicos de librerías desactualizadas con identificadores CVE.
-- **Trivy IaC JSON:** 23 desconfiguraciones en Dockerfile y Kubernetes manifiestos.
-- **OWASP ZAP JSON:** 5 alertas dinámicas confirmadas en tiempo de ejecución.
+El proceso de ingesta sobre la instancia real de OWASP DefectDojo procesó de manera automática los cuatro informes mediante sus *parsers* nativos:
+- **Semgrep (`Semgrep JSON Report`, Test ID 1):** 5 hallazgos analizados (Secretos CWE-798, `eval()` CWE-95, SQLi CWE-89, CORS CWE-942; 4 activos y 1 falso positivo triado).
+- **Trivy SCA (`Trivy Scan`, Test ID 2):** 89 hallazgos de vulnerabilidades CVE en dependencias directas y transitivas de `package-lock.json`.
+- **Trivy IaC (`Trivy Scan`, Test ID 3):** 23 desconfiguraciones en `Dockerfile` y manifiestos de Kubernetes.
+- **OWASP ZAP (`ZAP Scan`, Test ID 4):** 2 alertas de cabeceras en el informe local base (y 5 alertas al incluir SQLi, XSS y SSRF activos en el *staging* de GitHub Actions); `defectdojo_client.py` convierte automáticamente el reporte JSON de ZAP al formato XML (`OWASPZAPReport`) exigido por el *parser* oficial de DefectDojo.
 
 ### 8.2. Deduplicación Automática y Correlación de Hallazgos
 Uno de los valores fundamentales de DefectDojo es su motor de deduplicación. Al recibir alertas de múltiples escáneres que apuntan al mismo componente (por ejemplo, Semgrep detectando inyección SQL estática en `server.js` y OWASP ZAP detectando SQL Injection dinámica en `/api/login`), DefectDojo genera una firma hash SHA-256 única:
 
 `Hash_vuln = SHA-256(CWE || Endpoint/Fichero || Parámetro/Línea)`
 
-Esto permitió consolidar las alertas brutas en un inventario estructurado de **103 vulnerabilidades deduplicadas**, evitando duplicidades en el cuadro de mando de auditoría.
+Esto permitió consolidar las alertas en un inventario estructurado de **119 hallazgos en la instancia real de OWASP DefectDojo** (**3 Críticas, 57 Altas, 41 Medias y 18 Bajas**; **118 activos y 1 falso positivo** tras el triaje, exportados en `evidencias/defectdojo/defectdojo_consolidated.json`). Cuando el pipeline se ejecuta en GitHub Actions sin servidor externo expuesto, el cliente conmuta al backend local compatible (`mock_defectdojo.py`), consolidando **103 hallazgos deduplicados** (captura `evidencias/capturas/github_actions_defectdojo_summary.png`).
 
 ### 8.3. Triaje Técnico, Priorización (P1-P4) y Tratamiento de Falsos Positivos
 El equipo auditor llevó a cabo el triaje técnico de los hallazgos según la matriz de riesgo del marco FIRST CVSS v3.1:
@@ -415,7 +396,7 @@ El equipo auditor llevó a cabo el triaje técnico de los hallazgos según la ma
 - **P4 - Baja Prioridad (CVSS 0.1 - 3.9):** Ausencia de directiva `HEALTHCHECK` en Dockerfile.
 
 **Justificación Documentada de Falso Positivo:**
-- **Hallazgo:** Semgrep Rule `config.insecure-cors-wildcard` (CWE-942) en `server.js` línea 29: `app.use(cors({ origin: '*' }))`.
+- **Hallazgo:** Semgrep Rule `config.insecure-cors-wildcard` (ID `#4`, CWE-942) en `server.js` línea 28: `app.use(cors({ origin: '*' }))`.
 - **Dictamen del Security Team:** **FALSO POSITIVO JUSTIFICADO**.
 - **Justificación Técnica Registrada en DefectDojo:** *«El microservicio auditado opera exclusivamente dentro de una red de servicios interna (Kubernetes ClusterIP) sin exposición directa a internet. Se comprobó analíticamente que los endpoints no intercambian cookies de sesión autenticadas basadas en navegador (no utiliza cabeceras `Cookie` ni `Set-Cookie`, sino tokens Bearer en cabeceras de autorización). El comodín `*` no introduce riesgo de exfiltración CSRF cruzada en este contexto operativo.»*
 - **Acción realizada:** El hallazgo se actualizó en la API de DefectDojo a estado `false_p: true`, `active: false`, reduciendo el ruido operativo.
@@ -426,7 +407,7 @@ El equipo auditor llevó a cabo el triaje técnico de los hallazgos según la ma
 
 ### 9.1. Matriz Consolidada de Hallazgos Multicapa
 
-| ID DefectDojo | Vector de Riesgo | Herramienta | Tipo | Severidad Oficial | CWE / CVE | Estado Tras Triaje |
+| Ref. | Vector de Riesgo | Herramienta | Tipo | Severidad Oficial | CWE / CVE | Estado Tras Triaje |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: |
 | **#1** | SQL Injection (Bypass en `/api/login`) | OWASP ZAP | DAST | **CRÍTICA (9.8)** | CWE-89 | **Activa (Bloqueante)** |
 | **#2** | Inyección de Código Arbitrario (`eval()`) | Semgrep | SAST | **CRÍTICA (9.4)** | CWE-95 | **Activa (Bloqueante)** |
@@ -437,27 +418,25 @@ El equipo auditor llevó a cabo el triaje técnico de los hallazgos según la ma
 | **#7** | Contenedor Privilegiado (`privileged: true`) | Trivy | IaC | **ALTA (7.5)** | KSV-0017 | **Activa (Bloqueante)** |
 | **#8** | Capacidad `SYS_ADMIN` en Manifiesto K8s | Trivy | IaC | **ALTA (7.5)** | KSV-0005 | **Activa (Bloqueante)** |
 | **#9** | Ejecución como Superusuario `root` en Docker | Trivy | IaC | **ALTA (7.2)** | DS-0002 | **Activa (Bloqueante)** |
-| **#10** | Configuración Permisiva de CORS (`*`) | Semgrep | SAST | MEDIA (5.3) | CWE-942 | **FALSO POSITIVO** |
+| **#10** | Configuración Permisiva de CORS (`*`) | Semgrep | SAST | MEDIA (5.3) | CWE-942 | **FALSO POSITIVO (ID #4)** |
 | **#11** | Ausencia de Content-Security-Policy (CSP) | OWASP ZAP | DAST | MEDIA (5.0) | CWE-693 | Activa (Modo Aviso) |
 | **#12** | Falta de Cabecera Anti-Clickjacking | OWASP ZAP | DAST | MEDIA (4.8) | CWE-1021 | Activa (Modo Aviso) |
 | **#13** | Falta de Directiva `HEALTHCHECK` | Trivy | IaC | BAJA (2.5) | DS-0026 | Activa (Modo Aviso) |
 
 ### 9.2. Análisis Cruzado: Detección Estática frente a Explotabilidad Dinámica
 El análisis comparativo evidencia una correlación técnica perfecta entre las pruebas estáticas y dinámicas:
-- **Complementariedad SAST/DAST:** Semgrep identificó de forma temprana la concatenación insegura en `server.js` línea 65 (`SELECT ... WHERE username = '${username}'`). Minutos después, OWASP ZAP confirmó la explotabilidad real enviando el payload `' OR '1'='1' --` y obteniendo un bypass de autenticación con código 200 y emisión de token JWT. Esto demuestra que **ninguna técnica por separado es suficiente**: SAST detecta la causa raíz exacta en el código, mientras que DAST prueba si la vulnerabilidad es alcanzable a través del protocolo HTTP.
+- **Complementariedad SAST/DAST:** Semgrep identificó de forma temprana la concatenación insegura en `server.js` línea 89 (`SELECT ... WHERE username = '${username}'`). Minutos después, OWASP ZAP confirmó la explotabilidad real enviando el payload `' OR '1'='1' --` y obteniendo un bypass de autenticación con código 200 y emisión de token JWT. Esto demuestra que **ninguna técnica por separado es suficiente**: SAST detecta la causa raíz exacta en el código, mientras que DAST prueba si la vulnerabilidad es alcanzable a través del protocolo HTTP.
 - **Eficacia del Análisis IaC:** Trivy alertó que el contenedor se ejecutaba como superusuario `root` y con `SYS_ADMIN`. Si un atacante lograra explotar la inyección `eval()` detectada por SAST, el impacto escalaría inmediatamente a un **escape de contenedor (*Container Escape*)** hacia el nodo del host debido a la mala configuración de IaC. La presencia conjunta de herramientas en el pipeline bloquea ambos vectores.
 
 ---
 
 ## 10. Conclusiones y Dictamen Técnico
 
-1. **Alineación con los Objetivos del Cliente:** La implementación del pipeline DevSecOps sobre la aplicación de microservicios resolvió con éxito integral las causas de los incidentes previos sufridos por el cliente de INSEGUS. La seguridad ha dejado de ser un obstáculo manual al final del ciclo para convertirse en una serie de **pruebas automatizadas continuas (Security as Code)**.
-2. **Eficacia de los Quality Gates Diferenciados:** El uso del **Modo Aviso (Gate A)** en la compilación resolvió el conflicto clásico de bloqueo temprano en entornos vulnerables, permitiendo que la aplicación se desplegara en staging para su análisis dinámico. Simultáneamente, el **Modo Bloqueante (Gate B)** blindó la frontera productiva, certificando que ninguna versión con vulnerabilidades críticas o altas pueda alcanzar el clúster de producción.
-3. **Gobierno y Trazabilidad Centralizada en DefectDojo:** La integración desatendida mediante API v2 consolidó 103 hallazgos brutos procedentes de Semgrep, Trivy y ZAP en un inventario limpio y deduplicado, permitiendo el triaje riguroso de falsos positivos y garantizando la trazabilidad exigida por marcos de cumplimiento como ISO/IEC 27001 y el Esquema Nacional de Seguridad (ENS).
+1. **Alineación con los Objetivos de INSEGUS:** El pipeline DevSecOps resuelve las causas raíz de los incidentes previos transformando la seguridad en pruebas automatizadas continuas (*Security as Code*) con un tiempo total optimizado de **3 min 00 s** (`-47,5 %`).
+2. **Eficacia de los Quality Gates Diferenciados:** El **Modo Aviso (Gate A)** permite desplegar en *staging* para ejecutar DAST, mientras que el **Modo Bloqueante (Gate B)** detiene con `exit 1` cualquier versión con vulnerabilidades críticas o altas antes de producción.
+3. **Gobierno Centralizado en DefectDojo:** La ingesta automática vía API REST v2 consolidó **119 hallazgos** en OWASP DefectDojo real (**103** en el respaldo local de CI), con triaje del falso positivo `#4` (CORS) y trazabilidad alineada con ISO/IEC 27001 y el ENS.
 
 ---
-
-<div class="page-break"></div>
 
 ## 11. Referencias Normativas y Bibliográficas
 *(Esta sección no computa para el límite de 15 páginas según las normas del entregable)*
@@ -475,231 +454,13 @@ El análisis comparativo evidencia una correlación técnica perfecta entre las 
 
 ---
 
-<div class="page-break"></div>
+## 12. Anexos: Referencias a Evidencias Técnicas
+*(Esta sección no computa para el límite de 15 páginas. Con el fin de mantener una memoria concisa y autocontenida, todos los ficheros íntegros, logs, informes JSON/SARIF/PDF y capturas en alta resolución se referencian directamente en el repositorio público y se incluyen en la estructura de `PAI4-ST3.zip`.)*
 
-## 12. Anexos: Evidencias Técnicas
-*(Esta sección no computa para el límite de 15 páginas según las normas del entregable; reservada exclusivamente para evidencias técnicas)*
-
-### Anexo A: Definición Completa del Pipeline GitHub Actions
-Fichero: `.github/workflows/devsecops-pipeline.yml`
-
-```yaml
-name: DevSecOps CI/CD Pipeline - INSEGUS Enterprise
-
-on:
-  push:
-    branches: [ "main", "develop" ]
-  pull_request:
-    branches: [ "main" ]
-
-env:
-  NODE_VERSION: "18.x"
-  DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
-  DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
-
-jobs:
-  build-and-test:
-    name: "1. Build & Tests"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - run: cd app && npm install --legacy-peer-deps --ignore-scripts && npm test
-
-  sast-semgrep:
-    name: "2a. SAST (Semgrep)"
-    needs: [build-and-test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: returntocorp/semgrep-action@v1
-        with: { config: config/.semgrep.yml, generateSarif: evidencias/sast/semgrep_report.sarif }
-        continue-on-error: true
-      - run: docker run --rm -v "$(pwd):/src" -w /src semgrep/semgrep semgrep scan --config config/.semgrep.yml --json -o evidencias/sast/semgrep_report.json app/ || true
-      - uses: actions/upload-artifact@v4
-        with: { name: sast-semgrep-report, path: evidencias/sast/ }
-
-  sca-trivy:
-    name: "2b. SCA (Trivy Deps)"
-    needs: [build-and-test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@master
-        with: { scan-type: fs, scan-ref: app, format: json, output: evidencias/sca/trivy_sca_report.json, exit-code: '0' }
-      - uses: actions/upload-artifact@v4
-        with: { name: sca-trivy-report, path: evidencias/sca/ }
-
-  iac-trivy:
-    name: "2c. IaC (Trivy Config)"
-    needs: [build-and-test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@master
-        with: { scan-type: config, scan-ref: app, format: json, output: evidencias/iac/trivy_iac_report.json, exit-code: '0' }
-      - uses: actions/upload-artifact@v4
-        with: { name: iac-trivy-report, path: evidencias/iac/ }
-
-  quality-gate-advisory:
-    name: "3. Gate A (Aviso)"
-    needs: [sast-semgrep, sca-trivy, iac-trivy]
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - run: python3 scripts/quality_gate.py --mode advisory --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json
-
-  dynamic-security-analysis:
-    name: "4. Staging & DAST (ZAP)"
-    needs: [quality-gate-advisory]
-    runs-on: ubuntu-latest
-    steps:
-      - run: cd app && docker compose up -d --build
-      - uses: zaproxy/action-baseline@v0.15.0
-        with: { target: 'http://localhost:3000', rules_file_name: config/zap-baseline.conf, artifact_name: owasp-zap-baseline-report, allow_issue_writing: false, fail_action: false }
-        continue-on-error: true
-      - run: python3 scripts/run_zap_dast.py
-      - uses: actions/upload-artifact@v4
-        with: { name: dast-zap-reports, path: evidencias/dast/ }
-
-  defectdojo-centralization:
-    name: "5. DefectDojo (API v2)"
-    needs: [dynamic-security-analysis]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - run: |
-          python3 scripts/defectdojo_client.py --action import --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
-          python3 scripts/defectdojo_client.py --action triage
-          python3 scripts/defectdojo_client.py --action export --output evidencias/defectdojo/defectdojo_consolidated.json
-
-  quality-gate-blocking:
-    name: "6. Gate B (Bloqueante)"
-    needs: [defectdojo-centralization]
-    runs-on: ubuntu-latest
-    steps:
-      - run: python3 scripts/quality_gate.py --mode blocking --critical 0 --high 0 --medium 10 --semgrep evidencias/sast/semgrep_report.json --trivy-sca evidencias/sca/trivy_sca_report.json --trivy-iac evidencias/iac/trivy_iac_report.json --zap evidencias/dast/zap_report.json
-
-  deploy-to-production:
-    name: "7. Deploy Producción"
-    needs: [quality-gate-blocking]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && success()
-    steps:
-      - run: echo "Despliegue a Producción autorizado y completado."
-```
-
-### Anexo B: Reglas Personalizadas SAST Semgrep
-Fichero: `config/.semgrep.yml`
-
-```yaml
-rules:
-  - id: insecure-sql-string-concatenation
-    pattern-either:
-      - pattern: $DB.get(`... ${$VAR} ...`, ...)
-      - pattern: $DB.all(`... ${$VAR} ...`, ...)
-      - pattern: $DB.run(`... ${$VAR} ...`, ...)
-    message: "Inyección SQL detectada (CWE-89): concatenación directa en consulta SQL."
-    severity: ERROR
-    languages: [javascript, typescript]
-    metadata:
-      cwe: "CWE-89: SQL Injection"
-      owasp: "A03:2021-Injection"
-
-  - id: hardcoded-secret-key-token
-    patterns:
-      - pattern-either:
-          - pattern: const $SECRET = "...";
-          - pattern: let $SECRET = "...";
-      - metavariable-regex:
-          metavariable: $SECRET
-          regex: (?i)(jwt_secret|api_key|db_admin_pass|aws_secret)
-    message: "Secreto o clave privada hardcodeada en el código fuente (CWE-798)."
-    severity: ERROR
-    languages: [javascript, typescript]
-
-  - id: dangerous-eval-usage
-    pattern: eval(...)
-    message: "Uso de eval() detectado (CWE-95). Permite ejecución arbitraria de código."
-    severity: ERROR
-    languages: [javascript, typescript]
-
-  - id: insecure-cors-wildcard
-    pattern: "cors({ origin: '*' })"
-    message: "Configuración CORS excesivamente permisiva con comodín '*' (CWE-942)."
-    severity: WARNING
-    languages: [javascript, typescript]
-```
-
-### Anexo C: Trazas de Ejecución de Quality Gates (Aviso vs. Bloqueo Exit Code 1)
-Fragmento verificado de la ejecución `#14` en GitHub Actions ([`runs/44716404617`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617), captura `evidencias/capturas/github_actions_gate_b_bloqueante.png`):
-
-```text
-================================================================================
-      INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       
-================================================================================
-[+] MODO DE EJECUCIÓN DEL GATE: BLOCKING
---------------------------------------------------------------------------------
-HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW   
---------------------------------------------------------------------------------
-SAST (Semgrep)            | 0        | 4      | 1        | 0     
-SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
-IaC (Trivy Docker/K8s)    | 0        | 6      | 6        | 11    
-DAST (OWASP ZAP)          | 0        | 3      | 2        | 0     
---------------------------------------------------------------------------------
-TOTAL CONSOLIDADO         | 3        | 60     | 41       | 18    
-================================================================================
-
-[!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
-    [X] ERROR CRÍTICO DE SEGURIDAD: Umbrales superados en la etapa de release:
-        -> [BLOQUEADO] Vulnerabilidades CRÍTICAS (3) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades ALTAS (60) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades MEDIAS (41) superan umbral (10)
-
-    [!] ACCIÓN DISCIPLINARIA: El pipeline SE DETIENE de inmediato.
-    [!] El artefacto NO ha sido autorizado para despliegue en Producción.
-    [!] Notificando a equipo de desarrollo y Security Team 3.
-
-[RESULTADO] Quality Gate B (Modo Bloqueante) -> FALLIDO / BLOQUEO ACTIVO (Exit Code 1)
-```
-
-### Anexo D: Exportación de Base de Datos y Triaje en DefectDojo
-Fragmento del resumen consolidado extraído de `evidencias/defectdojo/defectdojo_consolidated.json`:
-
-```json
-{
-  "summary": {
-    "total_findings": 103,
-    "by_severity_total": {
-      "Critical": 2,
-      "High": 49,
-      "Medium": 35,
-      "Low": 17,
-      "Info": 0
-    },
-    "by_severity_active": {
-      "Critical": 2,
-      "High": 49,
-      "Medium": 34,
-      "Low": 17,
-      "Info": 0
-    },
-    "false_positives": 1,
-    "mitigated": 0
-  },
-  "triaged_false_positives_sample": [
-    {
-      "id": 4,
-      "title": "Semgrep: config.insecure-cors-wildcard",
-      "severity": "Medium",
-      "cwe": 942,
-      "active": false,
-      "false_p": true,
-      "triage_notes": "Marcado como Falso Positivo: El endpoint expone únicamente recursos estáticos y APIs públicas de prueba en red interna aislada. Se valida que el servicio no maneja cookies de sesión cruzadas (SameSite=Strict).",
-      "triaged_by": "Security Team 3"
-    }
-  ]
-}
-```
+| Anexo | Descripción de la Evidencia Técnica | Referencia Directa en GitHub y Ruta en `PAI4-ST3.zip` |
+| :--- | :--- | :--- |
+| **Anexo A** | **Pipeline CI/CD GitHub Actions (9 jobs con análisis estático paralelo) y pruebas unitarias** | [`.github/workflows/devsecops-pipeline.yml`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/.github/workflows/devsecops-pipeline.yml) · [`app/tests/server.test.js`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/app/tests/server.test.js) · [`scripts/run_pipeline_local.sh`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/scripts/run_pipeline_local.sh) |
+| **Anexo B** | **Reglas SAST personalizadas y configuración de escáneres / políticas** | [`config/.semgrep.yml`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/config/.semgrep.yml) · [`config/trivy.yaml`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/config/trivy.yaml) · [`config/zap-baseline.conf`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/config/zap-baseline.conf) · [`config/quality_gate_policy.json`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/config/quality_gate_policy.json) |
+| **Anexo C** | **Trazas de Quality Gates (Modo Aviso vs. Bloqueo `exit 1`) y ejecuciones en GitHub Actions** | Runs CI: [`#11 PR`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44645741212) · [`#13 (5m 43s)`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716341230) · [`#14 (3m 00s)`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/44716404617)<br>Logs locales: [`pipeline_failure_quality_gate.log`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/pipeline_logs/pipeline_failure_quality_gate.log) · [`quality_gate_warning_mode.log`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/quality_gates/quality_gate_warning_mode.log) · [`quality_gate_blocking.log`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/quality_gates/quality_gate_blocking.log) |
+| **Anexo D** | **Informes de escáneres (SAST, SCA, IaC, DAST) y exportaciones reales de OWASP DefectDojo API v2** | Escáneres: [`semgrep_report.json`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/sast/semgrep_report.json) · [`semgrep_report.sarif`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/sast/semgrep_report.sarif) · [`trivy_sca_report.json`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/sca/trivy_sca_report.json) · [`trivy_iac_report.json`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/iac/trivy_iac_report.json) · [`zap_report.json`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/dast/zap_report.json) · [`zap_report.html`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/dast/zap_report.html)<br>DefectDojo: [`defectdojo_consolidated.json`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/defectdojo/defectdojo_consolidated.json) · [`Findings_List_2026-11-20.pdf`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/defectdojo/Findings_List_2026-11-20.pdf) · [`Product_Components_2026-11-20.pdf`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/defectdojo/Product_Components_2026-11-20.pdf) · [`scripts/defectdojo_client.py`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/scripts/defectdojo_client.py) |
+| **Anexo E** | **Evidencias visuales en alta resolución (GitHub Actions `#14`, OWASP DefectDojo real y diagramas SVG)** | GitHub Actions: [`github_actions_pipeline_paralelo.png`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/github_actions_pipeline_paralelo.png) · [`github_actions_gate_a_aviso.png`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/github_actions_gate_a_aviso.png) · [`github_actions_gate_b_bloqueante.png`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/github_actions_gate_b_bloqueante.png) · [`github_actions_defectdojo_summary.png`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/github_actions_defectdojo_summary.png)<br>DefectDojo real: [`defectdojo_dashboard_real.png`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/defectdojo_dashboard_real.png) · [`defectdojo_producto_insegus.jpg`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/defectdojo_producto_insegus.jpg) · [`defectdojo_engagement_4_scans.jpg`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/defectdojo_engagement_4_scans.jpg) · [`defectdojo_falso_positivo_cors.png`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/defectdojo_falso_positivo_cors.png) · [`defectdojo_api_v2_import_terminal.jpg`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/capturas/defectdojo_api_v2_import_terminal.jpg)<br>Diagramas: [`pipeline_devsecops_diagram.svg`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/diagramas/pipeline_devsecops_diagram.svg) · [`vulnerability_flowchart_diagram.svg`](https://github.com/luiguiram/PAI4-DevSecOps/blob/main/evidencias/diagramas/vulnerability_flowchart_diagram.svg) |

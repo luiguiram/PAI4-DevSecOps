@@ -148,7 +148,7 @@
   <text x="479" y="476" class="box-desc">• Deduplicación basada en hash SHA-256 único</text>
   <text x="479" y="495" class="box-desc">• Normalización a severidades estándar (CVSS v3.1)</text>
   <text x="479" y="514" class="box-desc">• Mapeo canónico CWE (89, 79, 918, 798, 16)</text>
-  <text x="479" y="533" class="box-desc">• Consolidación de 103 hallazgos únicos</text>
+  <text x="479" y="533" class="box-desc">• Consolidación de 119 hallazgos (API v2 real)</text>
 
   <!-- Pillar 3: Triaje y Mitigación -->
   <rect x="765" y="432" width="275" height="132" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
