@@ -1,30 +1,25 @@
 # ==============================================================================
-# INSEGUS Enterprise Dockerfile - Pipeline Testbed (IaC Misconfigurations)
+# INSEGUS Enterprise Dockerfile - Hardened Production Container (IaC Secure)
 # Security Team 3 - PAI 4 DevSecOps
 # ==============================================================================
-FROM node:16-alpine
-
-# VULNERABILIDAD IaC #1: Ejecución como usuario root (falta directiva USER)
-# No se especifica un usuario no privilegiado (e.g. node / appuser)
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Copia de artefactos sin exclusión adecuada
-COPY package*.json ./
+COPY --chown=node:node package*.json ./
 
-# Instalación sin compilación nativa de addons C++ (usa fallback JS en memoria)
-RUN npm install --legacy-peer-deps --ignore-scripts
+RUN npm install --omit=dev --ignore-scripts
 
-COPY . .
+COPY --chown=node:node . .
 
-# VULNERABILIDAD IaC #2: Variables de entorno inseguras y puertos expuestos
-ENV NODE_ENV=development
+ENV NODE_ENV=production
 ENV PORT=3000
-ENV DEBUG=*
-
-# VULNERABILIDAD IaC #3: Falta directiva HEALTHCHECK y permisos excesivos en directorio
-RUN chmod -R 777 /app
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/health || exit 1
+
+USER node
 
 CMD ["node", "server.js"]

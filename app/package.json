@@ -1,28 +1,23 @@
 {
-  "name": "insegus-vulnerable-microservice",
-  "version": "1.0.0",
-  "description": "Microservicio web intencionadamente vulnerable para pruebas DevSecOps (Yellow Team INSEGUS)",
+  "name": "insegus-hardened-microservice",
+  "version": "1.1.0",
+  "description": "Microservicio web remediado para validación de Quality Gate B en verde (PAI 4 DevSecOps - Security Team 3)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "node --test tests/server.test.js"
   },
   "dependencies": {
-    "axios": "0.21.1",
-    "body-parser": "1.18.3",
-    "cors": "2.8.5",
-    "express": "4.16.1",
-    "jsonwebtoken": "8.5.1",
-    "lodash": "4.17.15",
-    "sqlite3": "5.0.0"
+    "axios": "^1.21.1",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "lodash": "^4.18.1"
   },
   "keywords": [
     "devsecops",
-    "vulnerable-app",
-    "sast",
-    "sca",
-    "dast",
-    "iac",
+    "hardened-app",
     "insegus"
   ],
   "author": "Security Team 3",
