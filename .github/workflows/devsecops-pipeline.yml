@@ -51,6 +51,10 @@ jobs:
             tail -n 20 /tmp/unit_tests.log || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+         
+      - name: Construir Imagen Docker de la Aplicación
+        run: |
+          docker build -t insegus-webapp:${{ github.sha }} ./app
 
   # ============================================================================
   # ETAPA 2 (PARALELO): ANÁLISIS ESTÁTICO MULTICAPA — SAST, SCA E IaC
