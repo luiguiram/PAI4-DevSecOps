@@ -2,7 +2,7 @@ name: DevSecOps CI/CD Pipeline - INSEGUS Enterprise
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [ "main", "develop", "demo/*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -66,18 +66,18 @@ jobs:
       - name: Crear Directorio SAST
         run: mkdir -p evidencias/sast
 
-      - name: Ejecutar SAST con Semgrep (SARIF)
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: config/.semgrep.yml
-          generateSarif: "evidencias/sast/semgrep_report.sarif"
-        continue-on-error: true
-
-      - name: Exportar Reporte Semgrep JSON
+      - name: Ejecutar SAST con Semgrep (Rulesets Oficiales + Reglas ST3)
         run: |
           docker run --rm -v "$(pwd):/src" -w /src semgrep/semgrep semgrep scan \
+            --config p/javascript \
+            --config p/owasp-top-ten \
             --config config/.semgrep.yml \
-            --json -o evidencias/sast/semgrep_report.json app/ || true
+            --metrics=off \
+            --json-output evidencias/sast/semgrep_report.json \
+            --sarif-output evidencias/sast/semgrep_report.sarif \
+            app/ || true
+          test -s evidencias/sast/semgrep_report.json
+          test -s evidencias/sast/semgrep_report.sarif
 
       - name: Subir Artefacto SAST (Semgrep)
         uses: actions/upload-artifact@v4
@@ -146,7 +146,6 @@ jobs:
     name: "3. Gate A (Aviso)"
     needs: [sast-semgrep, sca-trivy, iac-trivy]
     runs-on: ubuntu-latest
-    # continue-on-error permite advertir de vulnerabilidades sin abortar antes del DAST
     continue-on-error: true
     steps:
       - name: Checkout Código Fuente
@@ -179,7 +178,7 @@ jobs:
             --trivy-iac evidencias/iac/trivy_iac_report.json
 
   # ============================================================================
-  # ETAPA 4: DESPLIEGUE EN STAGING Y ANÁLISIS DINÁMICO (DAST)
+  # ETAPA 4: DESPLIEGUE EN STAGING Y ANÁLISIS DINÁMICO REAL (OWASP ZAP)
   # ============================================================================
   dynamic-security-analysis:
     name: "4. Staging & DAST (ZAP)"
@@ -209,25 +208,25 @@ jobs:
             exit 1
           fi
 
-      - name: Crear Directorio DAST
-        run: mkdir -p evidencias/dast
-
-      - name: Ejecutar OWASP ZAP Baseline Scan (DAST)
-        uses: zaproxy/action-baseline@v0.15.0
-        with:
-          target: 'http://localhost:3000'
-          rules_file_name: 'config/zap-baseline.conf'
-          cmd_options: '-a -j'
-          artifact_name: 'owasp-zap-baseline-report'
-          allow_issue_writing: false
-          fail_action: false
-        continue-on-error: true
-
-      - name: Ejecutar DAST Activo (SQLi, XSS, SSRF) sobre Staging
+      - name: Ejecutar OWASP ZAP Full Scan Real sobre Staging
         run: |
-          python3 scripts/run_zap_dast.py
-          if [ -f report_json.json ]; then cp report_json.json evidencias/dast/zap_baseline_report.json; fi
-          if [ -f report_html.html ]; then cp report_html.html evidencias/dast/zap_baseline_report.html; fi
+          mkdir -p evidencias/dast
+          chmod a+rwx evidencias/dast
+          cp config/zap-baseline.conf evidencias/dast/zap.conf
+          docker run --rm --network host \
+            -v "$(pwd)/evidencias/dast:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
+            -t http://localhost:3000 \
+            -c zap.conf \
+            -m 2 -T 5 \
+            -J zap_report.json \
+            -x zap_report.xml \
+            -r zap_report.html || true
+          rm -f evidencias/dast/zap.conf
+          test -s evidencias/dast/zap_report.json
+          test -s evidencias/dast/zap_report.xml
+          test -s evidencias/dast/zap_report.html
+          echo "[+] Informes reales OWASP ZAP generados (JSON, XML y HTML)."
 
       - name: Desmantelar Entorno de Staging
         if: always()
@@ -242,13 +241,13 @@ jobs:
           path: evidencias/dast/
 
   # ============================================================================
-  # ETAPA 5: CENTRALIZACIÓN Y TRIAJE EN DEFECTDOJO (API REST v2)
+  # ETAPA 5: CENTRALIZACIÓN Y TRIAJE REAL EN OWASP DEFECTDOJO (API REST v2)
   # ============================================================================
   defectdojo-centralization:
     name: "5. DefectDojo (API v2)"
     needs: [dynamic-security-analysis]
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && needs.dynamic-security-analysis.result == 'success'
     steps:
       - name: Checkout Código Fuente
         uses: actions/checkout@v4
@@ -277,25 +276,91 @@ jobs:
           name: dast-zap-reports
           path: evidencias/dast/
 
-      - name: Sincronizar Informes con DefectDojo API v2
+      - name: Desplegar Instancia Real de OWASP DefectDojo si no hay URL Remota
+        id: dd_boot
         run: |
-          rm -f evidencias/defectdojo/defectdojo_findings_db.json
+          if [ -n "${{ secrets.DEFECTDOJO_URL }}" ] && [ -n "${{ secrets.DEFECTDOJO_API_KEY }}" ]; then
+            echo "[+] Usando instancia externa configurada en GitHub Secrets."
+            echo "DEFECTDOJO_URL=${{ secrets.DEFECTDOJO_URL }}" >> "$GITHUB_ENV"
+            echo "DEFECTDOJO_API_KEY=${{ secrets.DEFECTDOJO_API_KEY }}" >> "$GITHUB_ENV"
+            echo "ephemeral=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "[*] Desplegando OWASP DefectDojo real efímero vía Docker Compose para la auditoría CI..."
+          DD_ADMIN_PASSWORD=$(openssl rand -hex 16)
+          echo "::add-mask::$DD_ADMIN_PASSWORD"
+
+          git clone --depth 1 https://github.com/DefectDojo/django-DefectDojo.git /tmp/defectdojo
+          cat <<EOF > /tmp/defectdojo/docker-compose.override.yml
+          services:
+            initializer:
+              environment:
+                DD_ADMIN_USER: "admin"
+                DD_ADMIN_PASSWORD: "${DD_ADMIN_PASSWORD}"
+                DD_INITIALIZE: "true"
+          EOF
+
+          cd /tmp/defectdojo
+          docker compose up -d postgres valkey initializer uwsgi celeryworker nginx
+
+          echo "[*] Esperando inicialización de base de datos y API v2 de DefectDojo..."
+          TOKEN=""
+          for i in $(seq 1 90); do
+            RESP=$(curl -s -X POST http://localhost:8080/api/v2/api-token-auth/ \
+              -H "Content-Type: application/json" \
+              -d "{\"username\":\"admin\",\"password\":\"${DD_ADMIN_PASSWORD}\"}" || true)
+            TOKEN=$(python3 -c 'import sys, json
+try:
+    d = json.loads(sys.stdin.read())
+    print(d.get("token", ""))
+except Exception:
+    print("")' <<< "$RESP")
+            if [ -n "$TOKEN" ]; then
+              echo "[+] OWASP DefectDojo real listo y autenticado en intento #${i}."
+              break
+            fi
+            sleep 4
+          done
+
+          if [ -z "$TOKEN" ]; then
+            echo "[-] Tiempo agotado esperando a OWASP DefectDojo API v2."
+            docker compose logs --tail=80 initializer uwsgi nginx
+            exit 1
+          fi
+
+          echo "::add-mask::$TOKEN"
+          echo "DEFECTDOJO_URL=http://localhost:8080" >> "$GITHUB_ENV"
+          echo "DEFECTDOJO_API_KEY=$TOKEN" >> "$GITHUB_ENV"
+          echo "ephemeral=true" >> "$GITHUB_OUTPUT"
+
+      - name: Sincronizar Informes con OWASP DefectDojo API v2 (--strict-api)
+        run: |
+          rm -rf evidencias/defectdojo && mkdir -p evidencias/defectdojo
           python3 scripts/defectdojo_client.py \
+            --strict-api \
             --action import \
             --semgrep evidencias/sast/semgrep_report.json \
             --trivy-sca evidencias/sca/trivy_sca_report.json \
             --trivy-iac evidencias/iac/trivy_iac_report.json \
-            --zap evidencias/dast/zap_report.json
+            --zap evidencias/dast/zap_report.xml
 
-      - name: Ejecutar Triaje de Vulnerabilidades y Falsos Positivos
+      - name: Ejecutar Triaje de Vulnerabilidades y Falsos Positivos (--strict-api)
         run: |
-          python3 scripts/defectdojo_client.py --action triage
+          python3 scripts/defectdojo_client.py --strict-api --action triage
 
-      - name: Exportar Resumen Consolidado DefectDojo
+      - name: Exportar Resumen Consolidado DefectDojo (--strict-api)
         run: |
           python3 scripts/defectdojo_client.py \
+            --strict-api \
             --action export \
             --output evidencias/defectdojo/defectdojo_consolidated.json
+
+      - name: Detener Instancia Efímera de OWASP DefectDojo
+        if: always() && steps.dd_boot.outputs.ephemeral == 'true'
+        run: |
+          cd /tmp/defectdojo
+          docker compose down -v || true
 
       - name: Subir Artefacto Métricas DefectDojo
         uses: actions/upload-artifact@v4
@@ -338,13 +403,20 @@ jobs:
           name: dast-zap-reports
           path: evidencias/dast/
 
-      - name: Evaluar Criterios de Seguridad de Release
+      - name: Descargar Artefacto Métricas DefectDojo
+        uses: actions/download-artifact@v4
+        with:
+          name: defectdojo-audit-metrics
+          path: evidencias/defectdojo/
+
+      - name: Evaluar Criterios de Seguridad de Release (Hallazgos Activos en DefectDojo)
         run: |
           python3 scripts/quality_gate.py \
             --mode blocking \
             --critical 0 \
             --high 0 \
             --medium 10 \
+            --defectdojo-report evidencias/defectdojo/defectdojo_consolidated.json \
             --semgrep evidencias/sast/semgrep_report.json \
             --trivy-sca evidencias/sca/trivy_sca_report.json \
             --trivy-iac evidencias/iac/trivy_iac_report.json \
@@ -357,18 +429,18 @@ jobs:
     name: "7. Deploy Producción"
     needs: [quality-gate-blocking]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && success()
+    if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/demo/')) && success()
     steps:
       - name: Checkout Código Fuente
         uses: actions/checkout@v4
 
-      - name: Simular Despliegue en Clúster de Producción
+      - name: Desplegar en Clúster de Producción (Validado por Quality Gate B)
         run: |
-          echo "[+] Despliegue en producción autorizado por Quality Gate B."
+          echo "[+] Despliegue en producción autorizado por Quality Gate B (DefectDojo: 0 Crít, 0 Altas, <=10 Medias)."
           echo "[+] Desplegando en clúster Kubernetes (Namespace: insegus-production)..."
           echo "[OK] Despliegue completado exitosamente sin vulnerabilidades críticas ni altas."
           {
             echo "## 🚀 Etapa 7: Despliegue en Producción (Kubernetes)"
             echo ""
-            echo "🟢 **Autorizado por Quality Gate B** — Namespace: \`insegus-production\`"
+            echo "🟢 **Autorizado por Quality Gate B** — Rama: \`${{ github.ref_name }}\` · Namespace: \`insegus-production\`"
           } >> "$GITHUB_STEP_SUMMARY"

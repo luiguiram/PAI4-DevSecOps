@@ -8,17 +8,14 @@ Equipo: Security Team 3 (Grupo 3) - INSEGUS Yellow/Green Team
 Asignatura: Seguridad en Sistemas Informáticos y en Internet
 ========================================================================================
 Interactúa con la API REST v2 de OWASP DefectDojo usando DEFECTDOJO_URL y
-DEFECTDOJO_API_KEY (inyectadas vía GitHub Actions Secrets):
+DEFECTDOJO_API_KEY:
 1. Busca o crea el Producto ('INSEGUS Web Application') y el Engagement CI/CD.
 2. Importa automáticamente los informes de Semgrep (SAST), Trivy (SCA & IaC) y ZAP (DAST)
    mediante multipart/form-data a POST /api/v2/import-scan/.
 3. Ejecuta el triaje técnico automatizado vía PATCH /api/v2/findings/{id}/ y documenta
    falsos positivos justificados vía POST /api/v2/findings/{id}/notes/.
-4. Exporta el resumen consolidado de métricas y hallazgos en formato JSON.
-
-Si DEFECTDOJO_URL o DEFECTDOJO_API_KEY no están definidas (o la instancia remota no es
-accesible y no se pasa --strict-api), conmuta de forma transparente al backend local
-compatible (mock_defectdojo.py) para garantizar reproducibilidad offline.
+4. Exporta el resumen consolidado de métricas y hallazgos (por severidad y por capa)
+   en formato JSON para retroalimentar el Quality Gate B.
 ========================================================================================
 """
 
@@ -45,14 +42,16 @@ CORS_FP_REASON = (
     "de sesión cruzadas (autenticación vía Bearer JWT)."
 )
 
-DEBUG_MITIGATED_NOTE = (
-    "Corregido en manifiesto de producción mediante inyección de variable "
-    "NODE_ENV=production vía Kubernetes Secret."
-)
+SEV_KEYS = ("Critical", "High", "Medium", "Low", "Info")
+LAYERS = ("SAST", "SCA", "IaC", "DAST")
+
+
+def _new_sev_bucket() -> Dict[str, int]:
+    return {k: 0 for k in SEV_KEYS}
 
 
 def _zap_json_to_xml_bytes(zap_data: Dict[str, Any]) -> bytes:
-    """Convierte un informe OWASP ZAP JSON al formato OWASPZAPReport XML requerido por DefectDojo."""
+    """Convierte un informe OWASP ZAP JSON al formato OWASPZAPReport XML si no se pasó .xml."""
     root = ET.Element(
         "OWASPZAPReport",
         attrib={
@@ -139,7 +138,7 @@ def _encode_multipart_formdata(
 class DefectDojoAPIClient:
     """Cliente HTTP real para la API REST v2 de OWASP DefectDojo (solo stdlib)."""
 
-    def __init__(self, base_url: str, api_key: str, timeout: int = 20):
+    def __init__(self, base_url: str, api_key: str, timeout: int = 30):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key.strip()
         self.timeout = timeout
@@ -148,7 +147,7 @@ class DefectDojoAPIClient:
         headers = {
             "Authorization": f"Token {self.api_key}",
             "Accept": "application/json",
-            "User-Agent": "INSEGUS-DevSecOps-Pipeline/1.0",
+            "User-Agent": "INSEGUS-DevSecOps-Pipeline/2.0",
         }
         if extra:
             headers.update(extra)
@@ -161,9 +160,10 @@ class DefectDojoAPIClient:
         payload: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        url = f"{self.base_url}{endpoint}"
+        url = f"{self.base_url}{endpoint}" if endpoint.startswith("/") else endpoint
         if params:
-            url = f"{url}?{urllib.parse.urlencode(params)}"
+            sep = "&" if "?" in url else "?"
+            url = f"{url}{sep}{urllib.parse.urlencode(params)}"
 
         data = None
         extra_headers: Dict[str, str] = {}
@@ -285,8 +285,15 @@ class DefectDojoAPIClient:
             "close_old_findings": "false",
             "scan_date": datetime.date.today().isoformat(),
         }
-        # El parser nativo 'ZAP Scan' de DefectDojo requiere formato XML (.xml)
-        if scan_type == "ZAP Scan" and filepath.lower().endswith(".json"):
+        lower_path = filepath.lower()
+        if lower_path.endswith(".xml"):
+            return self._request_multipart(
+                "/api/v2/import-scan/",
+                fields=fields,
+                filepath=filepath,
+                content_type="application/xml",
+            )
+        if scan_type == "ZAP Scan" and lower_path.endswith(".json"):
             with open(filepath, "r", encoding="utf-8") as f:
                 zap_xml = _zap_json_to_xml_bytes(json.load(f))
             return self._request_multipart(
@@ -299,13 +306,38 @@ class DefectDojoAPIClient:
             )
         return self._request_multipart("/api/v2/import-scan/", fields=fields, filepath=filepath)
 
+    def list_tests(self, engagement_id: int, limit: int = 200) -> Dict[int, Dict[str, Any]]:
+        tests: Dict[int, Dict[str, Any]] = {}
+        offset = 0
+        while True:
+            res = self._request_json(
+                "GET",
+                "/api/v2/tests/",
+                params={"engagement": engagement_id, "limit": limit, "offset": offset},
+            )
+            results = res.get("results", [])
+            for t in results:
+                tests[int(t["id"])] = t
+            if not res.get("next") or len(results) < limit:
+                break
+            offset += limit
+        return tests
+
     def list_findings(self, engagement_id: int, limit: int = 500) -> List[Dict[str, Any]]:
-        res = self._request_json(
-            "GET",
-            "/api/v2/findings/",
-            params={"test__engagement": engagement_id, "limit": limit},
-        )
-        return res.get("results", [])
+        all_findings: List[Dict[str, Any]] = []
+        offset = 0
+        while True:
+            res = self._request_json(
+                "GET",
+                "/api/v2/findings/",
+                params={"test__engagement": engagement_id, "limit": limit, "offset": offset},
+            )
+            results = res.get("results", [])
+            all_findings.extend(results)
+            if not res.get("next") or len(results) < limit:
+                break
+            offset += limit
+        return all_findings
 
     def patch_finding(self, finding_id: int, payload: Dict[str, Any]) -> Dict[str, Any]:
         return self._request_json("PATCH", f"/api/v2/findings/{finding_id}/", payload=payload)
@@ -316,30 +348,87 @@ class DefectDojoAPIClient:
         )
 
 
-def _summarize_findings(findings: List[Dict[str, Any]]) -> Dict[str, Any]:
-    counts = {"Critical": 0, "High": 0, "Medium": 0, "Low": 0, "Info": 0}
-    active_counts = {"Critical": 0, "High": 0, "Medium": 0, "Low": 0, "Info": 0}
+def _classify_layer(finding: Dict[str, Any], test_map: Optional[Dict[int, Dict[str, Any]]] = None) -> str:
+    scan_type = str(finding.get("scan_type", "")).upper()
+    if scan_type in LAYERS:
+        return scan_type
+
+    if test_map:
+        t_info = test_map.get(int(finding.get("test") or 0), {})
+        t_title = str(t_info.get("title", "")).upper()
+        if "SAST" in t_title or "SEMGREP" in t_title:
+            return "SAST"
+        if "SCA" in t_title or "DEPENDENC" in t_title:
+            return "SCA"
+        if "IAC" in t_title or "CONFIG" in t_title:
+            return "IaC"
+        if "DAST" in t_title or "ZAP" in t_title:
+            return "DAST"
+
+    title_fp = f"{finding.get('title', '')} {finding.get('file_path', '')}".lower()
+    if "dockerfile" in title_fp or "deployment.yaml" in title_fp or "kubernetes" in title_fp:
+        return "IaC"
+    if "cve-" in title_fp or "package-lock" in title_fp:
+        return "SCA"
+    if "semgrep" in title_fp or "server.js" in title_fp:
+        return "SAST"
+    return "DAST"
+
+
+def _summarize_findings(
+    findings: List[Dict[str, Any]],
+    test_map: Optional[Dict[int, Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    counts = _new_sev_bucket()
+    active_counts = _new_sev_bucket()
+    by_tool_total = {layer: _new_sev_bucket() for layer in LAYERS}
+    by_tool_active = {layer: _new_sev_bucket() for layer in LAYERS}
+
+    duplicates = 0
     fp_count = 0
     mitigated_count = 0
+    risk_accepted_count = 0
+    out_of_scope_count = 0
+    unique_count = 0
 
     for f in findings:
+        if f.get("duplicate"):
+            duplicates += 1
+            continue
+
+        unique_count += 1
         sev = str(f.get("severity", "Info")).capitalize()
         if sev not in counts:
             sev = "Info"
+        layer = _classify_layer(f, test_map)
+
         counts[sev] += 1
+        by_tool_total[layer][sev] += 1
+
         if f.get("false_p"):
             fp_count += 1
         elif f.get("is_mitigated"):
             mitigated_count += 1
+        elif f.get("risk_accepted"):
+            risk_accepted_count += 1
+        elif f.get("out_of_scope"):
+            out_of_scope_count += 1
         elif f.get("active", True):
             active_counts[sev] += 1
+            by_tool_active[layer][sev] += 1
 
     return {
-        "total_findings": len(findings),
+        "total_findings_raw": len(findings),
+        "total_findings": unique_count,
+        "duplicates": duplicates,
         "by_severity_total": counts,
         "by_severity_active": active_counts,
+        "by_tool_total": by_tool_total,
+        "by_tool_active": by_tool_active,
         "false_positives": fp_count,
         "mitigated": mitigated_count,
+        "risk_accepted": risk_accepted_count,
+        "out_of_scope": out_of_scope_count,
     }
 
 
@@ -347,12 +436,14 @@ def _print_summary(summary: Dict[str, Any], header: str):
     print("\n" + "=" * 80)
     print(f"      {header}")
     print("=" * 80)
-    print(f"Total Hallazgos Registrados:  {summary['total_findings']}")
-    print(f"  - Críticas:                {summary['by_severity_total']['Critical']}")
-    print(f"  - Altas:                   {summary['by_severity_total']['High']}")
-    print(f"  - Medias:                  {summary['by_severity_total']['Medium']}")
-    print(f"  - Bajas:                   {summary['by_severity_total']['Low']}")
-    print(f"  - Informativas:            {summary['by_severity_total']['Info']}")
+    print(f"Hallazgos Brutos Importados:   {summary['total_findings_raw']}")
+    print(f"Duplicados Excluidos:          {summary['duplicates']}")
+    print(f"Hallazgos Únicos Deduplicados: {summary['total_findings']}")
+    print(f"  - Críticas (únicos / activ.): {summary['by_severity_total']['Critical']} / {summary['by_severity_active']['Critical']}")
+    print(f"  - Altas    (únicos / activ.): {summary['by_severity_total']['High']} / {summary['by_severity_active']['High']}")
+    print(f"  - Medias   (únicos / activ.): {summary['by_severity_total']['Medium']} / {summary['by_severity_active']['Medium']}")
+    print(f"  - Bajas    (únicos / activ.): {summary['by_severity_total']['Low']} / {summary['by_severity_active']['Low']}")
+    print(f"  - Info     (únicos / activ.): {summary['by_severity_total']['Info']} / {summary['by_severity_active']['Info']}")
     print("=" * 80)
 
 
@@ -392,20 +483,26 @@ def _run_api_import(
         else:
             print(f"[-] No se encontró reporte {label} en: {path}")
 
+    # Breve espera para que Celery complete la deduplicación asíncrona antes de resumir
+    time.sleep(8)
+    test_map = client.list_tests(engagement_id)
     findings = client.list_findings(engagement_id)
-    summary = _summarize_findings(findings)
-    _print_summary(summary, "RESUMEN CONSOLIDADO EN DEFECTDOJO API v2 (INSTANCIA REAL)")
+    summary = _summarize_findings(findings, test_map)
+    _print_summary(summary, "RESUMEN CONSOLIDADO EN OWASP DEFECTDOJO API v2 (INSTANCIA REAL)")
 
 
 def _run_api_triage(client: DefectDojoAPIClient, product_name: str, engagement_name: str):
     print(f"[*] Ejecutando triaje vía DefectDojo API REST v2 en: {client.base_url}")
     product_id = client.ensure_product(product_name)
     engagement_id = client.ensure_engagement(product_id, engagement_name)
+    test_map = client.list_tests(engagement_id)
     findings = client.list_findings(engagement_id)
 
     for f in findings:
+        if f.get("duplicate") or f.get("false_p") or not f.get("active", True):
+            continue
         title_desc = f"{f.get('title', '')} {f.get('description', '')}".lower()
-        if "cors" in title_desc and not f.get("false_p"):
+        if "cors" in title_desc and ("insecure-cors-wildcard" in title_desc or "wildcard" in title_desc or "access-control-allow-origin" in title_desc or "cwe-942" in title_desc or "cors" in title_desc):
             fid = int(f["id"])
             client.patch_finding(fid, {"false_p": True, "active": False, "verified": False})
             try:
@@ -415,21 +512,11 @@ def _run_api_triage(client: DefectDojoAPIClient, product_name: str, engagement_n
             print(f"[+] Hallazgo #{fid} ('{f.get('title')}') marcado como FALSO POSITIVO vía API v2.")
             break
 
-    for f in findings:
-        title_desc = f"{f.get('title', '')} {f.get('description', '')}".lower()
-        if ("debug" in title_desc or "development" in title_desc) and not f.get("is_mitigated"):
-            fid = int(f["id"])
-            client.patch_finding(fid, {"is_mitigated": True, "active": False})
-            try:
-                client.add_finding_note(fid, f"Mitigado (ST3): {DEBUG_MITIGATED_NOTE}")
-            except Exception as note_err:
-                print(f"    [!] Nota no añadida en #{fid}: {note_err}")
-            print(f"[+] Hallazgo #{fid} ('{f.get('title')}') marcado como MITIGADO vía API v2.")
-            break
-
     updated_findings = client.list_findings(engagement_id)
-    summary = _summarize_findings(updated_findings)
+    summary = _summarize_findings(updated_findings, test_map)
     print("\n[+] Resumen Post-Triaje (API v2):")
+    print(f"    Total Únicos:     {summary['total_findings']}")
+    print(f"    Duplicados:       {summary['duplicates']}")
     print(f"    Total Activas:    {sum(summary['by_severity_active'].values())}")
     print(f"    Falsos Positivos: {summary['false_positives']}")
     print(f"    Mitigadas:        {summary['mitigated']}")
@@ -447,19 +534,21 @@ def _write_github_summary(
     tot = summary["by_severity_total"]
     act = summary["by_severity_active"]
     lines = [
-        "## 📋 Gestión Centralizada de Vulnerabilidades — DefectDojo (API v2)",
+        "## 📋 Gestión Centralizada de Vulnerabilidades — OWASP DefectDojo (API v2)",
         "",
         f"- **Producto:** `{product_name}` · **Engagement:** `{engagement_name}`",
         f"- **Origen de sincronización:** `{source_label}`",
         "",
         "| Métrica | Valor |",
         "| :--- | :---: |",
-        f"| **Total hallazgos deduplicados** | **{summary['total_findings']}** |",
-        f"| Activas tras triaje | {sum(act.values())} |",
+        f"| Registros brutos importados | {summary['total_findings_raw']} |",
+        f"| Duplicados detectados (deduplicación SHA-256) | {summary['duplicates']} |",
+        f"| **Total hallazgos únicos deduplicados** | **{summary['total_findings']}** |",
+        f"| Activas tras triaje (entrada a Quality Gate B) | {sum(act.values())} |",
         f"| Falsos Positivos justificados (`False Positive`) | {summary['false_positives']} |",
         f"| Mitigadas (`Mitigated`) | {summary['mitigated']} |",
         "",
-        "| Severidad | Registradas | Activas |",
+        "| Severidad | Únicos | Activos Post-Triaje |",
         "| :--- | :---: | :---: |",
         f"| 🔴 Críticas | {tot['Critical']} | {act['Critical']} |",
         f"| 🟠 Altas | {tot['High']} | {act['High']} |",
@@ -480,8 +569,12 @@ def _run_api_export(
 ):
     product_id = client.ensure_product(product_name)
     engagement_id = client.ensure_engagement(product_id, engagement_name)
+    test_map = client.list_tests(engagement_id)
     findings = client.list_findings(engagement_id)
-    summary = _summarize_findings(findings)
+    summary = _summarize_findings(findings, test_map)
+
+    for f in findings:
+        f["_layer"] = _classify_layer(f, test_map)
 
     os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
@@ -491,6 +584,7 @@ def _run_api_export(
                 "defectdojo_url": client.base_url,
                 "product": {"id": product_id, "name": product_name},
                 "engagement": {"id": engagement_id, "name": engagement_name},
+                "tests": list(test_map.values()),
                 "exported_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "summary": summary,
                 "findings_detail": findings,
@@ -500,7 +594,7 @@ def _run_api_export(
             ensure_ascii=False,
         )
     print(f"[+] Resumen consolidado exportado desde DefectDojo API v2 a: {output_file}")
-    _write_github_summary(summary, product_name, engagement_name, f"API REST v2 ({client.base_url})")
+    _write_github_summary(summary, product_name, engagement_name, f"OWASP DefectDojo API REST v2 ({client.base_url})")
 
 
 def run_mock_import(semgrep_path: str, trivy_sca_path: str, trivy_iac_path: str, zap_path: str):
@@ -514,62 +608,44 @@ def run_mock_import(semgrep_path: str, trivy_sca_path: str, trivy_iac_path: str,
         with open(semgrep_path, "r", encoding="utf-8") as f:
             count = db.import_semgrep(json.load(f), engagement_id=10)
             print(f"    -> [OK] Importados {count} hallazgos SAST (Semgrep JSON Report). Deduplicación: ACTIVA.")
-    else:
-        print(f"[-] No se encontró reporte Semgrep en: {semgrep_path}")
 
     if trivy_sca_path and os.path.exists(trivy_sca_path):
         print(f"\n[+] Enviando reporte SCA (/api/v2/import-scan/): {trivy_sca_path}")
         with open(trivy_sca_path, "r", encoding="utf-8") as f:
             count = db.import_trivy(json.load(f), scan_type="SCA", engagement_id=10)
             print(f"    -> [OK] Importados {count} hallazgos SCA (Trivy Dependencies). Deduplicación: ACTIVA.")
-    else:
-        print(f"[-] No se encontró reporte Trivy SCA en: {trivy_sca_path}")
 
     if trivy_iac_path and os.path.exists(trivy_iac_path):
         print(f"\n[+] Enviando reporte IaC (/api/v2/import-scan/): {trivy_iac_path}")
         with open(trivy_iac_path, "r", encoding="utf-8") as f:
             count = db.import_trivy(json.load(f), scan_type="IaC", engagement_id=10)
             print(f"    -> [OK] Importados {count} hallazgos IaC (Trivy Dockerfile/K8s). Deduplicación: ACTIVA.")
-    else:
-        print(f"[-] No se encontró reporte Trivy IaC en: {trivy_iac_path}")
 
-    if zap_path and os.path.exists(zap_path):
+    if zap_path and os.path.exists(zap_path) and zap_path.lower().endswith(".json"):
         print(f"\n[+] Enviando reporte DAST (/api/v2/import-scan/): {zap_path}")
         with open(zap_path, "r", encoding="utf-8") as f:
             count = db.import_zap(json.load(f), engagement_id=10)
             print(f"    -> [OK] Importados {count} hallazgos DAST (OWASP ZAP). Deduplicación: ACTIVA.")
-    else:
-        print(f"[-] No se encontró reporte ZAP en: {zap_path}")
 
-    _print_summary(db.get_summary(), "RESUMEN CONSOLIDADO DE VULNERABILIDADES EN DEFECTDOJO API v2")
+    summary = _summarize_findings(db.findings)
+    _print_summary(summary, "RESUMEN CONSOLIDADO EN BACKEND LOCAL DEFECTDOJO")
 
 
 def run_mock_triage():
     db = DefectDojoDatabase()
-    print("[*] Iniciando proceso de triaje de vulnerabilidades en DefectDojo (backend local)...")
-
+    print("[*] Iniciando proceso de triaje de vulnerabilidades (backend local)...")
     for f in db.findings:
         if "cors" in f.get("title", "").lower() or "cors" in f.get("description", "").lower():
             db.mark_false_positive(finding_id=f["id"], reason=CORS_FP_REASON)
-            print(f"[+] Hallazgo #{f['id']} ('{f['title']}') marcado como FALSO POSITIVO con justificación técnica.")
+            print(f"[+] Hallazgo #{f['id']} ('{f['title']}') marcado como FALSO POSITIVO.")
             break
-
-    for f in db.findings:
-        if "debug" in f.get("title", "").lower() or "development" in f.get("description", "").lower():
-            db.mark_mitigated(finding_id=f["id"], notes=DEBUG_MITIGATED_NOTE)
-            print(f"[+] Hallazgo #{f['id']} ('{f['title']}') marcado como MITIGADO.")
-            break
-
-    summary = db.get_summary()
-    print("\n[+] Resumen Post-Triaje:")
-    print(f"    Total Activas:    {sum(summary['by_severity_active'].values())}")
-    print(f"    Falsos Positivos: {summary['false_positives']}")
-    print(f"    Mitigadas:        {summary['mitigated']}")
+    summary = _summarize_findings(db.findings)
+    print(f"    Total Activas: {sum(summary['by_severity_active'].values())} | Falsos Positivos: {summary['false_positives']}")
 
 
 def run_mock_export(output_file: str, product_name: str = "INSEGUS Web Application", engagement_name: str = "DevSecOps CI/CD Pipeline"):
     db = DefectDojoDatabase()
-    summary = db.get_summary()
+    summary = _summarize_findings(db.findings)
     os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(
@@ -596,7 +672,7 @@ def main():
     parser.add_argument("--semgrep", default="", help="Ruta reporte Semgrep JSON")
     parser.add_argument("--trivy-sca", default="", help="Ruta reporte Trivy SCA JSON")
     parser.add_argument("--trivy-iac", default="", help="Ruta reporte Trivy IaC JSON")
-    parser.add_argument("--zap", default="", help="Ruta reporte ZAP JSON")
+    parser.add_argument("--zap", default="", help="Ruta reporte ZAP XML o JSON")
     parser.add_argument("--output", default="evidencias/defectdojo/defectdojo_consolidated.json")
     parser.add_argument(
         "--strict-api",
@@ -606,6 +682,10 @@ def main():
 
     args = parser.parse_args()
     use_real_api = bool(args.url.strip() and args.api_key.strip())
+
+    if args.strict_api and not use_real_api:
+        print("[-] ERROR (--strict-api): DEFECTDOJO_URL o DEFECTDOJO_API_KEY no están definidas.")
+        sys.exit(1)
 
     if use_real_api:
         client = DefectDojoAPIClient(base_url=args.url, api_key=args.api_key)
@@ -627,6 +707,11 @@ def main():
             return
         except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, OSError) as exc:
             print(f"[!] Error comunicando con DefectDojo API v2 ({args.url}): {exc}")
+            if hasattr(exc, "read"):
+                try:
+                    print("    Detalle API:", exc.read().decode("utf-8", errors="replace")[:500])
+                except Exception:
+                    pass
             if args.strict_api:
                 sys.exit(1)
             print("[i] Conmutando automáticamente a backend local compatible (mock_defectdojo.py)...")

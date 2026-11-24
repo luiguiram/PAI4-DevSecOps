@@ -12,7 +12,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_DIR="$(dirname "$SCRIPT_DIR")"
 APP_DIR="$BASE_DIR/app"
 EVIDENCIAS_DIR="$BASE_DIR/evidencias"
-LOGS_DIR="$EVIDENCIAS_DIR/pipeline_logs"
 
 mkdir -p "$EVIDENCIAS_DIR"/{sast,sca,iac,dast,quality_gates,defectdojo,pipeline_logs,diagramas}
 
@@ -33,31 +32,30 @@ echo -e "\n[ETAPA 1] Compilación y ejecución de pruebas unitarias..."
 echo "[+] Etapa 1 completada con éxito."
 
 # ------------------------------------------------------------------------------
-# ETAPA 2: ANÁLISIS ESTÁTICO DE CÓDIGO (SAST - SEMGREP)
+# ETAPA 2a: ANÁLISIS ESTÁTICO DE CÓDIGO (SAST - SEMGREP)
 # ------------------------------------------------------------------------------
-echo -e "\n[ETAPA 2] Análisis estático de código fuente con Semgrep CE..."
+echo -e "\n[ETAPA 2a] Análisis estático de código fuente con Semgrep CE (rulesets oficiales + ST3)..."
 docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -e HOME=/tmp \
   -v "$BASE_DIR":/workspace \
   -w /workspace \
   semgrep/semgrep semgrep scan \
+  --config p/javascript \
+  --config p/owasp-top-ten \
   --config /workspace/config/.semgrep.yml \
-  --json -o /workspace/evidencias/sast/semgrep_report.json \
-  /workspace/app || true
-
-docker run --rm \
-  -v "$BASE_DIR":/workspace \
-  -w /workspace \
-  semgrep/semgrep semgrep scan \
-  --config /workspace/config/.semgrep.yml \
-  --sarif -o /workspace/evidencias/sast/semgrep_report.sarif \
+  --metrics=off \
+  --json-output /workspace/evidencias/sast/semgrep_report.json \
+  --sarif-output /workspace/evidencias/sast/semgrep_report.sarif \
   /workspace/app || true
 echo "[+] Reportes Semgrep generados en evidencias/sast/."
 
 # ------------------------------------------------------------------------------
-# ETAPA 3: ANÁLISIS DE DEPENDENCIAS Y COMPOSICIÓN DE SOFTWARE (SCA - TRIVY)
+# ETAPA 2b: ANÁLISIS DE DEPENDENCIAS (SCA - TRIVY)
 # ------------------------------------------------------------------------------
-echo -e "\n[ETAPA 3] Análisis de dependencias de terceros (SCA) con Trivy..."
+echo -e "\n[ETAPA 2b] Análisis de dependencias de terceros (SCA) con Trivy..."
 docker run --rm \
+  -u "$(id -u):$(id -g)" \
   -v "$BASE_DIR":/workspace \
   aquasec/trivy:latest fs \
   --db-repository ghcr.io/aquasecurity/trivy-db:2 \
@@ -67,10 +65,11 @@ docker run --rm \
 echo "[+] Reporte Trivy SCA generado en evidencias/sca/trivy_sca_report.json."
 
 # ------------------------------------------------------------------------------
-# ETAPA 4: ANÁLISIS DE SEGURIDAD EN INFRAESTRUCTURA COMO CÓDIGO (IaC - TRIVY)
+# ETAPA 2c: ANÁLISIS IaC (TRIVY CONFIG)
 # ------------------------------------------------------------------------------
-echo -e "\n[ETAPA 4] Auditoría de Dockerfile y Manifiestos Kubernetes (IaC) con Trivy..."
+echo -e "\n[ETAPA 2c] Auditoría de Dockerfile y Manifiestos Kubernetes (IaC) con Trivy..."
 docker run --rm \
+  -u "$(id -u):$(id -g)" \
   -v "$BASE_DIR":/workspace \
   aquasec/trivy:latest config \
   --format json \
@@ -79,9 +78,9 @@ docker run --rm \
 echo "[+] Reporte Trivy IaC generado en evidencias/iac/trivy_iac_report.json."
 
 # ------------------------------------------------------------------------------
-# QUALITY GATE A: MODO AVISO (ADVISORY QUALITY GATE)
+# ETAPA 3: QUALITY GATE A (MODO AVISO)
 # ------------------------------------------------------------------------------
-echo -e "\n[QUALITY GATE A] Evaluación de Quality Gate A en Modo Aviso..."
+echo -e "\n[ETAPA 3 - QUALITY GATE A] Evaluación de Quality Gate A en Modo Aviso..."
 python3 "$SCRIPT_DIR/quality_gate.py" \
   --mode advisory \
   --semgrep "$EVIDENCIAS_DIR/sast/semgrep_report.json" \
@@ -91,23 +90,54 @@ python3 "$SCRIPT_DIR/quality_gate.py" \
 echo "[+] Quality Gate A evaluado (no bloqueante, continue-on-error: true)."
 
 # ------------------------------------------------------------------------------
-# ETAPA 5: DESPLIEGUE EN STAGING Y PRUEBAS DINÁMICAS (DAST - OWASP ZAP)
+# ETAPA 4: DESPLIEGUE EN STAGING Y DAST REAL (OWASP ZAP FULL SCAN)
 # ------------------------------------------------------------------------------
-echo -e "\n[ETAPA 5] Despliegue en Staging y Análisis Dinámico (DAST)..."
-python3 "$SCRIPT_DIR/run_zap_dast.py"
-echo "[+] Reportes DAST generados en evidencias/dast/ (JSON y HTML)."
+echo -e "\n[ETAPA 4] Despliegue en Staging y Análisis Dinámico real con OWASP ZAP..."
+(
+  cd "$APP_DIR"
+  docker compose up -d --build
+)
+trap '(cd "$APP_DIR" && docker compose down) || true' EXIT
+
+for i in $(seq 1 30); do
+  if curl -sf http://localhost:3000/health | grep -q "UP"; then
+    echo "[+] Servicio Staging disponible en http://localhost:3000."
+    break
+  fi
+  sleep 2
+done
+
+cp "$BASE_DIR/config/zap-baseline.conf" "$EVIDENCIAS_DIR/dast/zap.conf"
+chmod a+rwx "$EVIDENCIAS_DIR/dast"
+docker run --rm --network host \
+  -v "$EVIDENCIAS_DIR/dast":/zap/wrk:rw \
+  ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
+  -t http://localhost:3000 \
+  -c zap.conf \
+  -m 2 -T 5 \
+  -J zap_report.json \
+  -x zap_report.xml \
+  -r zap_report.html || true
+rm -f "$EVIDENCIAS_DIR/dast/zap.conf"
+
+(
+  cd "$APP_DIR"
+  docker compose down
+)
+trap - EXIT
+echo "[+] Reportes reales OWASP ZAP generados en evidencias/dast/ (JSON, XML y HTML)."
 
 # ------------------------------------------------------------------------------
-# ETAPA 6: CENTRALIZACIÓN Y TRIAJE EN DEFECTDOJO API v2
+# ETAPA 5: CENTRALIZACIÓN Y TRIAJE EN DEFECTDOJO API v2
 # ------------------------------------------------------------------------------
-echo -e "\n[ETAPA 6] Ingesta y consolidación en DefectDojo API v2..."
+echo -e "\n[ETAPA 5] Ingesta y consolidación en DefectDojo API v2..."
 rm -f "$EVIDENCIAS_DIR/defectdojo/defectdojo_findings_db.json"
 python3 "$SCRIPT_DIR/defectdojo_client.py" \
   --action import \
   --semgrep "$EVIDENCIAS_DIR/sast/semgrep_report.json" \
   --trivy-sca "$EVIDENCIAS_DIR/sca/trivy_sca_report.json" \
   --trivy-iac "$EVIDENCIAS_DIR/iac/trivy_iac_report.json" \
-  --zap "$EVIDENCIAS_DIR/dast/zap_report.json"
+  --zap "$EVIDENCIAS_DIR/dast/zap_report.xml"
 
 python3 "$SCRIPT_DIR/defectdojo_client.py" --action triage
 
@@ -116,37 +146,28 @@ python3 "$SCRIPT_DIR/defectdojo_client.py" \
   --output "$EVIDENCIAS_DIR/defectdojo/defectdojo_consolidated.json"
 
 # ------------------------------------------------------------------------------
-# QUALITY GATE B: MODO BLOQUEANTE (EVALUACIÓN ANTE VULNERABILIDADES)
+# ETAPA 6: QUALITY GATE B (MODO BLOQUEANTE SOBRE DEFECTDOJO POST-TRIAJE)
 # ------------------------------------------------------------------------------
 GATE_MODE="blocking"
 if [ "${1:-}" == "--advisory" ]; then
   GATE_MODE="advisory"
 fi
 
-echo -e "\n[QUALITY GATE B] Demostración de Quality Gate Pre-producción (Modo: $GATE_MODE)..."
+echo -e "\n[ETAPA 6 - QUALITY GATE B] Evaluación pre-producción (Modo: $GATE_MODE)..."
 set +e
 python3 "$SCRIPT_DIR/quality_gate.py" \
   --mode "$GATE_MODE" \
   --critical 0 \
   --high 0 \
   --medium 10 \
-  --semgrep "$EVIDENCIAS_DIR/sast/semgrep_report.json" \
-  --trivy-sca "$EVIDENCIAS_DIR/sca/trivy_sca_report.json" \
-  --trivy-iac "$EVIDENCIAS_DIR/iac/trivy_iac_report.json" \
-  --zap "$EVIDENCIAS_DIR/dast/zap_report.json" \
+  --defectdojo-report "$EVIDENCIAS_DIR/defectdojo/defectdojo_consolidated.json" \
   | tee "$EVIDENCIAS_DIR/quality_gates/quality_gate_${GATE_MODE}.log"
 GATE_EXIT_CODE=${PIPESTATUS[0]}
 set -eo pipefail
 
 if [ "$GATE_EXIT_CODE" -ne 0 ]; then
-  echo -e "\n[!] DEMOSTRACIÓN EXITOSA DEL REQUISITO 4:"
-  echo "    El Quality Gate Bloqueante ha detenido el pipeline con código $GATE_EXIT_CODE."
-  echo "    El artefacto no pasa a Producción debido a vulnerabilidades Críticas y Altas detectadas."
+  echo -e "\n[!] Quality Gate B ha detenido el pipeline con código $GATE_EXIT_CODE."
   exit "$GATE_EXIT_CODE"
 else
-  echo -e "\n[+] Quality Gate B superado o en modo aviso ($GATE_MODE). Paso a producción autorizado."
+  echo -e "\n[+] Quality Gate B superado ($GATE_MODE). Paso a producción autorizado."
 fi
-
-echo -e "\n================================================================================"
-echo "    PIPELINE DEVSECOPS LOCAL EJECUTADO Y REGISTRADO SATISFACTORIAMENTE          "
-echo "================================================================================"
