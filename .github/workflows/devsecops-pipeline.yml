@@ -210,11 +210,11 @@ jobs:
 
       - name: Ejecutar OWASP ZAP Full Scan Real sobre Staging
         run: |
-          mkdir -p evidencias/dast
-          chmod a+rwx evidencias/dast
-          cp config/zap-baseline.conf evidencias/dast/zap.conf
+          rm -rf /tmp/zap_wrk && mkdir -p /tmp/zap_wrk evidencias/dast
+          chmod 777 /tmp/zap_wrk
+          cp config/zap-baseline.conf /tmp/zap_wrk/zap.conf
           docker run --rm --network host \
-            -v "$(pwd)/evidencias/dast:/zap/wrk:rw" \
+            -v "/tmp/zap_wrk:/zap/wrk:rw" \
             ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
             -t http://localhost:3000 \
             -c zap.conf \
@@ -222,7 +222,9 @@ jobs:
             -J zap_report.json \
             -x zap_report.xml \
             -r zap_report.html || true
-          rm -f evidencias/dast/zap.conf
+          cp /tmp/zap_wrk/zap_report.json evidencias/dast/zap_report.json
+          cp /tmp/zap_wrk/zap_report.xml evidencias/dast/zap_report.xml
+          cp /tmp/zap_wrk/zap_report.html evidencias/dast/zap_report.html
           test -s evidencias/dast/zap_report.json
           test -s evidencias/dast/zap_report.xml
           test -s evidencias/dast/zap_report.html

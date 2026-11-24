@@ -107,10 +107,11 @@ for i in $(seq 1 30); do
   sleep 2
 done
 
-cp "$BASE_DIR/config/zap-baseline.conf" "$EVIDENCIAS_DIR/dast/zap.conf"
-chmod a+rwx "$EVIDENCIAS_DIR/dast"
+ZAP_WRK_DIR=$(mktemp -d)
+chmod 777 "$ZAP_WRK_DIR"
+cp "$BASE_DIR/config/zap-baseline.conf" "$ZAP_WRK_DIR/zap.conf"
 docker run --rm --network host \
-  -v "$EVIDENCIAS_DIR/dast":/zap/wrk:rw \
+  -v "$ZAP_WRK_DIR":/zap/wrk:rw \
   ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
   -t http://localhost:3000 \
   -c zap.conf \
@@ -118,7 +119,10 @@ docker run --rm --network host \
   -J zap_report.json \
   -x zap_report.xml \
   -r zap_report.html || true
-rm -f "$EVIDENCIAS_DIR/dast/zap.conf"
+cp "$ZAP_WRK_DIR/zap_report.json" "$EVIDENCIAS_DIR/dast/zap_report.json"
+cp "$ZAP_WRK_DIR/zap_report.xml" "$EVIDENCIAS_DIR/dast/zap_report.xml"
+cp "$ZAP_WRK_DIR/zap_report.html" "$EVIDENCIAS_DIR/dast/zap_report.html"
+rm -rf "$ZAP_WRK_DIR"
 
 (
   cd "$APP_DIR"
