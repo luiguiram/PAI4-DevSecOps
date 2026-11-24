@@ -310,12 +310,7 @@ jobs:
             RESP=$(curl -s -X POST http://localhost:8080/api/v2/api-token-auth/ \
               -H "Content-Type: application/json" \
               -d "{\"username\":\"admin\",\"password\":\"${DD_ADMIN_PASSWORD}\"}" || true)
-            TOKEN=$(python3 -c 'import sys, json
-try:
-    d = json.loads(sys.stdin.read())
-    print(d.get("token", ""))
-except Exception:
-    print("")' <<< "$RESP")
+            TOKEN=$(printf '%s' "$RESP" | python3 -c 'import sys, json; raw = sys.stdin.read(); print(json.loads(raw).get("token", "") if raw.strip().startswith("{") else "")' || true)
             if [ -n "$TOKEN" ]; then
               echo "[+] OWASP DefectDojo real listo y autenticado en intento #${i}."
               break
