@@ -1,0 +1,149 @@
+[*] Conectando con DefectDojo API REST v2 en: http://localhost:8080
+    Producto:   INSEGUS Web Application (ID: 1)
+    Engagement: DevSecOps CI/CD Pipeline (ID: 1)
+
+[+] POST /api/v2/import-scan/ [SAST | Semgrep JSON Report]: evidencias/sast/semgrep_report.json
+    -> [OK] Informe importado correctamente (Test ID: 1). Deduplicación: ACTIVA.
+
+[+] POST /api/v2/import-scan/ [SCA | Trivy Scan]: evidencias/sca/trivy_sca_report.json
+    -> [OK] Informe importado correctamente (Test ID: 2). Deduplicación: ACTIVA.
+
+[+] POST /api/v2/import-scan/ [IaC | Trivy Scan]: evidencias/iac/trivy_iac_report.json
+    -> [OK] Informe importado correctamente (Test ID: 3). Deduplicación: ACTIVA.
+
+[+] POST /api/v2/import-scan/ [DAST | ZAP Scan]: evidencias/dast/zap_report.xml
+    -> [OK] Informe importado correctamente (Test ID: 4). Deduplicación: ACTIVA.
+
+================================================================================
+      RESUMEN CONSOLIDADO EN OWASP DEFECTDOJO API v2 (INSTANCIA REAL)
+================================================================================
+Hallazgos Brutos Importados:   144
+Duplicados Excluidos:          0
+Hallazgos Únicos Deduplicados: 144
+  - Críticas (únicos / activ.): 3 / 3
+  - Altas    (únicos / activ.): 64 / 64
+  - Medias   (únicos / activ.): 49 / 49
+  - Bajas    (únicos / activ.): 24 / 24
+  - Info     (únicos / activ.): 4 / 4
+================================================================================
+##[group]Run python3 scripts/defectdojo_client.py --strict-api --action triage
+[36;1mpython3 scripts/defectdojo_client.py --strict-api --action triage[0m
+shell: /usr/bin/bash -e {0}
+env:
+  NODE_VERSION: 18.x
+  DEFECTDOJO_URL: http://localhost:8080
+  DEFECTDOJO_API_KEY: ***
+  PRODUCT_NAME: INSEGUS Web Application
+  ENGAGEMENT_NAME: DevSecOps CI/CD Pipeline
+##[endgroup]
+[*] Ejecutando triaje vía DefectDojo API REST v2 en: http://localhost:8080
+[+] Hallazgo #7 ('config.insecure-cors-wildcard') marcado como FALSO POSITIVO vía API v2.
+
+[+] Resumen Post-Triaje (API v2):
+    Total Únicos:     144
+    Duplicados:       0
+    Total Activas:    143
+    Falsos Positivos: 1
+    Mitigadas:        0
+##[group]Run python3 scripts/defectdojo_client.py \
+[36;1mpython3 scripts/defectdojo_client.py \[0m
+[36;1m  --strict-api \[0m
+[36;1m  --action export \[0m
+[36;1m  --output evidencias/defectdojo/defectdojo_consolidated.json[0m
+shell: /usr/bin/bash -e {0}
+env:
+  NODE_VERSION: 18.x
+  DEFECTDOJO_URL: http://localhost:8080
+  DEFECTDOJO_API_KEY: ***
+  PRODUCT_NAME: INSEGUS Web Application
+  ENGAGEMENT_NAME: DevSecOps CI/CD Pipeline
+##[endgroup]
+[+] Resumen consolidado exportado desde DefectDojo API v2 a: evidencias/defectdojo/defectdojo_consolidated.json
+##[group]Run cd /tmp/defectdojo
+[36;1mcd /tmp/defectdojo[0m
+[36;1mdocker compose down -v || true[0m
+shell: /usr/bin/bash -e {0}
+env:
+  NODE_VERSION: 18.x
+  DEFECTDOJO_URL: http://localhost:8080
+  DEFECTDOJO_API_KEY: ***
+  PRODUCT_NAME: INSEGUS Web Application
+  ENGAGEMENT_NAME: DevSecOps CI/CD Pipeline
+##[endgroup]
+ Container defectdojo-celeryworker-1 Stopping 
+ Container defectdojo-nginx-1 Stopping 
+ Container defectdojo-nginx-1 Stopped 
+ Container defectdojo-nginx-1 Removing 
+ Container defectdojo-nginx-1 Removed 
+ Container defectdojo-uwsgi-1 Stopping 
+ Container defectdojo-uwsgi-1 Stopped 
+ Container defectdojo-uwsgi-1 Removing 
+ Container defectdojo-uwsgi-1 Removed 
+ Container defectdojo-celeryworker-1 Stopped 
+ Container defectdojo-celeryworker-1 Removing 
+ Container defectdojo-celeryworker-1 Removed 
+ Container defectdojo-initializer-1 Stopping 
+ Container defectdojo-valkey-1 Stopping 
+ Container defectdojo-initializer-1 Stopped 
+ Container defectdojo-initializer-1 Removing 
+ Container defectdojo-initializer-1 Removed 
+ Container defectdojo-postgres-1 Stopping 
+ Container defectdojo-valkey-1 Stopped 
+ Container defectdojo-valkey-1 Removing 
+ Container defectdojo-valkey-1 Removed 
+ Container defectdojo-postgres-1 Stopped 
+ Container defectdojo-postgres-1 Removing 
+ Container defectdojo-postgres-1 Removed 
+ Volume defectdojo_defectdojo_media Removing 
+ Volume defectdojo_defectdojo_postgres Removing 
+ Volume defectdojo_defectdojo_redis Removing 
+ Network defectdojo_default Removing 
+ Network defectdojo_default Removed 
+ Volume defectdojo_defectdojo_postgres Removed 
+ Volume defectdojo_defectdojo_media Removed 
+ Volume defectdojo_defectdojo_redis Removed 
+##[group]Run actions/upload-artifact@v4
+with:
+  name: defectdojo-audit-metrics
+  path: evidencias/defectdojo/
+  if-no-files-found: warn
+  compression-level: 6
+  overwrite: false
+  include-hidden-files: false
+env:
+  NODE_VERSION: 18.x
+  DEFECTDOJO_URL: http://localhost:8080
+  DEFECTDOJO_API_KEY: ***
+  PRODUCT_NAME: INSEGUS Web Application
+  ENGAGEMENT_NAME: DevSecOps CI/CD Pipeline
+##[endgroup]
+(node:3764) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+With the provided path, there will be 1 file uploaded
+Artifact name is valid!
+Root directory input is valid!
+Beginning upload of artifact content to blob storage
+(node:3764) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Uploaded bytes 75051
+Finished uploading artifact content to blob storage!
+SHA256 digest of uploaded artifact zip is 71abe8f189a92f1f74c544f02bf1307ea5011cc32f6891a65b34cab6ef66f968
+Finalizing artifact upload
+Artifact defectdojo-audit-metrics.zip successfully finalized. Artifact ID 14907560150
+Artifact defectdojo-audit-metrics has been successfully uploaded! Final size is 75051 bytes. Artifact ID is 14907560150
+Artifact download URL: https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/45365338199/artifacts/14907560150
+Post job cleanup.
+[command]/usr/bin/git version
+git version 2.56.1
+Temporarily overriding HOME='/home/runner/work/_temp/00337f4f-61b7-4c8e-9741-5c172fc57fc9' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+[command]/usr/bin/git config --global --add safe.directory /home/runner/work/PAI4-DevSecOps/PAI4-DevSecOps
+[command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+[command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+http.https://github.com/.extraheader
+[command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+[command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+[command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+[command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Cleaning up orphan processes
+##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

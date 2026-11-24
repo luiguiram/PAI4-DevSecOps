@@ -1,0 +1,56 @@
+=== RESUMEN OFICIAL RUN #24 (demo/remediacion-gate-b-verde @ a1efd69) ===
+  1. Build & Tests | completed | success | 2026-11-24T09:48:57Z -> 2026-11-24T09:49:10Z
+  2c. IaC (Trivy Config) | completed | success | 2026-11-24T09:49:12Z -> 2026-11-24T09:49:25Z
+  2b. SCA (Trivy Deps) | completed | success | 2026-11-24T09:49:12Z -> 2026-11-24T09:49:39Z
+  2a. SAST (Semgrep) | completed | success | 2026-11-24T09:49:12Z -> 2026-11-24T09:49:32Z
+  3. Gate A (Aviso) | completed | success | 2026-11-24T09:49:40Z -> 2026-11-24T09:49:47Z
+  4. Staging & DAST (ZAP) | completed | success | 2026-11-24T09:49:49Z -> 2026-11-24T09:52:45Z
+  5. DefectDojo (API v2) | completed | success | 2026-11-24T09:52:47Z -> 2026-11-24T09:54:11Z
+  6. Gate B (Bloqueante) | completed | success | 2026-11-24T09:54:14Z -> 2026-11-24T09:54:22Z
+
+--- OUTPUT 6. Gate B (Bloqueante) ---
+      INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       
+================================================================================
+
+[+] MODO DE EJECUCIÓN DEL GATE: BLOCKING (FUENTE: DEFECTDOJO API v2 POST-TRIAJE)
+[+] Inventario DefectDojo: 9 únicos | 0 duplicados excluidos | 1 falso(s) positivo(s) triado(s)
+--------------------------------------------------------------------------------
+HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW   
+--------------------------------------------------------------------------------
+SAST (Semgrep)            | 0        | 0      | 0        | 0     
+SCA (Trivy Dependencies)  | 0        | 0      | 0        | 0     
+IaC (Trivy Docker/K8s)    | 0        | 0      | 1        | 2     
+DAST (OWASP ZAP)          | 0        | 0      | 1        | 0     
+--------------------------------------------------------------------------------
+TOTAL ACTIVOS DEFECTDOJO  | 0        | 0      | 2        | 2     
+================================================================================
+
+[!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
+    [+] Postura de seguridad verificada. Cero vulnerabilidades críticas o altas y medias en umbral.
+    [+] Autorización concedida para despliegue en Producción.
+
+[RESULTADO] Quality Gate B (Modo Bloqueante) -> APROBADO (Exit Code 0)
+
+  7. Deploy Producción | completed | success | 2026-11-24T09:54:25Z -> 2026-11-24T09:54:30Z
+
+--- OUTPUT 7. Deploy Producción ---
+##[group]Run echo "[+] Despliegue en producción autorizado por Quality Gate B (DefectDojo: 0 Crít, 0 Altas, <=10 Medias)."
+[36;1mecho "[+] Despliegue en producción autorizado por Quality Gate B (DefectDojo: 0 Crít, 0 Altas, <=10 Medias)."[0m
+[36;1mecho "[+] Desplegando en clúster Kubernetes (Namespace: insegus-production)..."[0m
+[36;1mecho "[OK] Despliegue completado exitosamente sin vulnerabilidades críticas ni altas."[0m
+[36;1m{[0m
+[36;1m  echo "## 🚀 Etapa 7: Despliegue en Producción (Kubernetes)"[0m
+[36;1m  echo ""[0m
+[36;1m  echo "🟢 **Autorizado por Quality Gate B** — Rama: \`demo/remediacion-gate-b-verde\` · Namespace: \`insegus-production\`"[0m
+[36;1m} >> "$GITHUB_STEP_SUMMARY"[0m
+shell: /usr/bin/bash -e {0}
+env:
+  NODE_VERSION: 18.x
+  DEFECTDOJO_URL: 
+  DEFECTDOJO_API_KEY: 
+  PRODUCT_NAME: INSEGUS Web Application
+  ENGAGEMENT_NAME: DevSecOps CI/CD Pipeline
+##[endgroup]
+[+] Despliegue en producción autorizado por Quality Gate B (DefectDojo: 0 Crít, 0 Altas, <=10 Medias).
+[+] Desplegando en clúster Kubernetes (Namespace: insegus-production)...
+[OK] Despliegue completado exitosamente sin vulnerabilidades críticas ni altas.

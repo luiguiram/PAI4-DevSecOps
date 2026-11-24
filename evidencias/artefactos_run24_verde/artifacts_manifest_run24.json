@@ -1,0 +1,55 @@
+{
+  "run_number": 24,
+  "run_id": 45368752719,
+  "branch": "demo/remediacion-gate-b-verde",
+  "artifacts": [
+    {
+      "name": "sca-trivy-report",
+      "id": 14908935167,
+      "size_in_bytes": 5765,
+      "digest": "sha256:4c6314cd51e1ede8b52021b03593b13dce0a43166c899e6bcd4528751b8392af",
+      "files": [
+        "trivy_sca_report.json"
+      ]
+    },
+    {
+      "name": "dast-zap-reports",
+      "id": 14908612029,
+      "size_in_bytes": 23679,
+      "digest": "sha256:230b3358587d64ca883878c507c30db1f56d71909d51323e9c7b31ac06f5b3f2",
+      "files": [
+        "zap_report.html",
+        "zap_report.json",
+        "zap_report.xml"
+      ]
+    },
+    {
+      "name": "defectdojo-audit-metrics",
+      "id": 14908521667,
+      "size_in_bytes": 6480,
+      "digest": "sha256:33e6343cbc9d8f03e63e631fa5706c463af2f93582c5788de4631cf05c3389f0",
+      "files": [
+        "defectdojo_consolidated.json"
+      ]
+    },
+    {
+      "name": "iac-trivy-report",
+      "id": 14908136467,
+      "size_in_bytes": 1698,
+      "digest": "sha256:49ae34bb9150fb27ff1fdcfdb38e55a093b63491223f0a539005dd55a39bb507",
+      "files": [
+        "trivy_iac_report.json"
+      ]
+    },
+    {
+      "name": "sast-semgrep-report",
+      "id": 14907577997,
+      "size_in_bytes": 109906,
+      "digest": "sha256:0c8ce1d6b4e2a001c4c8265238f0d41bb2ea3d7be2c6b739602f0e56979b1109",
+      "files": [
+        "semgrep_report.json",
+        "semgrep_report.sarif"
+      ]
+    }
+  ]
+}

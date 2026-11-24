@@ -1,0 +1,22 @@
+      INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       
+================================================================================
+
+[+] MODO DE EJECUCIÓN DEL GATE: BLOCKING (FUENTE: DEFECTDOJO API v2 POST-TRIAJE)
+[+] Inventario DefectDojo: 9 únicos | 0 duplicados excluidos | 1 falso(s) positivo(s) triado(s)
+--------------------------------------------------------------------------------
+HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW   
+--------------------------------------------------------------------------------
+SAST (Semgrep)            | 0        | 0      | 0        | 0     
+SCA (Trivy Dependencies)  | 0        | 0      | 0        | 0     
+IaC (Trivy Docker/K8s)    | 0        | 0      | 1        | 2     
+DAST (OWASP ZAP)          | 0        | 0      | 1        | 0     
+--------------------------------------------------------------------------------
+TOTAL ACTIVOS DEFECTDOJO  | 0        | 0      | 2        | 2     
+================================================================================
+
+[!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
+    [+] Postura de seguridad verificada. Cero vulnerabilidades críticas o altas y medias en umbral.
+    [+] Autorización concedida para despliegue en Producción.
+
+[RESULTADO] Quality Gate B (Modo Bloqueante) -> APROBADO (Exit Code 0)
+

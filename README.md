@@ -10,36 +10,34 @@
 
 ## 1. Descripción General del Proyecto
 
-Este proyecto implementa un pipeline **DevSecOps** (*Security as Code*) para el caso práctico de **INSEGUS**, orientado a mitigar vulnerabilidades en el desarrollo y despliegue de aplicaciones web basadas en microservicios contenerizados sobre Kubernetes.
+Este proyecto implementa un pipeline **DevSecOps** (*Security as Code*) para el caso práctico de **INSEGUS**, orientado a detectar y bloquear vulnerabilidades en el ciclo de vida de microservicios web Node.js contenerizados sobre Kubernetes.
 
-El pipeline automatiza las comprobaciones de seguridad en cada `push` o `pull_request` sobre la rama principal bajo un enfoque **Shift Left**, integrando pruebas estáticas, análisis de dependencias, auditoría de infraestructura como código, pruebas dinámicas en entorno de *staging*, centralización de hallazgos y *Quality Gates* diferenciados.
+El workflow [`.github/workflows/devsecops-pipeline.yml`](.github/workflows/devsecops-pipeline.yml) automatiza **7 etapas (9 jobs)** reales con ejecución demostrada tanto en fallo por *Quality Gate* ([Run #23 en `main`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/45365338199)) como en aprobación y despliegue a producción tras remediación ([Run #24 en `demo/remediacion-gate-b-verde`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/45368752719)).
 
 ---
 
 ## 2. Arquitectura del Pipeline y Herramientas Integradas
 
-El flujo automatizado en [`.github/workflows/devsecops-pipeline.yml`](.github/workflows/devsecops-pipeline.yml) cubre cuatro categorías de análisis de seguridad y una plataforma centralizada de gestión de vulnerabilidades:
-
-| Tipo de Prueba | Herramienta | Alcance y Detección | Salida Generada |
+| Etapa / Tipo de Prueba | Herramienta | Alcance y Detección Real | Salida Generada |
 | :--- | :--- | :--- | :--- |
-| **SAST** (Análisis Estático) | **Semgrep CE** | Inyecciones SQL (`CWE-89`), uso de `eval()` (`CWE-95`), credenciales hardcodeadas (`CWE-798`) y CORS permisivo (`CWE-942`). | `evidencias/sast/semgrep_report.json` y `.sarif` |
-| **SCA** (Dependencias) | **Trivy Dependencies** | Vulnerabilidades conocidas (CVE) en librerías directas y transitivas declaradas en `app/package-lock.json`. | `evidencias/sca/trivy_sca_report.json` |
-| **IaC** (Infraestructura) | **Trivy Config** | Desconfiguraciones en `app/Dockerfile` (usuario `root`, sin `HEALTHCHECK`) y manifiestos de Kubernetes (`privileged: true`, `SYS_ADMIN`, `hostNetwork`). | `evidencias/iac/trivy_iac_report.json` |
-| **DAST** (Análisis Dinámico) | **OWASP ZAP** | Escaneo pasivo (*Baseline*) y pruebas activas sobre el contenedor desplegado en *staging* (`http://localhost:3000`): SQLi, XSS reflejado, SSRF y cabeceras HTTP. | `evidencias/dast/zap_report.json` y `.html` |
-| **Gestión de Vulnerabilidades** | **DefectDojo (API v2)** | Ingesta automatizada, deduplicación por hash SHA-256, priorización (P1–P4) y registro de triaje / falsos positivos. | `evidencias/defectdojo/defectdojo_consolidated.json` |
+| **1. Build & Tests** | **Node.js `node --test`** | Instalación de dependencias (`--ignore-scripts`) y 8 pruebas unitarias funcionales en `app/tests/server.test.js`. | Resumen en CI |
+| **2a. SAST** | **Semgrep CE** | Rulesets oficiales (`p/javascript`, `p/owasp-top-ten`) + reglas propias (`config/.semgrep.yml`) sobre código fuente, Dockerfile y Kubernetes (109 reglas). | `evidencias/sast/semgrep_report.json` y `.sarif` |
+| **2b. SCA** | **Trivy Dependencies** | Escaneo `fs` de árbol completo de dependencias directas y transitivas en `app/package-lock.json`. | `evidencias/sca/trivy_sca_report.json` |
+| **2c. IaC** | **Trivy Config** | Auditoría CIS/Rego sobre `app/Dockerfile` y `app/kubernetes/*.yaml`. | `evidencias/iac/trivy_iac_report.json` |
+| **3. Gate A (Aviso)** | `scripts/quality_gate.py` | Evalúa reportes estáticos (`continue-on-error: true`), avisa sin abortar para habilitar *staging*. | Resumen en CI |
+| **4. Staging & DAST** | **OWASP ZAP (`zap-full-scan.py`)** | Contenedor en `http://localhost:3000` auditado con *spider* y escaneo activo real (SQLi, XSS, SSRF, RFI, CORS, cabeceras). | `evidencias/dast/zap_report.xml`, `.json`, `.html` |
+| **5. DefectDojo (API v2)** | **OWASP DefectDojo real** | Despliegue efímero real en CI (si no hay secretos externos), ingesta con `--strict-api`, deduplicación SHA-256 y triaje de falso positivo CORS. | `evidencias/defectdojo/defectdojo_consolidated.json` |
+| **6. Gate B (Bloqueante)** | `scripts/quality_gate.py` | Evalúa **activos post-triaje de DefectDojo** (`0 Crít / 0 Altas / ≤ 10 Medias`): `exit 1` en `main` / `exit 0` en rama remediada. | Autorización o bloqueo de Etapa 7 |
+| **7. Deploy Producción** | **Kubernetes (`insegus-production`)** | Despliegue continuo ejecutado únicamente si Gate B retorna `exit 0`. | `evidencias/pipeline_logs/pipeline_success_green_run24.log` |
 
 ---
 
-## 3. Política de Quality Gates
+## 3. Demostración Dual de Quality Gates (Rojo vs. Verde)
 
-El pipeline implementa dos *Quality Gates* con comportamiento diferenciado para permitir la evaluación completa de la aplicación vulnerable en *staging* sin comprometer la seguridad de producción:
-
-1. **Quality Gate A — Modo Aviso (*Advisory*, etapa de Build / Análisis Estático):**
-   - Configurado con `continue-on-error: true`.
-   - Evalúa los informes de SAST, SCA e IaC y registra las advertencias en el flujo sin abortar la ejecución, permitiendo el despliegue posterior en *staging* para ejecutar las pruebas dinámicas (DAST).
-2. **Quality Gate B — Modo Bloqueante (*Blocking*, etapa Pre-Producción):**
-   - Configurado con tolerancia cero para vulnerabilidades **Críticas (`> 0`)**, **Altas (`> 0`)** y límite de **Medias (`> 10`)**.
-   - Al superarse cualquiera de los umbrales tras la consolidación en DefectDojo, el evaluador [`scripts/quality_gate.py`](scripts/quality_gate.py) finaliza con código de salida `1` (`exit 1`), deteniendo el pipeline e impidiendo el despliegue a producción.
+- **Rama `main` (microservicio intencionadamente vulnerable — [Run `#23`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/45365338199)):**  
+  Etapas 1–5 en verde (DefectDojo real consolida 144 hallazgos y tria 1 falso positivo → **143 activos**: 3 Críticas, 64 Altas, 48 Medias, 24 Bajas, 4 Info). **Gate B bloquea con `exit 1`** y Etapa 7 queda `skipped`.
+- **Rama `demo/remediacion-gate-b-verde` (código/dependencias/IaC remediados — [Run `#24`](https://github.com/luiguiram/PAI4-DevSecOps/actions/runs/45368752719)):**  
+  SAST=0, SCA=0, IaC=0 Crít/Altas (1 Media), DAST=0 Crít/Altas (1 Media). **Gate B aprueba con `exit 0`** (0 Críticas, 0 Altas, 2 Medias) y **Etapa 7 (`7. Deploy Producción`) finaliza en verde**.
 
 ---
 
@@ -48,82 +46,55 @@ El pipeline implementa dos *Quality Gates* con comportamiento diferenciado para 
 ```text
 .
 ├── .github/workflows/
-│   └── devsecops-pipeline.yml        # Definición principal del pipeline en GitHub Actions
-├── app/                              # Microservicio web vulnerable (Node.js/Express + Docker + K8s)
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── kubernetes/
-│   ├── public/
-│   ├── package.json
-│   └── server.js
-├── config/                           # Reglas y políticas de las herramientas de seguridad
-│   ├── .semgrep.yml
-│   ├── trivy.yaml
-│   ├── zap-baseline.conf
-│   └── quality_gate_policy.json
-├── evidencias/                       # Diagramas, capturas, informes de escáneres, logs y DefectDojo
-│   ├── capturas/                     # Capturas reales de ejecuciones CI/CD y DefectDojo (PNG)
-│   ├── diagramas/
-│   ├── sast/
-│   ├── sca/
-│   ├── iac/
-│   ├── dast/
-│   ├── quality_gates/
-│   ├── pipeline_logs/
-│   └── defectdojo/
-├── scripts/                          # Scripts de automatización, DAST, DefectDojo y Quality Gates
-│   ├── run_pipeline_local.sh
-│   ├── quality_gate.py
-│   ├── defectdojo_client.py
-│   ├── mock_defectdojo.py
-│   └── run_zap_dast.py
-├── INFORME-PAI4-ST3.md               # Fuente Markdown del informe técnico
-├── INFORME-PAI4-ST3.pdf              # Informe técnico oficial en PDF
-└── generate_pdf.py                   # Generador automático del informe PDF
+│   └── devsecops-pipeline.yml        # Definición oficial (7 etapas / 9 jobs reales)
+├── app/                              # Microservicio web Node.js + Dockerfile + K8s + tests
+├── config/                           # Reglas .semgrep.yml, trivy.yaml, zap-baseline.conf, policy
+├── evidencias/
+│   ├── artefactos_run23/             # Artefactos oficiales del Run #23 (main, Gate B rojo)
+│   ├── artefactos_run24_verde/       # Artefactos oficiales del Run #24 (rama remediada verde)
+│   ├── capturas/                     # Capturas reales de GitHub Actions y DefectDojo
+│   ├── diagramas/                    # Diagramas SVG (1.a y 1.b)
+│   ├── sast/ · sca/ · iac/ · dast/   # Informes reales más recientes (Semgrep, Trivy, ZAP)
+│   ├── quality_gates/                # Logs reales de Gate A y Gate B (aviso, rojo y verde)
+│   ├── pipeline_logs/                # Resúmenes completos de ejecución CI
+│   └── defectdojo/                   # defectdojo_consolidated.json real API v2 y log CI
+├── scripts/
+│   ├── run_pipeline_local.sh         # Orquestador local (Semgrep, Trivy, ZAP Full Scan, Gate)
+│   ├── quality_gate.py               # Evaluador Gate A / Gate B (lee DefectDojo post-triaje)
+│   ├── defectdojo_client.py          # Cliente REST API v2 real (--strict-api en CI)
+│   └── mock_defectdojo.py            # Backend offline exclusivamente para ejecución local sin Docker DefectDojo
+├── INFORME-PAI4-ST3.md               # Fuente Markdown de la memoria técnica
+├── INFORME-PAI4-ST3.pdf              # Memoria técnica oficial (≤ 15 págs. cuerpo técnico)
+└── generate_pdf.py                   # Compilador PDF mediante Chromium/Brave headless
 ```
 
 ---
 
 ## 5. Verificación y Ejecución Local
 
-Requisitos previos: `docker`, `python3` y `node`.
+Requisitos previos: `docker`, `python3`, `node` y `npm`.
 
-### 5.1. Ejecución completa del pipeline local
 ```bash
+# Ejecutar tests unitarios
+cd app && npm install --legacy-peer-deps --ignore-scripts && npm test && cd ..
+
+# Ejecutar pipeline local completo (Semgrep, Trivy, OWASP ZAP Full Scan, DefectDojo y Gate B)
 ./scripts/run_pipeline_local.sh
+
+# Comprobar Gate B directamente contra el resumen consolidado de DefectDojo real
+python3 scripts/quality_gate.py \
+  --mode blocking \
+  --critical 0 --high 0 --medium 10 \
+  --defectdojo-report evidencias/defectdojo/defectdojo_consolidated.json
 ```
-Este script ejecuta los tests unitarios, los análisis con Semgrep y Trivy en Docker, la evaluación del Quality Gate A en modo aviso, el despliegue local de la aplicación con el análisis DAST, la sincronización y triaje en DefectDojo y finalmente la verificación bloqueante del Quality Gate B.
 
-### 5.2. Comprobación individual de los Quality Gates
-- **Evaluación en modo bloqueante (retorna código de salida `1` ante vulnerabilidades críticas/altas):**
-  ```bash
-  python3 scripts/quality_gate.py \
-    --mode blocking \
-    --critical 0 \
-    --high 0 \
-    --medium 10 \
-    --semgrep evidencias/sast/semgrep_report.json \
-    --trivy-sca evidencias/sca/trivy_sca_report.json \
-    --trivy-iac evidencias/iac/trivy_iac_report.json \
-    --zap evidencias/dast/zap_report.json
-  ```
-- **Evaluación en modo aviso (retorna código de salida `0`):**
-  ```bash
-  python3 scripts/quality_gate.py \
-    --mode advisory \
-    --semgrep evidencias/sast/semgrep_report.json \
-    --trivy-sca evidencias/sca/trivy_sca_report.json \
-    --trivy-iac evidencias/iac/trivy_iac_report.json \
-    --zap evidencias/dast/zap_report.json
-  ```
-
-### 5.3. Diagramas de Diseño y Documentación
-- **Diagrama 1.a (Pipeline DevSecOps):** [`evidencias/diagramas/pipeline_devsecops_diagram.svg`](evidencias/diagramas/pipeline_devsecops_diagram.svg)
-- **Diagrama 1.b (Flujo ante una vulnerabilidad):** [`evidencias/diagramas/vulnerability_flowchart_diagram.svg`](evidencias/diagramas/vulnerability_flowchart_diagram.svg)
-- **Informe técnico completo:** [`INFORME-PAI4-ST3.pdf`](INFORME-PAI4-ST3.pdf) (recompilable mediante `python3 generate_pdf.py`).
+### Documentación y Diagramas
+- **Diagrama 1.a (Arquitectura del Pipeline):** [`evidencias/diagramas/pipeline_devsecops_diagram.svg`](evidencias/diagramas/pipeline_devsecops_diagram.svg)
+- **Diagrama 1.b (Flujo ante una Vulnerabilidad):** [`evidencias/diagramas/vulnerability_flowchart_diagram.svg`](evidencias/diagramas/vulnerability_flowchart_diagram.svg)
+- **Informe Técnico:** [`INFORME-PAI4-ST3.pdf`](INFORME-PAI4-ST3.pdf) (recompilable con `python3 generate_pdf.py`)
 
 ---
 
 ## 6. Política de Seguridad y Credenciales
 
-Todas las credenciales sensibles (como `DEFECTDOJO_URL` y `DEFECTDOJO_API_KEY`) se referencian exclusivamente mediante secretos del servidor CI/CD (`${{ secrets.* }}`). No existe ninguna credencial ni clave real almacenada en los ficheros del repositorio.
+Todas las credenciales sensibles (`DEFECTDOJO_URL`, `DEFECTDOJO_API_KEY`) se inyectan vía secretos de GitHub Actions (`${{ secrets.* }}`) o se generan dinámicamente en memoria durante el despliegue efímero de DefectDojo en CI con enmascaramiento (`::add-mask::`). No existe ninguna credencial real almacenada en el repositorio.

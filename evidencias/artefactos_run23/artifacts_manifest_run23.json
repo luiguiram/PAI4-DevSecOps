@@ -1,0 +1,54 @@
+{
+  "run_number": 23,
+  "run_id": 45365338199,
+  "artifacts": [
+    {
+      "name": "defectdojo-audit-metrics",
+      "id": 14907560150,
+      "size_in_bytes": 75051,
+      "digest": "sha256:71abe8f189a92f1f74c544f02bf1307ea5011cc32f6891a65b34cab6ef66f968",
+      "files": [
+        "defectdojo_consolidated.json"
+      ]
+    },
+    {
+      "name": "sast-semgrep-report",
+      "id": 14907065567,
+      "size_in_bytes": 115445,
+      "digest": "sha256:9403ed29fff2d674ecee986da738d91c26798051b4e2dcedb480b53a48cbd23a",
+      "files": [
+        "semgrep_report.json",
+        "semgrep_report.sarif"
+      ]
+    },
+    {
+      "name": "iac-trivy-report",
+      "id": 14906243186,
+      "size_in_bytes": 6119,
+      "digest": "sha256:8a4e75c08bee5938c5fcd3db91faacdd5f972ee2028202c607c0e2bcf350bfa2",
+      "files": [
+        "trivy_iac_report.json"
+      ]
+    },
+    {
+      "name": "dast-zap-reports",
+      "id": 14906233540,
+      "size_in_bytes": 56793,
+      "digest": "sha256:e60a95103eb07ff9ff96fcf01b77ab59ed92f21c317c966aa6369da46db68ee0",
+      "files": [
+        "zap_report.html",
+        "zap_report.json",
+        "zap_report.xml"
+      ]
+    },
+    {
+      "name": "sca-trivy-report",
+      "id": 14905604126,
+      "size_in_bytes": 59867,
+      "digest": "sha256:4d86bf4bd4e9b06623b9eeb23613d8cb606cc04cfbba2b5d069b15a49d6c3bdc",
+      "files": [
+        "trivy_sca_report.json"
+      ]
+    }
+  ]
+}

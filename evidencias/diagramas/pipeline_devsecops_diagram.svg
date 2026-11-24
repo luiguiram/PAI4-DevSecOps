@@ -1,24 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 610" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 650" width="100%" height="100%">
   <defs>
     <style>
       .title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; fill: #0f172a; }
-      .subtitle { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13px; fill: #475569; }
-      .stage-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13.5px; font-weight: 700; fill: #0369a1; }
-      .box-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; fill: #1e293b; }
-      .box-desc { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 10px; fill: #64748b; }
-      .pill-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 9.5px; font-weight: 600; fill: #ffffff; }
-      .arrow { stroke: #0284c7; stroke-width: 2.5; fill: none; marker-end: url(#arrowhead); }
+      .subtitle { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12.5px; fill: #475569; }
+      .stage-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12.5px; font-weight: 700; fill: #0369a1; }
+      .box-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11.5px; fill: #1e293b; }
+      .box-desc { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 9.8px; fill: #475569; }
+      .pill-text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 8.8px; font-weight: 600; fill: #ffffff; }
+      .arrow { stroke: #0284c7; stroke-width: 2.3; fill: none; marker-end: url(#arrowhead); }
+      .arrow-green { stroke: #16a34a; stroke-width: 2.3; fill: none; marker-end: url(#arrowhead-green); }
+      .arrow-red { stroke: #b91c1c; stroke-width: 2.3; fill: none; marker-end: url(#arrowhead-red); }
       .dash-arrow { stroke: #64748b; stroke-width: 1.8; stroke-dasharray: 4,4; fill: none; marker-end: url(#arrowhead-gray); }
-      .dash-arrow-red { stroke: #b91c1c; stroke-width: 1.8; stroke-dasharray: 4,4; fill: none; marker-end: url(#arrowhead-red); }
     </style>
-    <marker id="arrowhead" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-      <polygon points="0 0, 9 3.5, 0 7" fill="#0284c7"/>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#0284c7"/>
     </marker>
-    <marker id="arrowhead-gray" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-      <polygon points="0 0, 9 3.5, 0 7" fill="#64748b"/>
+    <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#16a34a"/>
     </marker>
-    <marker id="arrowhead-red" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-      <polygon points="0 0, 9 3.5, 0 7" fill="#b91c1c"/>
+    <marker id="arrowhead-gray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+    </marker>
+    <marker id="arrowhead-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#b91c1c"/>
     </marker>
     <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#0284c7" stop-opacity="0.12"/>
@@ -26,140 +30,176 @@
     </linearGradient>
   </defs>
 
-  <!-- Background Canvas -->
-  <rect width="1180" height="610" fill="#ffffff" rx="10" ry="10" stroke="#e2e8f0" stroke-width="1.5"/>
+  <!-- Canvas -->
+  <rect width="1280" height="650" fill="#ffffff" rx="10" ry="10" stroke="#e2e8f0" stroke-width="1.5"/>
 
   <!-- Header Banner -->
-  <rect x="20" y="18" width="1140" height="54" rx="6" ry="6" fill="url(#headerGrad)"/>
-  <text x="40" y="43" class="title">ARQUITECTURA DEL PIPELINE DEVSECOPS - INSEGUS ENTERPRISE</text>
-  <text x="40" y="62" class="subtitle">Objetivo 1.a | Yellow Team (Security Team 3) | Microservicios en Kubernetes | CI/CD GitHub Actions</text>
+  <rect x="20" y="16" width="1240" height="54" rx="6" fill="url(#headerGrad)" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="38" y="40" class="title">ARQUITECTURA DEL PIPELINE DEVSECOPS - INSEGUS ENTERPRISE</text>
+  <text x="38" y="59" class="subtitle">Objetivo 1.a | Security Team 3 | 7 Etapas · 9 Jobs en GitHub Actions | Integración real con OWASP ZAP y OWASP DefectDojo API v2</text>
 
-  <!-- Trigger Box -->
-  <rect x="20" y="115" width="105" height="165" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-  <circle cx="72" cy="150" r="18" fill="#0284c7"/>
-  <path d="M66 150 L70 155 L79 145" stroke="#fff" stroke-width="2.5" fill="none"/>
-  <text x="72" y="182" text-anchor="middle" class="stage-title" style="font-size:12px;">DISPARADOR</text>
-  <text x="72" y="202" text-anchor="middle" class="box-desc">git push /</text>
-  <text x="72" y="216" text-anchor="middle" class="box-desc">pull_request</text>
-  <text x="72" y="242" text-anchor="middle" class="box-desc">Rama main/dev</text>
+  <!-- TRIGGER -->
+  <rect x="20" y="118" width="96" height="175" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="68" cy="150" r="16" fill="#0284c7"/>
+  <path d="M62 150 L66 155 L75 145" stroke="#fff" stroke-width="2.4" fill="none"/>
+  <text x="68" y="180" text-anchor="middle" class="stage-title" style="font-size:11.5px;">DISPARADOR</text>
+  <text x="68" y="199" text-anchor="middle" class="box-desc">git push /</text>
+  <text x="68" y="213" text-anchor="middle" class="box-desc">pull_request</text>
+  <text x="68" y="236" text-anchor="middle" class="box-desc" style="font-weight:600;">Ramas:</text>
+  <text x="68" y="250" text-anchor="middle" class="box-desc">main, develop,</text>
+  <text x="68" y="264" text-anchor="middle" class="box-desc">demo/*</text>
 
-  <!-- Arrow Trigger to Stage 1 -->
-  <path d="M 125 195 L 150 195" class="arrow"/>
+  <!-- Arrow Trigger -> Stage 1 -->
+  <path d="M 116 205 L 136 205" class="arrow"/>
 
-  <!-- Stage 1: Build & Static Analysis Container -->
-  <rect x="150" y="95" width="320" height="238" rx="8" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.5"/>
-  <text x="165" y="118" class="stage-title">ETAPA 1: BUILD &amp; ANÁLISIS ESTÁTICO</text>
+  <!-- STAGE 1: BUILD & TESTS -->
+  <rect x="136" y="138" width="128" height="135" rx="8" fill="#eef2ff" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="200" y="162" text-anchor="middle" class="stage-title" style="fill:#3730a3;">ETAPA 1</text>
+  <text x="200" y="179" text-anchor="middle" class="box-text" font-weight="700">1. Build &amp; Tests</text>
+  <line x1="150" y1="188" x2="250" y2="188" stroke="#c7d2fe" stroke-width="1"/>
+  <text x="200" y="206" text-anchor="middle" class="box-desc">Node.js 18 LTS</text>
+  <text x="200" y="222" text-anchor="middle" class="box-desc">npm install</text>
+  <text x="200" y="238" text-anchor="middle" class="box-desc">(--ignore-scripts)</text>
+  <rect x="150" y="246" width="100" height="18" rx="4" fill="#4f46e5"/>
+  <text x="200" y="258" text-anchor="middle" class="pill-text">8 tests (node --test)</text>
 
-  <!-- Box SAST -->
-  <rect x="164" y="130" width="292" height="56" rx="6" fill="#ffffff" stroke="#93c5fd" stroke-width="1.2"/>
-  <text x="176" y="150" class="box-text" font-weight="700">SAST: Semgrep CE</text>
-  <rect x="358" y="136" width="88" height="19" rx="4" fill="#0284c7"/>
-  <text x="402" y="149" text-anchor="middle" class="pill-text">semgrep.json</text>
-  <text x="176" y="172" class="box-desc">CWE-89 (SQLi), CWE-798 (Secretos), CWE-95</text>
+  <!-- Arrow Stage 1 -> Stage 2 -->
+  <path d="M 264 205 L 286 205" class="arrow"/>
 
-  <!-- Box SCA -->
-  <rect x="164" y="195" width="292" height="56" rx="6" fill="#ffffff" stroke="#93c5fd" stroke-width="1.2"/>
-  <text x="176" y="215" class="box-text" font-weight="700">SCA: Trivy Dependencies</text>
-  <rect x="358" y="201" width="88" height="19" rx="4" fill="#0284c7"/>
-  <text x="402" y="214" text-anchor="middle" class="pill-text">trivy_sca.json</text>
-  <text x="176" y="237" class="box-desc">CVEs en dependencias npm (package-lock.json)</text>
+  <!-- STAGE 2: PARALLEL STATIC ANALYSIS (2a, 2b, 2c) -->
+  <rect x="286" y="92" width="324" height="248" rx="8" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.5"/>
+  <text x="300" y="114" class="stage-title">ETAPA 2 (PARALELO): SAST · SCA · IaC</text>
 
-  <!-- Box IaC -->
-  <rect x="164" y="260" width="292" height="56" rx="6" fill="#ffffff" stroke="#93c5fd" stroke-width="1.2"/>
-  <text x="176" y="280" class="box-text" font-weight="700">IaC: Trivy Config / Misconf</text>
-  <rect x="358" y="266" width="88" height="19" rx="4" fill="#0284c7"/>
-  <text x="402" y="279" text-anchor="middle" class="pill-text">trivy_iac.json</text>
-  <text x="176" y="302" class="box-desc">Dockerfile (root), K8s (privileged, caps)</text>
+  <!-- 2a. SAST -->
+  <rect x="298" y="126" width="300" height="62" rx="6" fill="#ffffff" stroke="#93c5fd" stroke-width="1.2"/>
+  <text x="308" y="145" class="box-text" font-weight="700">2a. SAST: Semgrep CE</text>
+  <rect x="466" y="132" width="124" height="18" rx="4" fill="#0284c7"/>
+  <text x="528" y="144" text-anchor="middle" class="pill-text">semgrep_report.json</text>
+  <text x="308" y="164" class="box-desc">Rulesets oficiales (p/javascript, owasp-top-ten)</text>
+  <text x="308" y="177" class="box-desc">+ config/.semgrep.yml · Exporta JSON y SARIF</text>
 
-  <!-- Arrow to Quality Gate A -->
-  <path d="M 470 195 L 500 195" class="arrow"/>
+  <!-- 2b. SCA -->
+  <rect x="298" y="196" width="300" height="62" rx="6" fill="#ffffff" stroke="#93c5fd" stroke-width="1.2"/>
+  <text x="308" y="215" class="box-text" font-weight="700">2b. SCA: Trivy Deps</text>
+  <rect x="466" y="202" width="124" height="18" rx="4" fill="#0284c7"/>
+  <text x="528" y="214" text-anchor="middle" class="pill-text">trivy_sca_report.json</text>
+  <text x="308" y="234" class="box-desc">Escaneo fs de árbol completo package-lock.json</text>
+  <text x="308" y="247" class="box-desc">Detección de CVEs en dependencias directas/transit.</text>
 
-  <!-- QUALITY GATE A: MODO AVISO -->
-  <polygon points="555,143 610,195 555,247 500,195" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
-  <text x="555" y="189" text-anchor="middle" class="stage-title" style="fill:#b45309; font-size:12px;">GATE A</text>
-  <text x="555" y="205" text-anchor="middle" class="box-desc" style="fill:#92400e; font-weight:700;">Modo Aviso</text>
-  <!-- Gate A Details Pill below -->
-  <rect x="485" y="260" width="140" height="42" rx="5" fill="#fef3c7" stroke="#fde68a" stroke-width="1"/>
-  <text x="555" y="276" text-anchor="middle" class="box-desc" style="font-weight:600; fill:#92400e;">continue-on-error: true</text>
-  <text x="555" y="292" text-anchor="middle" class="box-desc" style="font-size:9.5px;">Notifica hallazgos, no para</text>
+  <!-- 2c. IaC -->
+  <rect x="298" y="266" width="300" height="62" rx="6" fill="#ffffff" stroke="#93c5fd" stroke-width="1.2"/>
+  <text x="308" y="285" class="box-text" font-weight="700">2c. IaC: Trivy Config</text>
+  <rect x="466" y="272" width="124" height="18" rx="4" fill="#0284c7"/>
+  <text x="528" y="284" text-anchor="middle" class="pill-text">trivy_iac_report.json</text>
+  <text x="308" y="304" class="box-desc">Auditoría CIS Rego en app/Dockerfile y</text>
+  <text x="308" y="317" class="box-desc">app/kubernetes/deployment.yaml (root, SYS_ADMIN)</text>
 
-  <!-- Arrow Gate A to Staging & DAST -->
-  <path d="M 610 195 L 640 195" class="arrow"/>
+  <!-- Arrow Stage 2 -> Stage 3 Gate A -->
+  <path d="M 610 205 L 632 205" class="arrow"/>
 
-  <!-- Stage 2: Staging Deploy & DAST -->
-  <rect x="640" y="105" width="260" height="175" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
-  <text x="655" y="128" class="stage-title" style="fill:#15803d;">ETAPA 2: STAGING &amp; DAST</text>
+  <!-- STAGE 3: QUALITY GATE A (MODO AVISO) -->
+  <polygon points="692,152 752,205 692,258 632,205" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+  <text x="692" y="198" text-anchor="middle" class="stage-title" style="fill:#b45309; font-size:11.5px;">3. GATE A</text>
+  <text x="692" y="214" text-anchor="middle" class="box-desc" style="fill:#92400e; font-weight:700;">Modo Aviso</text>
+  <!-- Gate A info box ABOVE diamond -->
+  <rect x="618" y="88" width="148" height="52" rx="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+  <text x="692" y="103" text-anchor="middle" class="box-desc" style="font-weight:700; fill:#92400e;">continue-on-error: true</text>
+  <text x="692" y="117" text-anchor="middle" class="box-desc" style="font-size:9px; fill:#78350f;">Umbral ref: 0 Crít / 0 Alt / ≤10 Med</text>
+  <text x="692" y="130" text-anchor="middle" class="box-desc" style="font-size:9px; fill:#92400e;">Notifica en Summary, no para</text>
+  <line x1="692" y1="140" x2="692" y2="152" stroke="#f59e0b" stroke-width="1.5"/>
 
-  <rect x="654" y="140" width="232" height="48" rx="6" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.2"/>
-  <text x="665" y="159" class="box-text" font-weight="700">Docker Staging</text>
-  <text x="665" y="176" class="box-desc">Microservicio en ejecución (:3000)</text>
+  <!-- Arrow Gate A -> Stage 4 -->
+  <path d="M 752 205 L 774 205" class="arrow"/>
 
-  <rect x="654" y="198" width="232" height="62" rx="6" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.2"/>
-  <text x="665" y="218" class="box-text" font-weight="700">DAST: OWASP ZAP</text>
-  <rect x="788" y="204" width="88" height="18" rx="4" fill="#15803d"/>
-  <text x="832" y="216" text-anchor="middle" class="pill-text" style="font-size:9px;">zap_report.json</text>
-  <text x="665" y="242" class="box-desc">SQLi, XSS, SSRF y cabeceras HTTP</text>
+  <!-- STAGE 4: STAGING & DAST (OWASP ZAP) -->
+  <rect x="774" y="108" width="218" height="190" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="788" y="130" class="stage-title" style="fill:#15803d;">ETAPA 4: STAGING &amp; DAST</text>
 
-  <!-- Arrow to Quality Gate B -->
-  <path d="M 900 195 L 930 195" class="arrow"/>
+  <rect x="786" y="142" width="194" height="54" rx="6" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.2"/>
+  <text x="796" y="161" class="box-text" font-weight="700">Docker Compose Staging</text>
+  <text x="796" y="177" class="box-desc">Microservicio en http://localhost:3000</text>
+  <text x="796" y="189" class="box-desc">Verificación /health == UP antes de DAST</text>
 
-  <!-- Gate B Details Pill ABOVE Diamond (so feedback arrow below is unobstructed) -->
-  <rect x="912" y="88" width="146" height="42" rx="5" fill="#fee2e2" stroke="#fca5a5" stroke-width="1"/>
-  <text x="985" y="105" text-anchor="middle" class="box-desc" style="font-weight:700; fill:#991b1b;">Umbral: 0 Crít / 0 Altas</text>
-  <text x="985" y="120" text-anchor="middle" class="box-desc" style="font-size:9.5px; fill:#b91c1c;">exit 1 ante infracción</text>
-  <line x1="985" y1="130" x2="985" y2="143" stroke="#fca5a5" stroke-width="1.5"/>
+  <rect x="786" y="204" width="194" height="82" rx="6" fill="#ffffff" stroke="#bbf7d0" stroke-width="1.2"/>
+  <text x="796" y="222" class="box-text" font-weight="700">OWASP ZAP Full Scan</text>
+  <rect x="796" y="230" width="174" height="18" rx="4" fill="#15803d"/>
+  <text x="883" y="242" text-anchor="middle" class="pill-text">zap_report.xml · .json · .html</text>
+  <text x="796" y="263" class="box-desc">zap-full-scan.py (SQLi, XSS, SSRF,</text>
+  <text x="796" y="276" class="box-desc">RFI, CORS, CSRF y cabeceras HTTP)</text>
 
-  <!-- QUALITY GATE B: MODO BLOQUEANTE -->
-  <polygon points="985,143 1040,195 985,247 930,195" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
-  <text x="985" y="189" text-anchor="middle" class="stage-title" style="fill:#b91c1c; font-size:12px;">GATE B</text>
-  <text x="985" y="205" text-anchor="middle" class="box-desc" style="fill:#991b1b; font-weight:700;">BLOQUEANTE</text>
+  <!-- Gate B Details Pill ABOVE Diamond (Stage 6) -->
+  <rect x="1006" y="88" width="154" height="52" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="1083" y="103" text-anchor="middle" class="box-desc" style="font-weight:700; fill:#991b1b;">Umbral: 0 Crít / 0 Alt / ≤10 Med</text>
+  <text x="1083" y="117" text-anchor="middle" class="box-desc" style="font-size:9px; fill:#7f1d1d;">Evalúa activos de DefectDojo</text>
+  <text x="1083" y="130" text-anchor="middle" class="box-desc" style="font-size:9px; font-weight:700; fill:#b91c1c;">exit 1 (rojo) | exit 0 (verde)</text>
+  <line x1="1083" y1="140" x2="1083" y2="152" stroke="#dc2626" stroke-width="1.5"/>
 
-  <!-- Arrow Gate B to Production -->
-  <path d="M 1040 195 L 1075 195" class="arrow"/>
+  <!-- STAGE 6: QUALITY GATE B (MODO BLOQUEANTE) -->
+  <polygon points="1083,152 1143,205 1083,258 1023,205" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+  <text x="1083" y="198" text-anchor="middle" class="stage-title" style="fill:#b91c1c; font-size:11.5px;">6. GATE B</text>
+  <text x="1083" y="214" text-anchor="middle" class="box-desc" style="fill:#991b1b; font-weight:700;">BLOQUEANTE</text>
 
-  <!-- Stage 4: Production -->
-  <rect x="1075" y="125" width="85" height="140" rx="8" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1.5"/>
-  <text x="1117" y="162" text-anchor="middle" class="stage-title" style="font-size:12px; fill:#6b21a8;">PROD</text>
-  <text x="1117" y="192" text-anchor="middle" class="box-desc" style="font-size:9.5px;">Kubernetes</text>
-  <text x="1117" y="207" text-anchor="middle" class="box-desc" style="font-size:9.5px;">Cluster</text>
-  <text x="1117" y="232" text-anchor="middle" class="box-desc" style="font-size:9px; font-weight:700; fill:#059669;">RELEASE OK</text>
+  <!-- Arrow Gate B -> Stage 7 Prod -->
+  <path d="M 1143 205 L 1168 205" class="arrow-green"/>
 
-  <!-- LOWER PANEL: DEFECTDOJO CENTRALIZATION -->
-  <rect x="150" y="385" width="910" height="195" rx="8" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
-  <rect x="150" y="385" width="910" height="34" rx="8" fill="#0284c7"/>
-  <text x="170" y="407" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13px" font-weight="700" fill="#ffffff">GESTIÓN CENTRALIZADA DE VULNERABILIDADES - DEFECTDOJO API REST v2 (JOB IMPORT-SCAN)</text>
+  <!-- STAGE 7: PRODUCTION DEPLOY -->
+  <rect x="1168" y="132" width="92" height="146" rx="8" fill="#faf5ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="1214" y="160" text-anchor="middle" class="stage-title" style="font-size:11px; fill:#6b21a8;">ETAPA 7</text>
+  <text x="1214" y="177" text-anchor="middle" class="box-text" font-weight="700">7. Deploy</text>
+  <text x="1214" y="192" text-anchor="middle" class="box-text" font-weight="700">Producción</text>
+  <line x1="1180" y1="201" x2="1248" y2="201" stroke="#e9d5ff" stroke-width="1"/>
+  <text x="1214" y="218" text-anchor="middle" class="box-desc">Kubernetes</text>
+  <text x="1214" y="232" text-anchor="middle" class="box-desc">Namespace:</text>
+  <text x="1214" y="245" text-anchor="middle" class="box-desc">insegus-prod</text>
+  <rect x="1177" y="253" width="74" height="16" rx="4" fill="#16a34a"/>
+  <text x="1214" y="264" text-anchor="middle" class="pill-text" style="font-size:8px;">Si Gate B = OK</text>
 
-  <!-- Flowing Report Arrows from Scanners down to DefectDojo -->
-  <path d="M 310 333 L 310 385" class="dash-arrow"/>
-  <path d="M 770 280 L 770 338 L 605 338 L 605 385" class="dash-arrow"/>
+  <!-- STAGE 5 (LOWER PANEL): DEFECTDOJO REAL CENTRALIZATION -->
+  <rect x="286" y="405" width="874" height="218" rx="8" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+  <rect x="286" y="405" width="874" height="34" rx="8" fill="#0284c7"/>
+  <text x="304" y="427" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5px" font-weight="700" fill="#ffffff">ETAPA 5: GESTIÓN CENTRALIZADA DE VULNERABILIDADES — OWASP DEFECTDOJO API REST v2 (--strict-api)</text>
+
+  <!-- Flowing Arrows into Stage 5 (DefectDojo) and from Stage 5 up to Stage 6 (Gate B) -->
+  <!-- Stage 2 artifacts (SAST, SCA, IaC) down into DefectDojo -->
+  <path d="M 448 340 L 448 405" class="dash-arrow"/>
+  <text x="440" y="376" text-anchor="end" class="box-desc" style="font-weight:600;">Artefactos 2a/2b/2c (JSON)</text>
+
+  <!-- Stage 4 (DAST ZAP XML) down into DefectDojo (triggers job 5 via needs) -->
+  <path d="M 883 298 L 883 405" class="arrow"/>
+  <text x="875" y="356" text-anchor="end" class="box-desc" style="fill:#0369a1; font-weight:700;">Artefacto 4: zap_report.xml</text>
+
+  <!-- Stage 5 (DefectDojo consolidated active findings) up into Stage 6 (Gate B) -->
+  <path d="M 1083 405 L 1083 258" class="arrow-red"/>
+  <rect x="965" y="324" width="112" height="32" rx="4" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+  <text x="1021" y="337" text-anchor="middle" class="box-desc" style="fill:#991b1b; font-weight:700; font-size:8.8px;">defectdojo_consolidated</text>
+  <text x="1021" y="349" text-anchor="middle" class="box-desc" style="fill:#b91c1c; font-weight:600; font-size:8.6px;">(Activos post-triaje)</text>
 
   <!-- Inside DefectDojo: 3 Pillars -->
-  <!-- Pillar 1: Ingesta & API -->
-  <rect x="170" y="432" width="275" height="132" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
-  <text x="184" y="455" class="stage-title" style="font-size:12px;">1. Ingesta Automática API v2</text>
-  <text x="184" y="476" class="box-desc">• Endpoint: <tspan font-family="monospace">POST /api/v2/import-scan/</tspan></text>
-  <text x="184" y="495" class="box-desc">• Ingesta multipart: Semgrep, Trivy, ZAP</text>
-  <text x="184" y="514" class="box-desc">• Sincronización continua sin intervención manual</text>
-  <text x="184" y="533" class="box-desc">• Tokens protegidos como secretos de CI/CD</text>
+  <rect x="304" y="452" width="268" height="154" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="318" y="474" class="stage-title" style="font-size:11.5px;">5.1. Despliegue Efímero &amp; Ingesta</text>
+  <text x="318" y="495" class="box-desc">• Instancia real OWASP DefectDojo en CI</text>
+  <text x="318" y="514" class="box-desc">• Credenciales efímeras enmascaradas</text>
+  <text x="318" y="533" class="box-desc">• <tspan font-family="monospace">POST /api/v2/import-scan/</tspan> (--strict-api)</text>
+  <text x="318" y="552" class="box-desc">• Ingesta automática de los 4 reportes:</text>
+  <text x="318" y="570" class="box-desc" style="font-weight:600;">  Semgrep JSON, Trivy SCA/IaC, ZAP XML</text>
+  <text x="318" y="589" class="box-desc">• Producto: INSEGUS Web Application</text>
 
-  <!-- Pillar 2: Deduplicación y Normalización -->
-  <rect x="465" y="432" width="280" height="132" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
-  <text x="479" y="455" class="stage-title" style="font-size:12px;">2. Deduplicación y Trazabilidad</text>
-  <text x="479" y="476" class="box-desc">• Deduplicación basada en hash SHA-256 único</text>
-  <text x="479" y="495" class="box-desc">• Normalización a severidades estándar (CVSS v3.1)</text>
-  <text x="479" y="514" class="box-desc">• Mapeo canónico CWE (89, 79, 918, 798, 16)</text>
-  <text x="479" y="533" class="box-desc">• Consolidación de 119 hallazgos (API v2 real)</text>
+  <rect x="588" y="452" width="272" height="154" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="602" y="474" class="stage-title" style="font-size:11.5px;">5.2. Deduplicación y Trazabilidad</text>
+  <text x="602" y="495" class="box-desc">• Deduplicación activa por hash SHA-256</text>
+  <text x="602" y="514" class="box-desc">• Normalización de severidades CVSS v3.1</text>
+  <text x="602" y="533" class="box-desc">• Correlación CWE/CVE (89, 79, 918, 798)</text>
+  <text x="602" y="552" class="box-desc">• Consolidación Run #23 (main): <tspan font-weight="700">144 hallazgos</tspan></text>
+  <text x="602" y="570" class="box-desc">  (3 Crít, 64 Altas, 49 Med, 24 Baj, 4 Info)</text>
+  <text x="602" y="589" class="box-desc">• Clasificación exacta por capa (SAST/SCA/IaC/DAST)</text>
 
-  <!-- Pillar 3: Triaje y Mitigación -->
-  <rect x="765" y="432" width="275" height="132" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
-  <text x="779" y="455" class="stage-title" style="font-size:12px;">3. Triaje y Tratamiento de Falsos +</text>
-  <text x="779" y="476" class="box-desc">• Triaje técnico por Green Team / Security Team 3</text>
-  <text x="779" y="495" class="box-desc">• Marcado explícito de <tspan font-weight="700" fill="#d97706">False Positive</tspan> justificado</text>
-  <text x="779" y="514" class="box-desc">• Transición a <tspan font-weight="700" fill="#059669">Mitigated</tspan> al verificar corrección</text>
-  <text x="779" y="533" class="box-desc">• Generación de informe ejecutivo y métricas KPI</text>
-
-  <!-- Feedback Line to Gate B (straight vertical, unobstructed) -->
-  <path d="M 985 385 L 985 247" class="dash-arrow-red"/>
-  <text x="975" y="330" text-anchor="end" class="box-desc" style="fill:#b91c1c; font-weight:700; font-size:9.5px;">Métricas consolidadas retroalimentan Gate B</text>
+  <rect x="876" y="452" width="268" height="154" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="890" y="474" class="stage-title" style="font-size:11.5px;">5.3. Triaje y Exportación a Gate B</text>
+  <text x="890" y="495" class="box-desc">• Triaje vía <tspan font-family="monospace">PATCH /api/v2/findings/{id}/</tspan></text>
+  <text x="890" y="514" class="box-desc">• CORS <tspan font-weight="700" fill="#d97706">False Positive</tspan> con nota API v2</text>
+  <text x="890" y="533" class="box-desc">• Activos tras triaje en main: <tspan font-weight="700" fill="#b91c1c">143</tspan></text>
+  <text x="890" y="552" class="box-desc">  (3 Crít, 64 Altas, 48 Med, 24 Baj, 4 Info)</text>
+  <text x="890" y="570" class="box-desc">• Exportación <tspan font-family="monospace">defectdojo_consolidated.json</tspan></text>
+  <text x="890" y="589" class="box-desc">• Alimenta directamente la decisión de Gate B</text>
 
 </svg>

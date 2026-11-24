@@ -1,24 +1,24 @@
-﻿================================================================================
       INSEGUS DEVSECOPS - MOTOR DE EVALUACIÓN DE QUALITY GATES (ST3)       
 ================================================================================
 
-[+] MODO DE EJECUCIÓN DEL GATE: BLOCKING
+[+] MODO DE EJECUCIÓN DEL GATE: BLOCKING (FUENTE: DEFECTDOJO API v2 POST-TRIAJE)
+[+] Inventario DefectDojo: 144 únicos | 0 duplicados excluidos | 1 falso(s) positivo(s) triado(s)
 --------------------------------------------------------------------------------
 HERRAMIENTA / ETAPA       | CRITICAL | HIGH   | MEDIUM   | LOW   
 --------------------------------------------------------------------------------
-SAST (Semgrep)            | 0        | 4      | 1        | 0     
+SAST (Semgrep)            | 0        | 6      | 4        | 1     
 SCA (Trivy Dependencies)  | 3        | 47     | 32       | 7     
 IaC (Trivy Docker/K8s)    | 0        | 6      | 6        | 11    
-DAST (OWASP ZAP)          | 0        | 0      | 2        | 0     
+DAST (OWASP ZAP)          | 0        | 5      | 6        | 5     
 --------------------------------------------------------------------------------
-TOTAL CONSOLIDADO         | 3        | 57     | 41       | 18    
+TOTAL ACTIVOS DEFECTDOJO  | 3        | 64     | 48       | 24    
 ================================================================================
 
 [!] MODO BLOQUEANTE (BLOCKING MODE / PRODUCTION RELEASE GATE):
     [X] ERROR CRÍTICO DE SEGURIDAD: Umbrales superados en la etapa de release:
         -> [BLOQUEADO] Vulnerabilidades CRÍTICAS (3) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades ALTAS (57) superan umbral (0)
-        -> [BLOQUEADO] Vulnerabilidades MEDIAS (41) superan umbral (10)
+        -> [BLOQUEADO] Vulnerabilidades ALTAS (64) superan umbral (0)
+        -> [BLOQUEADO] Vulnerabilidades MEDIAS (48) superan umbral (10)
 
     [!] ACCIÓN DISCIPLINARIA: El pipeline SE DETIENE de inmediato.
     [!] El artefacto NO ha sido autorizado para despliegue en Producción.
